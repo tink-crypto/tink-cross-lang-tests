@@ -1,0 +1,326 @@
+load("@rules_proto_grpc//cpp:defs.bzl", "cpp_grpc_library")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//visibility:public"],
+)
+
+licenses(["notice"])
+
+cpp_grpc_library(
+    name = "testing_api_cpp_library",
+    protos = ["//proto:testing_api_proto"],
+    service_namespace = "testing_api",
+)
+
+cc_library(
+    name = "metadata_impl",
+    srcs = ["metadata_impl.cc"],
+    hdrs = ["metadata_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+    ],
+)
+
+cc_test(
+    name = "metadata_impl_test",
+    srcs = ["metadata_impl_test.cc"],
+    deps = [
+        ":metadata_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "keyset_impl",
+    srcs = ["keyset_impl.cc"],
+    hdrs = ["keyset_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:json_keyset_reader",
+        "@tink_cc//tink:json_keyset_writer",
+        "@tink_cc//tink:keyset_handle",
+        "@tink_cc//tink/aead:aead_key_templates",
+        "@tink_cc//tink/daead:deterministic_aead_key_templates",
+        "@tink_cc//tink/hybrid:hybrid_key_templates",
+        "@tink_cc//tink/jwt:jwt_key_templates",
+        "@tink_cc//tink/mac:mac_key_templates",
+        "@tink_cc//tink/prf:prf_key_templates",
+        "@tink_cc//tink/signature:signature_key_templates",
+        "@tink_cc//tink/streamingaead:streaming_aead_key_templates",
+    ],
+)
+
+cc_test(
+    name = "keyset_impl_test",
+    srcs = ["keyset_impl_test.cc"],
+    deps = [
+        ":keyset_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:json_keyset_reader",
+        "@tink_cc//tink:json_keyset_writer",
+        "@tink_cc//tink/aead:aead_key_templates",
+        "@tink_cc//tink/config:tink_config",
+        "@tink_cc//tink/hybrid:hybrid_key_templates",
+        "@tink_cc//tink/util:test_matchers",
+    ],
+)
+
+cc_library(
+    name = "aead_impl",
+    srcs = ["aead_impl.cc"],
+    hdrs = ["aead_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "aead_impl_test",
+    srcs = ["aead_impl_test.cc"],
+    deps = [
+        ":aead_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/aead:aead_config",
+        "@tink_cc//tink/aead:aead_key_templates",
+    ],
+)
+
+cc_library(
+    name = "deterministic_aead_impl",
+    srcs = ["deterministic_aead_impl.cc"],
+    hdrs = ["deterministic_aead_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "deterministic_aead_impl_test",
+    srcs = ["deterministic_aead_impl_test.cc"],
+    deps = [
+        ":deterministic_aead_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/daead:deterministic_aead_config",
+        "@tink_cc//tink/daead:deterministic_aead_key_templates",
+    ],
+)
+
+cc_library(
+    name = "streaming_aead_impl",
+    srcs = ["streaming_aead_impl.cc"],
+    hdrs = ["streaming_aead_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/status",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink/util:istream_input_stream",
+        "@tink_cc//tink/util:ostream_output_stream",
+        "@tink_cc//tink/util:status",
+    ],
+)
+
+cc_test(
+    name = "streaming_aead_impl_test",
+    srcs = ["streaming_aead_impl_test.cc"],
+    deps = [
+        ":streaming_aead_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/streamingaead:streaming_aead_config",
+        "@tink_cc//tink/streamingaead:streaming_aead_key_templates",
+    ],
+)
+
+cc_library(
+    name = "mac_impl",
+    srcs = ["mac_impl.cc"],
+    hdrs = ["mac_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "mac_impl_test",
+    srcs = ["mac_impl_test.cc"],
+    deps = [
+        ":mac_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/mac:mac_config",
+        "@tink_cc//tink/mac:mac_key_templates",
+    ],
+)
+
+cc_library(
+    name = "hybrid_impl",
+    srcs = ["hybrid_impl.cc"],
+    hdrs = ["hybrid_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "hybrid_impl_test",
+    srcs = ["hybrid_impl_test.cc"],
+    deps = [
+        ":hybrid_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/hybrid:hybrid_config",
+        "@tink_cc//tink/hybrid:hybrid_key_templates",
+    ],
+)
+
+cc_library(
+    name = "signature_impl",
+    srcs = ["signature_impl.cc"],
+    hdrs = ["signature_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "signature_impl_test",
+    srcs = ["signature_impl_test.cc"],
+    deps = [
+        ":signature_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/signature:signature_config",
+        "@tink_cc//tink/signature:signature_key_templates",
+    ],
+)
+
+cc_library(
+    name = "prf_set_impl",
+    srcs = ["prf_set_impl.cc"],
+    hdrs = ["prf_set_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:cleartext_keyset_handle",
+    ],
+)
+
+cc_test(
+    name = "prf_set_impl_test",
+    srcs = ["prf_set_impl_test.cc"],
+    deps = [
+        ":prf_set_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink/prf:prf_config",
+        "@tink_cc//tink/prf:prf_key_templates",
+    ],
+)
+
+cc_library(
+    name = "jwt_impl",
+    srcs = ["jwt_impl.cc"],
+    hdrs = ["jwt_impl.h"],
+    deps = [
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/time",
+        "@tink_cc//tink:tink_cc",
+        "@tink_cc//tink:binary_keyset_reader",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink/jwt:jwk_set_converter",
+        "@tink_cc//tink/jwt:jwt_mac",
+        "@tink_cc//tink/jwt:jwt_public_key_sign",
+        "@tink_cc//tink/jwt:jwt_public_key_verify",
+        "@tink_cc//tink/jwt:raw_jwt",
+        "@tink_cc//tink/util:status",
+    ],
+)
+
+cc_test(
+    name = "jwt_impl_test",
+    srcs = ["jwt_impl_test.cc"],
+    deps = [
+        ":jwt_impl",
+        ":testing_api_cpp_library",
+        "@com_google_googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink/jwt:jwt_key_templates",
+        "@tink_cc//tink/jwt:jwt_mac_config",
+        "@tink_cc//tink/jwt:jwt_signature_config",
+        "@tink_cc//tink/util:test_matchers",
+    ],
+)
+
+cc_binary(
+    name = "testing_server",
+    srcs = ["testing_server.cc"],
+    deps = [
+        ":aead_impl",
+        ":deterministic_aead_impl",
+        ":hybrid_impl",
+        ":jwt_impl",
+        ":keyset_impl",
+        ":mac_impl",
+        ":metadata_impl",
+        ":prf_set_impl",
+        ":signature_impl",
+        ":streaming_aead_impl",
+        ":testing_api_cpp_library",
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
+        "@tink_cc//tink/config:tink_config",
+        "@tink_cc//tink/hybrid:hpke_config",
+        "@tink_cc//tink/jwt:jwt_mac_config",
+        "@tink_cc//tink/jwt:jwt_signature_config",
+        "@tink_cc//tink/util:fake_kms_client",
+    ],
+)
