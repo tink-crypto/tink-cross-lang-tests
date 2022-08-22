@@ -68,38 +68,15 @@ main() {
     source ./kokoro/testutils/install_go.sh
   fi
 
-  # Note: When running on the Kokoro CI, we expect these folders to exist:
-  #
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_cc
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_cc_awskms
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_cc_gcpkms
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_go
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_java
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_py
-  #  ${KOKORO_ARTIFACTS_DIR}/git/tink_cross_lang_tests
-  #
-  # If this is not the case, we are using this script locally for a manual
-  # one-off test running it from the root of a local copy of the repo under
-  # test.
-  : "${TINK_BASE_DIR:=$(pwd)/..}"
+  : "${TINK_BASE_DIR:=$(cd .. && pwd)}"
 
-  local dependencies=(
-    "tink-cc"
-    "tink-cc-awskms"
-    "tink-cc-gcpkms"
-    "tink-go"
-    "tink-java"
-    "tink-py"
-  )
-
-  # If dependencies aren't in TINK_BASE_DIR we fetch them from GitHub.
-  for dependency in "${dependencies[@]}"; do
-    folder="$(echo ${dependency} | sed 's#-#_#g')"
-    if [[ ! -d "${TINK_BASE_DIR}/${folder}" ]]; then
-      git clone "https://github.com/tink-crypto/${dependency}.git" \
-        "${TINK_BASE_DIR}/${folder}"
-    fi
-  done
+  # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
+  # downloaded.
+  readonly GITHUB_ORG="https://github.com/tink-crypto"
+  ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
+    "${GITHUB_ORG}/tink-cc" "${GITHUB_ORG}/tink-cc-awskms" \
+    "${GITHUB_ORG}/tink-cc-gcpkms" "${GITHUB_ORG}/tink-go" \
+    "${GITHUB_ORG}/tink-java" "${GITHUB_ORG}/tink-py"
 
   build_and_run_tests cc
   build_and_run_tests go
