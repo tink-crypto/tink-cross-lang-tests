@@ -8,9 +8,17 @@ http_archive(
     strip_prefix = "tink-java-main",
 )
 
+http_archive(
+    name = "tink_java_gcpkms",
+    urls = ["https://github.com/tink-crypto/tink-java-gcpkms/archive/main.zip"],
+    strip_prefix = "tink-java-gcpkms-main",
+)
+
 load("@tink_java//:tink_java_deps.bzl", "TINK_MAVEN_ARTIFACTS", "tink_java_deps")
 
 tink_java_deps()
+
+load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
 
 # Release from 2022-04-28.
 http_archive(
@@ -30,7 +38,10 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "PROTOBUF_MAVEN_ARTIFACTS", "pr
 protobuf_deps()
 
 maven_install(
-    artifacts = TINK_MAVEN_ARTIFACTS + IO_GRPC_GRPC_JAVA_ARTIFACTS + PROTOBUF_MAVEN_ARTIFACTS,
+    artifacts = TINK_MAVEN_ARTIFACTS +
+      TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
+      IO_GRPC_GRPC_JAVA_ARTIFACTS +
+      PROTOBUF_MAVEN_ARTIFACTS,
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
