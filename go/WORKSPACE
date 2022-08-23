@@ -3,9 +3,15 @@ workspace(name = "testing_go")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-    name = "tink_go",
+    name = "com_github_tink_crypto_tink_go",
     urls = ["https://github.com/tink-crypto/tink-go/archive/main.zip"],
     strip_prefix = "tink-go-main",
+)
+
+http_archive(
+    name = "com_github_tink_crypto_tink_go_gcpkms",
+    urls = ["https://github.com/tink-crypto/tink-go-gcpkms/archive/main.zip"],
+    strip_prefix = "tink-go-gcpkms-main",
 )
 
 # Release from 2022-03-21
@@ -30,9 +36,14 @@ http_archive(
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
-load("@tink_go//:deps.bzl", "go_dependencies")
+
+load("@com_github_tink_crypto_tink_go//:deps.bzl", "go_dependencies")
 
 go_dependencies()
+
+load("@com_github_tink_crypto_tink_go_gcpkms//:deps.bzl", "tink_go_gcpkms_dependencies")
+
+tink_go_gcpkms_dependencies()
 
 go_rules_dependencies()
 
