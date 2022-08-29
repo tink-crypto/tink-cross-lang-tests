@@ -41,7 +41,9 @@ maven_install(
     artifacts = TINK_MAVEN_ARTIFACTS +
       TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
       IO_GRPC_GRPC_JAVA_ARTIFACTS +
-      PROTOBUF_MAVEN_ARTIFACTS,
+      PROTOBUF_MAVEN_ARTIFACTS + [
+        "args4j:args4j:2.33",
+      ],
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
