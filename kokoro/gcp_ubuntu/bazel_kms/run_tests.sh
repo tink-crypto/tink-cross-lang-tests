@@ -104,7 +104,7 @@ main() {
   run_tests python "..."
   build_all cross_language
   TINK_CROSS_LANG_ROOT_PATH="${PWD}"
-  run_tests cross_language "//:kms_envelope_aead_test"
+  run_tests cross_language "//:kms_aead_test"
 }
 
 main "$@"
