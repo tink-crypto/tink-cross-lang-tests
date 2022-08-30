@@ -14,6 +14,12 @@ http_archive(
     strip_prefix = "tink-go-gcpkms-main",
 )
 
+http_archive(
+    name = "com_github_tink_crypto_tink_go_awskms",
+    urls = ["https://github.com/tink-crypto/tink-go-awskms/archive/main.zip"],
+    strip_prefix = "tink-go-awskms-main",
+)
+
 # Release from 2022-03-21
 http_archive(
     name = "io_bazel_rules_go",
@@ -44,6 +50,10 @@ go_dependencies()
 load("@com_github_tink_crypto_tink_go_gcpkms//:deps.bzl", "tink_go_gcpkms_dependencies")
 
 tink_go_gcpkms_dependencies()
+
+load("@com_github_tink_crypto_tink_go_awskms//:deps.bzl", "tink_go_awskms_dependencies")
+
+tink_go_awskms_dependencies()
 
 go_rules_dependencies()
 
