@@ -61,7 +61,8 @@ build_and_run_tests() {
 
 main() {
   if [[ -n "${KOKORO_ROOT:-}" ]] ; then
-    cd "${KOKORO_ARTIFACTS_DIR}/git/tink_cross_lang_tests"
+    TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
+    cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
     ./kokoro/testutils/update_android_sdk.sh
     # Sourcing required to update callers environment.
     source ./kokoro/testutils/install_python3.sh
