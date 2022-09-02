@@ -1,14 +1,14 @@
-# Tink Java Apps
+# Tink Cross Language Tests
 
 <!-- GCP Ubuntu --->
 
 [tink_cross_lang_tests_bazel_badge_gcp_ubuntu]: https://storage.googleapis.com/tink-kokoro-build-badges/tink-cross-lang-tests-bazel-gcp-ubuntu.svg
 [tink_cross_lang_tests_bazel_kms_badge_gcp_ubuntu]: https://storage.googleapis.com/tink-kokoro-build-badges/tink-cross-lang-tests-bazel-kms-gcp-ubuntu.svg
 
-**Test**     | **GCP Ubuntu**
------------- | --------------
-Tink (Bazel) | [![Bazel_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
-Tink (Bazel) | [![Bazel_Kms_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
+**Test**                        | **GCP Ubuntu**
+------------------------------- | --------------
+Cross Language Tests (no KMS)   | [![Bazel_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
+Cross Language Tests (KMS-only) | [![Bazel_Kms_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
 
 Cross language tests between the Tink implementations in each language.
 
