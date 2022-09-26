@@ -57,11 +57,14 @@ run_tests() {
   local -r folder="$1"
   shift 1
   local -r test_targets=("$@")
-  local test_options=( --test_output=errors )
+  local test_options=()
   if [[ -n "${TINK_CROSS_LANG_ROOT_PATH}" ]]; then
     test_options+=(
+      --test_output=all
       --test_env TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
     )
+  else
+    test_options+=( --test_output=errors )
   fi
   readonly test_options
   (
@@ -92,8 +95,7 @@ main() {
 
   set -x
 
-  ./kokoro/testutils/copy_credentials.sh "cc/testdata" "gcp"
-  ./kokoro/testutils/copy_credentials.sh "cross_language/testdata" "gcp"
+  ./kokoro/testutils/copy_credentials.sh "cross_language/testdata" "all"
 
   build_all cc
   run_tests cc "..."
