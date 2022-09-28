@@ -24,7 +24,7 @@ import (
 
 	"github.com/tink-crypto/tink-go/keyset"
 	"github.com/tink-crypto/tink-go/streamingaead"
-	"github.com/tink-crypto/tink-go/testkeyset"
+	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
 )
 
@@ -39,7 +39,7 @@ type StreamingAEADService struct {
 
 func (s *StreamingAEADService) Create(ctx context.Context, req *pb.CreationRequest) (*pb.CreationResponse, error) {
 	reader := keyset.NewBinaryReader(bytes.NewReader(req.Keyset))
-	handle, err := testkeyset.Read(reader)
+	handle, err := insecurecleartextkeyset.Read(reader)
 	if err != nil {
 		return &pb.CreationResponse{Err: err.Error()}, nil
 	}
@@ -52,7 +52,7 @@ func (s *StreamingAEADService) Create(ctx context.Context, req *pb.CreationReque
 
 func (s *StreamingAEADService) Encrypt(ctx context.Context, req *pb.StreamingAeadEncryptRequest) (*pb.StreamingAeadEncryptResponse, error) {
 	reader := keyset.NewBinaryReader(bytes.NewReader(req.Keyset))
-	handle, err := testkeyset.Read(reader)
+	handle, err := insecurecleartextkeyset.Read(reader)
 	if err != nil {
 		return &pb.StreamingAeadEncryptResponse{
 			Result: &pb.StreamingAeadEncryptResponse_Err{err.Error()}}, nil
@@ -91,7 +91,7 @@ func (s *StreamingAEADService) Encrypt(ctx context.Context, req *pb.StreamingAea
 
 func (s *StreamingAEADService) Decrypt(ctx context.Context, req *pb.StreamingAeadDecryptRequest) (*pb.StreamingAeadDecryptResponse, error) {
 	reader := keyset.NewBinaryReader(bytes.NewReader(req.Keyset))
-	handle, err := testkeyset.Read(reader)
+	handle, err := insecurecleartextkeyset.Read(reader)
 	if err != nil {
 		return &pb.StreamingAeadDecryptResponse{
 			Result: &pb.StreamingAeadDecryptResponse_Err{err.Error()}}, nil

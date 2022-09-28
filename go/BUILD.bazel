@@ -38,6 +38,7 @@ go_library(
         "@com_github_tink_crypto_tink_go//aead",
         "@com_github_tink_crypto_tink_go//daead",
         "@com_github_tink_crypto_tink_go//hybrid",
+        "@com_github_tink_crypto_tink_go//insecurecleartextkeyset",
         "@com_github_tink_crypto_tink_go//jwt",
         "@com_github_tink_crypto_tink_go//keyset",
         "@com_github_tink_crypto_tink_go//mac",
@@ -45,7 +46,6 @@ go_library(
         "@com_github_tink_crypto_tink_go//proto/tink_go_proto",
         "@com_github_tink_crypto_tink_go//signature",
         "@com_github_tink_crypto_tink_go//streamingaead",
-        "@com_github_tink_crypto_tink_go//testkeyset",
     ],
 )
 
