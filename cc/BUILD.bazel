@@ -125,6 +125,7 @@ cc_test(
         ":testing_api_cpp_library",
         "@com_google_googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/daead:deterministic_aead_config",
         "@tink_cc//tink/daead:deterministic_aead_key_templates",
     ],
@@ -183,6 +184,7 @@ cc_test(
         ":testing_api_cpp_library",
         "@com_google_googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/mac:mac_config",
         "@tink_cc//tink/mac:mac_key_templates",
     ],
@@ -199,6 +201,7 @@ cc_library(
         "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink/util:statusor",
     ],
 )
 
@@ -264,6 +267,7 @@ cc_test(
         ":testing_api_cpp_library",
         "@com_google_googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/prf:prf_config",
         "@tink_cc//tink/prf:prf_key_templates",
     ],
@@ -314,6 +318,8 @@ cc_library(
         ":testing_api_cpp_library",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:keyset_handle",
+        "@tink_cc//tink:keyset_reader",
     ],
 )
 
@@ -321,8 +327,8 @@ cc_test(
     name = "create_test",
     srcs = ["create_test.cc"],
     deps = [
-        ":aead_impl",
         ":create",
+        ":testing_api_cpp_library",
         "@com_google_googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:keyset_handle",
