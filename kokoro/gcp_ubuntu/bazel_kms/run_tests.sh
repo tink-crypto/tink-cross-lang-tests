@@ -27,7 +27,7 @@ use_bazel() {
   if [[ "${candidate_version}" != "${CURRENT_BAZEL_VERSION}" ]]; then
     CURRENT_BAZEL_VERSION="${candidate_version}"
     if [[ -n "${KOKORO_ROOT:-}" ]] ; then
-      use_bazel.sh "${candidate_version}"
+      "${KOKORO_GFILE_DIR}/use_bazel.sh" "${candidate_version}"
     else
       bazel --version
     fi
@@ -77,10 +77,7 @@ main() {
   if [[ -n "${KOKORO_ROOT:-}" ]] ; then
     TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
     cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
-    ./kokoro/testutils/update_android_sdk.sh
-    # Sourcing required to update callers environment.
-    source ./kokoro/testutils/install_python3.sh
-    source ./kokoro/testutils/install_go.sh
+    chmod +x "${KOKORO_GFILE_DIR}/use_bazel.sh"
   fi
 
   : "${TINK_BASE_DIR:=$(cd .. && pwd)}"
