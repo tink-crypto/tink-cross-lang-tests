@@ -19,19 +19,8 @@
 
 set -euo pipefail
 
+BAZEL_CMD="bazel"
 CURRENT_BAZEL_VERSION=""
-
-use_bazel() {
-  local candidate_version="$1"
-  if [[ "${candidate_version}" != "${CURRENT_BAZEL_VERSION}" ]]; then
-    CURRENT_BAZEL_VERSION="${candidate_version}"
-    if [[ -n "${KOKORO_ROOT:-}" ]] ; then
-      "${KOKORO_GFILE_DIR}/use_bazel.sh" "${candidate_version}"
-    else
-      bazel --version
-    fi
-  fi
-}
 
 build_and_run_tests() {
   local folder="$1"
@@ -42,10 +31,10 @@ build_and_run_tests() {
     -f "${folder}/WORKSPACE" -t "${TINK_BASE_DIR}"
   (
     cd "${folder}"
-    use_bazel "$(cat .bazelversion)"
-    time bazel build -- ...
+    "${BAZEL_CMD}" --version
+    time "${BAZEL_CMD}" build -- ...
     if [[ -n "${extra_build_target}" ]]; then
-      time bazel build "${extra_build_target}"
+      time "${BAZEL_CMD}" build "${extra_build_target}"
     fi
     local test_options=( --test_output=errors )
     if [[ -n "${tink_cross_lang_root_path}" ]]; then
@@ -53,7 +42,7 @@ build_and_run_tests() {
         --test_env TINK_CROSS_LANG_ROOT_PATH="${tink_cross_lang_root_path}"
       )
     fi
-    time bazel test "${test_options[@]}" -- ...
+    time "${BAZEL_CMD}" test "${test_options[@]}" -- ...
   )
   cp "${folder}/WORKSPACE.bak" "${folder}/WORKSPACE"
 }
@@ -62,10 +51,14 @@ main() {
   if [[ -n "${KOKORO_ROOT:-}" ]] ; then
     TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
     cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
-    chmod +x "${KOKORO_GFILE_DIR}/use_bazel.sh"
+    if command -v "bazelisk" &> /dev/null; then
+      BAZEL_CMD="bazelisk"
+    fi
   fi
+  readonly BAZEL_CMD
 
   : "${TINK_BASE_DIR:=$(cd .. && pwd)}"
+  readonly TINK_BASE_DIR
 
   # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
   # downloaded.
