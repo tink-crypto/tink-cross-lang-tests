@@ -14,8 +14,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef THIRD_PARTY_TINK_TESTING_CC_SERIVCES_KEYSET_IMPL_H_
-#define THIRD_PARTY_TINK_TESTING_CC_SERIVCES_KEYSET_IMPL_H_
+#ifndef THIRD_PARTY_TINK_TESTING_CC_KEYSET_IMPL_H_
+#define THIRD_PARTY_TINK_TESTING_CC_KEYSET_IMPL_H_
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/server_context.h>
@@ -75,4 +75,4 @@ class KeysetImpl final : public Keyset::Service {
 
 }  // namespace tink_testing_api
 
-#endif  // THIRD_PARTY_TINK_TESTING_CC_SERIVCES_KEYSET_IMPL_H_
+#endif  // THIRD_PARTY_TINK_TESTING_CC_KEYSET_IMPL_H_

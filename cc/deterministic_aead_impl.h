@@ -14,8 +14,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef THIRD_PARTY_TINK_TESTING_CC_SERIVCES_DETERMINISTIC_AEAD_IMPL_H_
-#define THIRD_PARTY_TINK_TESTING_CC_SERIVCES_DETERMINISTIC_AEAD_IMPL_H_
+#ifndef THIRD_PARTY_TINK_TESTING_CC_DETERMINISTIC_AEAD_IMPL_H_
+#define THIRD_PARTY_TINK_TESTING_CC_DETERMINISTIC_AEAD_IMPL_H_
 
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/server_context.h>
@@ -45,4 +45,4 @@ class DeterministicAeadImpl final : public DeterministicAead::Service {
 
 }  // namespace tink_testing_api
 
-#endif  // THIRD_PARTY_TINK_TESTING_CC_SERIVCES_DETERMINISTIC_AEAD_IMPL_H_
+#endif  // THIRD_PARTY_TINK_TESTING_CC_DETERMINISTIC_AEAD_IMPL_H_
