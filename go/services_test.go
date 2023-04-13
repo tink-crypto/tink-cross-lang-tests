@@ -34,7 +34,7 @@ import (
 	"github.com/tink-crypto/tink-go/signature"
 	"github.com/tink-crypto/tink-go/streamingaead"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 func genKeyset(ctx context.Context, keysetService *services.KeysetService, template []byte) ([]byte, error) {

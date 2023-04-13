@@ -30,7 +30,7 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/keyset_handle.h"
 #include "tink/keyset_reader.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
 

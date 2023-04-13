@@ -44,7 +44,7 @@
 #include "prf_set_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 ABSL_FLAG(int, port, 23456, "the port");
 ABSL_FLAG(std::string, gcp_credentials_path, "",

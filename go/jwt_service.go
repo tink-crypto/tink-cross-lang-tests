@@ -28,7 +28,7 @@ import (
 	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
 	"github.com/tink-crypto/tink-go/jwt"
 	"github.com/tink-crypto/tink-go/keyset"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 // JWTService implements the JWT testing service.

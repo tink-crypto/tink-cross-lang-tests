@@ -26,7 +26,7 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/streamingaead/streaming_aead_config.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {

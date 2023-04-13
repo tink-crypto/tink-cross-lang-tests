@@ -25,7 +25,7 @@
 
 #include "absl/container/flat_hash_map.h"
 #include "proto/tink.pb.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
 

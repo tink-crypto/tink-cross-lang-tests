@@ -29,7 +29,7 @@
 #include "tink/jwt/jwt_mac_config.h"
 #include "tink/jwt/jwt_signature_config.h"
 #include "tink/util/test_matchers.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {

@@ -20,7 +20,7 @@ import (
 	"context"
 
 	"github.com/tink-crypto/tink-go/hybrid"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 // HybridService implements the Hybrid encryption and decryption testing service.

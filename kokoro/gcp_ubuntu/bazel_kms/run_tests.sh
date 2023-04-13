@@ -75,6 +75,10 @@ main() {
   : "${TINK_BASE_DIR:=$(cd .. && pwd)}"
   readonly TINK_BASE_DIR
 
+  # TODO(b/276277854) It is not clear why this is needed.
+  pip3 install protobuf==4.21.9 --user
+  pip3 install google-cloud-kms==2.15.0 --user
+
   # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
   # downloaded.
   readonly GITHUB_ORG="https://github.com/tink-crypto"

@@ -33,7 +33,7 @@ import (
 	"github.com/tink-crypto/tink-go/jwt"
 	"github.com/tink-crypto/tink-go/signature"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 func verifiedJWTFromResponse(response *pb.JwtVerifyResponse) (*pb.JwtToken, error) {

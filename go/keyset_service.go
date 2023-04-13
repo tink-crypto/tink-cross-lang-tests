@@ -33,7 +33,7 @@ import (
 	"github.com/tink-crypto/tink-go/signature"
 	"github.com/tink-crypto/tink-go/streamingaead"
 	tinkpb "github.com/tink-crypto/tink-go/proto/tink_go_proto"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 
 	"google.golang.org/protobuf/proto"
 )

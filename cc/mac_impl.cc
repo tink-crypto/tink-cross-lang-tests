@@ -23,7 +23,7 @@
 
 #include "tink/mac.h"
 #include "create.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
 

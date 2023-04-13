@@ -20,7 +20,7 @@ import (
 	"context"
 
 	"github.com/tink-crypto/tink-go/mac"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 // MacService implements the MAC testing service.

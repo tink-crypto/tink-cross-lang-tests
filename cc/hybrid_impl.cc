@@ -25,7 +25,7 @@
 #include "tink/hybrid_encrypt.h"
 #include "tink/util/statusor.h"
 #include "create.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
 

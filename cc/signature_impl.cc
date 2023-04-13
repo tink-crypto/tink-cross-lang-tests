@@ -24,7 +24,7 @@
 #include "tink/public_key_sign.h"
 #include "tink/public_key_verify.h"
 #include "create.h"
-#include "proto/testing_api.grpc.pb.h"
+#include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
 

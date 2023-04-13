@@ -20,9 +20,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+
 	"io"
+
 	"github.com/tink-crypto/tink-go/streamingaead"
-	pb "github.com/tink-crypto/tink-cross-lang-tests/go/proto/testing_api_go_grpc"
+	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 const (
