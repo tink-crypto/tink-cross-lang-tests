@@ -37,6 +37,8 @@ go_library(
         "@org_golang_google_protobuf//types/known/timestamppb",
         "@org_golang_google_protobuf//types/known/wrapperspb",
         "@com_github_tink_crypto_tink_go//aead",
+        "@com_github_tink_crypto_tink_go//aead/internal/testing/kmsaead",
+        "@com_github_tink_crypto_tink_go//core/registry",
         "@com_github_tink_crypto_tink_go//daead",
         "@com_github_tink_crypto_tink_go//hybrid",
         "@com_github_tink_crypto_tink_go//insecurecleartextkeyset",

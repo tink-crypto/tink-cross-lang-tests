@@ -18,8 +18,11 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/tink-crypto/tink-go/aead"
+	"github.com/tink-crypto/tink-go/aead/internal/testing/kmsaead"
+	"github.com/tink-crypto/tink-go/core/registry"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
@@ -74,4 +77,10 @@ func (s *AEADService) Decrypt(ctx context.Context, req *pb.AeadDecryptRequest) (
 	}
 	return &pb.AeadDecryptResponse{
 		Result: &pb.AeadDecryptResponse_Plaintext{plaintext}}, nil
+}
+
+func init() {
+	if err := registry.RegisterKeyManager(kmsaead.NewKeyManager()); err != nil {
+		panic(fmt.Sprintf("registry.RegisterKeyManager(kmsaead.NewKeyManager()) failed: %v", err))
+	}
 }
