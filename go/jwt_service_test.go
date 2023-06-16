@@ -29,9 +29,9 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/testing/protocmp"
-	"github.com/tink-crypto/tink-go/aead"
-	"github.com/tink-crypto/tink-go/jwt"
-	"github.com/tink-crypto/tink-go/signature"
+	"github.com/tink-crypto/tink-go/v2/aead"
+	"github.com/tink-crypto/tink-go/v2/jwt"
+	"github.com/tink-crypto/tink-go/v2/signature"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )

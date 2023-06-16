@@ -19,7 +19,7 @@ package services
 import (
 	"context"
 
-	"github.com/tink-crypto/tink-go/daead"
+	"github.com/tink-crypto/tink-go/v2/daead"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 

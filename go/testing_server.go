@@ -27,10 +27,10 @@ import (
 	// context is used to cancel outstanding requests
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
-	"github.com/tink-crypto/tink-go/core/registry"
+	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go-awskms/integration/awskms"
 	"github.com/tink-crypto/tink-go-gcpkms/integration/gcpkms"
-	"github.com/tink-crypto/tink-go/testing/fakekms"
+	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
 	pbgrpc "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )

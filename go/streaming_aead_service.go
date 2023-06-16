@@ -23,7 +23,7 @@ import (
 
 	"io"
 
-	"github.com/tink-crypto/tink-go/streamingaead"
+	"github.com/tink-crypto/tink-go/v2/streamingaead"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 

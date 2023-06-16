@@ -25,9 +25,9 @@ import (
 	spb "google.golang.org/protobuf/types/known/structpb"
 	tpb "google.golang.org/protobuf/types/known/timestamppb"
 	wpb "google.golang.org/protobuf/types/known/wrapperspb"
-	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
-	"github.com/tink-crypto/tink-go/jwt"
-	"github.com/tink-crypto/tink-go/keyset"
+	"github.com/tink-crypto/tink-go/v2/insecurecleartextkeyset"
+	"github.com/tink-crypto/tink-go/v2/jwt"
+	"github.com/tink-crypto/tink-go/v2/keyset"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
