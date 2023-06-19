@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go-awskms/v2/integration/awskms"
-	"github.com/tink-crypto/tink-go-gcpkms/integration/gcpkms"
+	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
 	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
 	pbgrpc "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
