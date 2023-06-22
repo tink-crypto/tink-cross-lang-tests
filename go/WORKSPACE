@@ -3,19 +3,19 @@ workspace(name = "testing_go")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-    name = "com_github_tink_crypto_tink_go",
+    name = "com_github_tink_crypto_tink_go_v2",
     urls = ["https://github.com/tink-crypto/tink-go/archive/main.zip"],
     strip_prefix = "tink-go-main",
 )
 
 http_archive(
-    name = "com_github_tink_crypto_tink_go_gcpkms",
+    name = "com_github_tink_crypto_tink_go_gcpkms_v2",
     urls = ["https://github.com/tink-crypto/tink-go-gcpkms/archive/main.zip"],
     strip_prefix = "tink-go-gcpkms-main",
 )
 
 http_archive(
-    name = "com_github_tink_crypto_tink_go_awskms",
+    name = "com_github_tink_crypto_tink_go_awskms_v2",
     urls = ["https://github.com/tink-crypto/tink-go-awskms/archive/main.zip"],
     strip_prefix = "tink-go-awskms-main",
 )
@@ -63,11 +63,11 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 
-load("@com_github_tink_crypto_tink_go//:deps.bzl", tink_go_dependencies="go_dependencies")
+load("@com_github_tink_crypto_tink_go_v2//:deps.bzl", tink_go_dependencies="go_dependencies")
 
-load("@com_github_tink_crypto_tink_go_awskms//:deps.bzl", "tink_go_awskms_dependencies")
+load("@com_github_tink_crypto_tink_go_awskms_v2//:deps.bzl", "tink_go_awskms_dependencies")
 
-load("@com_github_tink_crypto_tink_go_gcpkms//:deps.bzl", "tink_go_gcpkms_dependencies")
+load("@com_github_tink_crypto_tink_go_gcpkms_v2//:deps.bzl", "tink_go_gcpkms_dependencies")
 
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
