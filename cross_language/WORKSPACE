@@ -26,8 +26,6 @@ http_archive(
     strip_prefix = "tink-py-main",
 )
 
-# NOTE: The Python dependencies have to be loaded first, as they rely on a
-# newer version of rules_python.
 load("@tink_py//:tink_py_deps.bzl", "tink_py_deps")
 
 tink_py_deps()
@@ -36,13 +34,9 @@ load("@tink_py//:tink_py_deps_init.bzl", "tink_py_deps_init")
 
 tink_py_deps_init("tink_py")
 
-load("@tink_cc//:tink_cc_deps.bzl", "tink_cc_deps")
+load("@tink_py_pip_deps//:requirements.bzl", tink_py_install_pypi_deps="install_deps")
 
-tink_cc_deps()
-
-load("@tink_cc//:tink_cc_deps_init.bzl", "tink_cc_deps_init")
-
-tink_cc_deps_init()
+tink_py_install_pypi_deps()
 
 load("@tink_cc_awskms//:tink_cc_awskms_deps.bzl", "tink_cc_awskms_deps")
 
@@ -56,13 +50,6 @@ load("@tink_cc_gcpkms//:tink_cc_gcpkms_deps_init.bzl", "tink_cc_gcpkms_deps_init
 
 tink_cc_gcpkms_deps_init()
 
-# Release from 2021-10-26
-http_archive(
-    name = "rules_python",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
-    sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-)
-
 # Release from 2021-12-12
 http_archive(
     name = "rules_proto_grpc",
@@ -70,7 +57,6 @@ http_archive(
     sha256 = "8383116d4c505e93fd58369841814acc3f25bdb906887a2023980d8f49a0b95b",
     strip_prefix = "rules_proto_grpc-4.1.0",
 )
-
 
 http_archive(
     name = "org_python_pypi_portpicker",
@@ -93,14 +79,22 @@ load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
 
 grpc_deps()
 
-load("@rules_python//python:pip.bzl", "pip_install")
+load("@rules_python//python:pip.bzl", "pip_parse")
 
-pip_install(
+pip_parse(
     name = "pip_deps",
-    requirements = "//:requirements.txt",
+    requirements_lock = "//:requirements.txt",
 )
 
-pip_install(
+load("@pip_deps//:requirements.bzl", testing_server_deps_install="install_deps")
+
+testing_server_deps_install()
+
+pip_parse(
     name = "rules_proto_grpc_py3_deps",
     requirements = "@rules_proto_grpc//python:requirements.txt",
 )
+
+load("@rules_proto_grpc_py3_deps//:requirements.bzl", rules_proto_grpc_py3_deps_install="install_deps")
+
+rules_proto_grpc_py3_deps_install()
