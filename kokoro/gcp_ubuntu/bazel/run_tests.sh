@@ -40,6 +40,7 @@ build_and_run_tests() {
     if [[ -n "${tink_cross_lang_root_path}" ]]; then
       test_options+=(
         --test_env TINK_CROSS_LANG_ROOT_PATH="${tink_cross_lang_root_path}"
+        --experimental_ui_max_stdouterr_bytes=-1
       )
     fi
     time "${BAZEL_CMD}" test "${test_options[@]}" -- ...
