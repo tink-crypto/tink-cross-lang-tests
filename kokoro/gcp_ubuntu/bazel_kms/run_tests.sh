@@ -14,94 +14,167 @@
 # limitations under the License.
 ################################################################################
 
-# The user may specify TINK_BASE_DIR for setting the base folder where the
-# script should look for the dependencies of this project.
+# By default when run locally this script executes tests directly on the host.
+# The *_CONTAINER_IMAGE variables can be set to execute tests in custom
+# container images for local testing. E.g.:
+#
+# _CONTAINER_IMAGE_BASE="us-docker.pkg.dev/tink-test-infrastructure/tink-ci-images" /
+#   CC_CONTAINER_IMAGE="${_CONTAINER_IMAGE_BASE}/linux-tink-cc-base:latest" /
+#   CROSS_LANG_CONTAINER_IMAGE="${CROSS_LANG_CONTAINER_IMAGE}/linux-tink-cross-lang-base:latest" /
+#   GO_CONTAINER_IMAGE="${_CONTAINER_IMAGE_BASE}/linux-tink-go-base:latest" /
+#   PY_CONTAINER_IMAGE="${_CONTAINER_IMAGE_BASE}/linux-tink-py-base:latest" /
+#   JAVA_CONTAINER_IMAGE="${_CONTAINER_IMAGE_BASE}/linux-tink-java-base:latest" /
+#   sh ./kokoro/gcp_ubuntu/bazel_kms/run_tests.sh
+#
+# The user may specify TINK_BASE_DIR as the folder where to look for
+# tink-cross-lang-tests and its dependencies. That is:
+#   ${TINK_BASE_DIR}/tink-cc
+#   ${TINK_BASE_DIR}/tink-cc-awskms
+#   ${TINK_BASE_DIR}/tink-cc-gcpkms
+#   ${TINK_BASE_DIR}/tink-go
+#   ${TINK_BASE_DIR}/tink-go-awskms
+#   ${TINK_BASE_DIR}/tink-go-gcpkms
+#   ${TINK_BASE_DIR}/tink-java
+#   ${TINK_BASE_DIR}/tink-java-awskms
+#   ${TINK_BASE_DIR}/tink-java-gcpkms
+#   ${TINK_BASE_DIR}/tink-py
+# NOTE: They are fetched from GitHub if not found.
+set -eEuo pipefail
 
-set -euo pipefail
+IS_KOKORO="false"
+if [[ -n "${KOKORO_ROOT:-}" ]] ; then
+  IS_KOKORO="true"
+fi
+readonly IS_KOKORO
 
-CURRENT_BAZEL_VERSION=
-TINK_CROSS_LANG_ROOT_PATH=
-BAZEL_CMD="bazel"
+readonly CROSS_LANG_TESTS_WORKSPACES=(
+  "cc"
+  "go"
+  "java_src"
+  "python"
+  "cross_language"
+)
 
-build_all() {
-  local -r folder="$1"
-  shift 1
-  local -r extra_build_targets=("$@")
+if [[ "${IS_KOKORO}" == "true" ]] ; then
+  TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
+  cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
+  source "./kokoro/testutils/cc_test_container_images.sh"
+  source "./kokoro/testutils/cross_lang_test_container_images.sh"
+  source "./kokoro/testutils/go_test_container_images.sh"
+  source "./kokoro/testutils/java_test_container_images.sh"
+  source "./kokoro/testutils/py_test_container_images.sh"
+  CC_CONTAINER_IMAGE="${TINK_CC_BASE_IMAGE}"
+  CROSS_LANG_CONTAINER_IMAGE="${TINK_CROSS_LANG_BASE_IMAGE}"
+  GO_CONTAINER_IMAGE="${TINK_GO_BASE_IMAGE}"
+  JAVA_CONTAINER_IMAGE="${TINK_JAVA_BASE_IMAGE}"
+  PY_CONTAINER_IMAGE="${TINK_PY_BASE_IMAGE}"
+fi
+: "${TINK_BASE_DIR:=$(cd .. && pwd)}"
+readonly TINK_BASE_DIR
+readonly CC_CONTAINER_IMAGE
+readonly GO_CONTAINER_IMAGE
+readonly JAVA_CONTAINER_IMAGE
+readonly PY_CONTAINER_IMAGE
+readonly CROSS_LANG_CONTAINER_IMAGE
 
+readonly GITHUB_ORG="https://github.com/tink-crypto"
+readonly DEPS=(
+  "${GITHUB_ORG}/tink-cc"
+  "${GITHUB_ORG}/tink-cc-awskms"
+  "${GITHUB_ORG}/tink-cc-gcpkms"
+  "${GITHUB_ORG}/tink-go"
+  "${GITHUB_ORG}/tink-go-awskms"
+  "${GITHUB_ORG}/tink-go-gcpkms"
+  "${GITHUB_ORG}/tink-java"
+  "${GITHUB_ORG}/tink-java-awskms"
+  "${GITHUB_ORG}/tink-java-gcpkms"
+  "${GITHUB_ORG}/tink-py"
+)
+# Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
+# downloaded.
+./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
+  "${DEPS[@]}"
+
+for folder in "${CROSS_LANG_TESTS_WORKSPACES[@]}"; do
   cp "${folder}/WORKSPACE" "${folder}/WORKSPACE.bak"
   ./kokoro/testutils/replace_http_archive_with_local_repository.py \
-    -f "${folder}/WORKSPACE" -t "${TINK_BASE_DIR}"
-  (
-    cd "${folder}"
-    "${BAZEL_CMD}" --version
-    local targets=( "..." )
-    if (( "${#extra_build_targets[@]}" > 0 )); then
-      targets+=( "${extra_build_targets[@]}" )
-    fi
-    time "${BAZEL_CMD}" build -- "${targets[@]}"
-  )
+    -f "${folder}/WORKSPACE" -t ../..
+done
+
+./kokoro/testutils/copy_credentials.sh "cross_language/testdata" "all"
+
+# Run cleanup on EXIT.
+trap cleanup EXIT
+
+cleanup() {
+  rm -rf _do_build.sh _do_test.sh
+  for folder in "${CROSS_LANG_TESTS_WORKSPACES[@]}"; do
+    mv "${folder}/WORKSPACE.bak" "${folder}/WORKSPACE"
+  done
+  # Give ownership to the current user.
+  sudo chown -R "$(id -un):$(id -gn)" bazel/
 }
 
-run_tests() {
-  local -r folder="$1"
-  shift 1
-  local -r test_targets=("$@")
-  local test_options=()
-  if [[ -n "${TINK_CROSS_LANG_ROOT_PATH}" ]]; then
-    test_options+=(
-      --test_output=all
-      --test_env TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
-    )
-  else
-    test_options+=( --test_output=errors )
-  fi
-  readonly test_options
-  (
-    cd "${folder}"
-    time "${BAZEL_CMD}" test "${test_options[@]}" -- "${test_targets[@]}"
+cat <<'EOF' > _do_build.sh
+#!/bin/bash
+set -xeEuo pipefail
+readonly FOLDER="$1"
+readonly BUILD_TARGETS=("${@:2}")
+readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
+cd "${FOLDER}"
+time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" build \
+  -- "${BUILD_TARGETS[@]}"
+EOF
+chmod +x _do_build.sh
+
+cat <<'EOF' > _do_test.sh
+#!/bin/bash
+set -xeEuo pipefail
+readonly FOLDER="$1"
+readonly TEST_TARGETS=("${@:2}")
+readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
+readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
+cd "${FOLDER}"
+TEST_OPTIONS=( --test_output=errors )
+if [[ "${FOLDER}" == "cross_language" ]]; then
+  TEST_OPTIONS+=(
+    --test_env=TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
+    --experimental_ui_max_stdouterr_bytes=-1
   )
-}
-
-main() {
-  if [[ -n "${KOKORO_ROOT:-}" ]] ; then
-    TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
-    cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
-    if command -v "bazelisk" &> /dev/null; then
-      BAZEL_CMD="bazelisk"
-    fi
-  fi
-  readonly BAZEL_CMD
-
-  : "${TINK_BASE_DIR:=$(cd .. && pwd)}"
-  readonly TINK_BASE_DIR
-
   # TODO(b/276277854) It is not clear why this is needed.
   pip3 install protobuf==4.21.9 --user
   pip3 install google-cloud-kms==2.15.0 --user
+fi
+readonly TEST_OPTIONS
+time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
+  "${TEST_OPTIONS[@]}" -- "${TEST_TARGETS[@]}"
+EOF
+chmod +x _do_test.sh
 
-  # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
-  # downloaded.
-  readonly GITHUB_ORG="https://github.com/tink-crypto"
-  ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
-    "${GITHUB_ORG}/tink-cc" "${GITHUB_ORG}/tink-cc-awskms" \
-    "${GITHUB_ORG}/tink-cc-gcpkms" "${GITHUB_ORG}/tink-go" \
-    "${GITHUB_ORG}/tink-java" "${GITHUB_ORG}/tink-py"
-
-  set -x
-
-  ./kokoro/testutils/copy_credentials.sh "cross_language/testdata" "all"
-
-  build_all cc
-  run_tests cc "..."
-  build_all go
-  run_tests go "..."
-  build_all java_src ":testing_server_deploy.jar"
-  run_tests java_src "..."
-  build_all python
-  run_tests python "..."
-  build_all cross_language
-  TINK_CROSS_LANG_ROOT_PATH="${PWD}"
-  run_tests cross_language "//:kms_aead_test"
+run() {
+  local -r container_img="${1:-}"
+  local -r command=("${@:2}")
+  local run_command_args=()
+  if [[ "${IS_KOKORO}" == "true" ]] ; then
+    run_command_args+=( -k "${TINK_GCR_SERVICE_KEY}" )
+  fi
+  if [[ -n "${container_img:-}" ]]; then
+    run_command_args+=( -c "${container_img}" )
+  fi
+  readonly run_command_args
+  ./kokoro/testutils/run_command.sh "${run_command_args[@]}" "${command[@]}"
 }
 
-main "$@"
+run "${CC_CONTAINER_IMAGE:-}" ./_do_build.sh cc ...
+run "${CC_CONTAINER_IMAGE:-}" ./_do_test.sh cc ...
+run "${GO_CONTAINER_IMAGE:-}" ./_do_build.sh go ...
+run "${GO_CONTAINER_IMAGE:-}" ./_do_test.sh go ...
+run "${JAVA_CONTAINER_IMAGE:-}" ./_do_build.sh java_src ... \
+  //:testing_server_deploy.jar
+run "${JAVA_CONTAINER_IMAGE:-}" ./_do_test.sh java_src ...
+run "${PY_CONTAINER_IMAGE:-}" ./_do_build.sh python ...
+run "${PY_CONTAINER_IMAGE:-}" ./_do_test.sh python ...
+
+run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_do_build.sh cross_language ...
+run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_do_test.sh cross_language \
+  //:kms_aead_test
