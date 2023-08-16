@@ -2,22 +2,48 @@ workspace(name = "testing_python")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Needed by com_github_grpc_grpc; Matches
+# https://github.com/grpc/grpc/blob/v1.54.3/bazel/grpc_deps.bzl#L384.
+http_archive(
+    name = "upb",
+    sha256 = "017a7e8e4e842d01dba5dc8aa316323eee080cd1b75986a7d1f94d87220e6502",
+    strip_prefix = "upb-e4635f223e7d36dfbea3b722a4ca4807a7e882e2",
+    urls = [
+        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/upb/archive/e4635f223e7d36dfbea3b722a4ca4807a7e882e2.tar.gz",
+        "https://github.com/protocolbuffers/upb/archive/e4635f223e7d36dfbea3b722a4ca4807a7e882e2.tar.gz",
+    ],
+)
+
+# Needed by com_github_grpc_grpc to build for Python 3.11.
+# See https://github.com/grpc/grpc/pull/33319.
+# TODO(b/295859835): Consider using a more recent version of
+# com_github_grpc_grpc that support Python 3.11.
+http_archive(
+    name = "cython",
+    build_file = "@com_github_grpc_grpc//third_party:cython.BUILD",
+    sha256 = "a2da56cc22be823acf49741b9aa3aa116d4f07fa8e8b35a3cb08b8447b37c607",
+    strip_prefix = "cython-0.29.35",
+    urls = ["https://github.com/cython/cython/archive/0.29.35.tar.gz"],
+)
+
+http_archive(
+    name = "com_github_grpc_grpc",
+    sha256 = "12cb0fe1daecf80edd8521b3982a81d2b31929ad7eca0ad30365ec981c9a8037",
+    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.zip"],
+    strip_prefix = "grpc-1.54.3",
+)
+
+http_archive(
+    name = "rules_proto_grpc",
+    # sha256 = "928e4205f701b7798ce32f3d2171c1918b363e9a600390a25c876f075f1efc0a",
+    strip_prefix = "rules_proto_grpc-4.4.0",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/refs/tags/4.4.0.zip"],
+)
+
 http_archive(
     name = "tink_cc",
     urls = ["https://github.com/tink-crypto/tink-cc/archive/main.zip"],
     strip_prefix = "tink-cc-main",
-)
-
-http_archive(
-    name = "tink_cc_awskms",
-    urls = ["https://github.com/tink-crypto/tink-cc-awskms/archive/main.zip"],
-    strip_prefix = "tink-cc-awskms-main",
-)
-
-http_archive(
-    name = "tink_cc_gcpkms",
-    urls = ["https://github.com/tink-crypto/tink-cc-gcpkms/archive/main.zip"],
-    strip_prefix = "tink-cc-gcpkms-main",
 )
 
 http_archive(
@@ -38,38 +64,49 @@ load("@tink_py_pip_deps//:requirements.bzl", tink_py_install_pypi_deps="install_
 
 tink_py_install_pypi_deps()
 
-load("@tink_cc_awskms//:tink_cc_awskms_deps.bzl", "tink_cc_awskms_deps")
-
-tink_cc_awskms_deps()
-
-load("@tink_cc_gcpkms//:tink_cc_gcpkms_deps.bzl", "tink_cc_gcpkms_deps")
-
-tink_cc_gcpkms_deps()
-
-load("@tink_cc_gcpkms//:tink_cc_gcpkms_deps_init.bzl", "tink_cc_gcpkms_deps_init")
-
-tink_cc_gcpkms_deps_init()
-
-# Release from 2021-12-12
-http_archive(
-    name = "rules_proto_grpc",
-    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.1.0.tar.gz"],
-    sha256 = "8383116d4c505e93fd58369841814acc3f25bdb906887a2023980d8f49a0b95b",
-    strip_prefix = "rules_proto_grpc-4.1.0",
-)
-
-load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_toolchains", "rules_proto_grpc_repos")
-rules_proto_grpc_toolchains()
-rules_proto_grpc_repos()
-
-load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos="python_repos")
-rules_proto_grpc_python_repos()
+# gRPC.
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
 
 grpc_deps()
 
+load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
+
+grpc_extra_deps()
+
+# Rules Proto gRPC.
+
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
+
+rules_proto_grpc_toolchains()
+
+rules_proto_grpc_repos()
+
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+
+rules_proto_dependencies()
+
+rules_proto_toolchains()
+
+load("@rules_proto_grpc//cpp:repositories.bzl", rules_proto_grpc_cpp_repos = "cpp_repos")
+
+rules_proto_grpc_cpp_repos()
+
+load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
+
+rules_proto_grpc_python_repos()
+
 load("@rules_python//python:pip.bzl", "pip_parse")
+
+pip_parse(
+    name = "rules_proto_grpc_py3_deps",
+    python_interpreter = "python3",
+    requirements = "@rules_proto_grpc//python:requirements.txt",
+)
+
+load("@rules_proto_grpc_py3_deps//:requirements.bzl", "install_deps")
+
+install_deps()
 
 pip_parse(
     name = "pip_deps",
@@ -79,12 +116,3 @@ pip_parse(
 load("@pip_deps//:requirements.bzl", testing_server_deps_install="install_deps")
 
 testing_server_deps_install()
-
-pip_parse(
-    name = "rules_proto_grpc_py3_deps",
-    requirements = "@rules_proto_grpc//python:requirements.txt",
-)
-
-load("@rules_proto_grpc_py3_deps//:requirements.bzl", rules_proto_grpc_py3_deps_install="install_deps")
-
-rules_proto_grpc_py3_deps_install()
