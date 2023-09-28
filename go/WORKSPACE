@@ -20,6 +20,12 @@ http_archive(
     strip_prefix = "tink-go-awskms-main",
 )
 
+http_archive(
+    name = "com_github_tink_crypto_tink_go_hcvault_v2",
+    urls = ["https://github.com/tink-crypto/tink-go-hcvault/archive/main.zip"],
+    strip_prefix = "tink-go-hcvault-main",
+)
+
 # Release from 2023-04-20
 http_archive(
     name = "io_bazel_rules_go",
@@ -69,6 +75,8 @@ load("@com_github_tink_crypto_tink_go_awskms_v2//:deps.bzl", "tink_go_awskms_dep
 
 load("@com_github_tink_crypto_tink_go_gcpkms_v2//:deps.bzl", "tink_go_gcpkms_dependencies")
 
+load("@com_github_tink_crypto_tink_go_hcvault_v2//:deps.bzl", "tink_go_hcvault_dependencies")
+
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 
 load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
@@ -80,6 +88,8 @@ tink_go_dependencies()
 tink_go_gcpkms_dependencies()
 
 tink_go_awskms_dependencies()
+
+tink_go_hcvault_dependencies()
 
 go_rules_dependencies()
 

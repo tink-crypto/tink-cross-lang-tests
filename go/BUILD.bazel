@@ -94,6 +94,7 @@ go_binary(
         "@com_github_tink_crypto_tink_go_v2//core/registry",
         "@com_github_tink_crypto_tink_go_awskms_v2//integration/awskms",
         "@com_github_tink_crypto_tink_go_gcpkms_v2//integration/gcpkms",
+        "@com_github_tink_crypto_tink_go_hcvault_v2//integration/hcvault",
         "@com_github_tink_crypto_tink_go_v2//testing/fakekms",
     ],
 )

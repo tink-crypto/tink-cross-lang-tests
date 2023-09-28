@@ -137,13 +137,37 @@ readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
 cd "${FOLDER}"
 TEST_OPTIONS=( --test_output=errors )
 if [[ "${FOLDER}" == "cross_language" ]]; then
-  TEST_OPTIONS+=(
-    --test_env=TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
-    --experimental_ui_max_stdouterr_bytes=-1
-  )
   # TODO(b/276277854) It is not clear why this is needed.
   pip3 install protobuf==4.21.9 --user
   pip3 install google-cloud-kms==2.15.0 --user
+
+  mkdir /tmp/vault-tls
+
+  # The following code starts a local hashicorp vault server in dev mode in background.
+  # see:
+  # https://developer.hashicorp.com/vault/tutorials/getting-started/getting-started-dev-server
+  # https://developer.hashicorp.com/vault/docs/commands
+  export VAULT_API_ADDR='https://127.0.0.1:8200'
+  vault server -dev -dev-tls -dev-tls-cert-dir=/tmp/vault-tls &
+  sleep 30
+
+  export VAULT_TOKEN=`cat ~/.vault-token`
+  export VAULT_SKIP_VERIFY=true
+  export VAULT_ADDR='https://127.0.0.1:8200'
+  export VAULT_CACERT='/tmp/vault-tls/vault-ca.pem'
+
+  # enable the transit secrets engine and add a key "testkey", see:
+  # https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit
+  vault secrets enable transit
+  vault write -f transit/keys/testkey
+
+  echo "HC vault server started and 'testkey' added."
+
+  TEST_OPTIONS+=(
+    --test_env=TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
+    --test_env=VAULT_TOKEN="${VAULT_TOKEN}"
+    --experimental_ui_max_stdouterr_bytes=-1
+  )
 fi
 readonly TEST_OPTIONS
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
