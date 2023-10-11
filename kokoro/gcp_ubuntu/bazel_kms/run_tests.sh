@@ -167,12 +167,13 @@ export VAULT_SKIP_VERIFY=true
 export VAULT_ADDR='https://127.0.0.1:8200'
 export VAULT_CACERT='/tmp/vault-tls/vault-ca.pem'
 
-# enable the transit secrets engine and add a key "testkey", see:
+# enable the transit secrets engine and add testkey and derived_testkey, see:
 # https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit
 vault secrets enable transit
 vault write -f transit/keys/testkey
+vault write -f transit/keys/derived_testkey derived=true
 
-echo "HC vault server started and 'testkey' added."
+echo "HC vault server started and 'testkey' and 'derived_testkey' added."
 
 TEST_OPTIONS+=(
   --test_output=errors
