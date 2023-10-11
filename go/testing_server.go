@@ -18,64 +18,26 @@
 package main
 
 import (
-	"context"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
 
 	"flag"
 	// context is used to cancel outstanding requests
-	"google.golang.org/api/option"
 	"google.golang.org/grpc"
-	"github.com/tink-crypto/tink-go/v2/core/registry"
-	"github.com/tink-crypto/tink-go-awskms/v2/integration/awskms"
-	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
-
-	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
-	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
+	"github.com/tink-crypto/tink-cross-lang-tests/go/kms"
 	"github.com/tink-crypto/tink-cross-lang-tests/go/services"
 	pbgrpc "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
 var (
-	port                = flag.Int("port", 10000, "The server port")
-	gcpCredFilePath     = flag.String("gcp_credentials_path", "", "Google Cloud KMS credentials path")
-	gcpKeyURI           = flag.String("gcp_key_uri", "", "Google Cloud KMS key URI of the form: gcp-kms://projects/*/locations/*/keyRings/*/cryptoKeys/*.")
-	awsCredFilePath     = flag.String("aws_credentials_path", "", "AWS KMS credentials path")
-	awsKeyURI           = flag.String("aws_key_uri", "", "AWS KMS key URI of the form: aws-kms://arn:aws:kms:<region>:<account-id>:key/<key-id>.")
-	hcvaultKeyURIPrefix = flag.String("hcvault_key_uri_prefix", "", "HC Vault key URI prefix of the form: hcvault://example.com:8200/key/path")
-	hcvaultToken        = flag.String("hcvault_token", "", "HC Vault token")
+	port = flag.Int("port", 10000, "The server port")
 )
 
 func main() {
 	flag.Parse()
-	client, err := fakekms.NewClient("fake-kms://")
-	if err != nil {
-		log.Fatalf("fakekms.NewClient failed: %v", err)
-	}
-	registry.RegisterKMSClient(client)
 
-	gcpClient, err := gcpkms.NewClientWithOptions(context.Background(), *gcpKeyURI, option.WithCredentialsFile(*gcpCredFilePath))
-	if err != nil {
-		log.Fatalf("gcpkms.NewClientWithOptions failed: %v", err)
-	}
-	registry.RegisterKMSClient(gcpClient)
-
-	awsClient, err := awskms.NewClientWithOptions(*awsKeyURI, awskms.WithCredentialPath(*awsCredFilePath))
-	if err != nil {
-		log.Fatalf("awskms.NewClientWithOptions failed: %v", err)
-	}
-	registry.RegisterKMSClient(awsClient)
-
-	vaultClient, err := hcvault.NewClient(
-        *hcvaultKeyURIPrefix,
-        &tls.Config{InsecureSkipVerify: true},
-        *hcvaultToken)
-  if err != nil {
-    log.Fatalf("hcvault.NewClient failed: %v", err)
-  }
-  registry.RegisterKMSClient(vaultClient)
+	kms.RegisterAll()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
