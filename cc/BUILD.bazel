@@ -140,9 +140,9 @@ cc_library(
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
         "@com_google_absl//absl/status",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink/util:istream_input_stream",
         "@tink_cc//tink/util:ostream_output_stream",
         "@tink_cc//tink/util:status",
@@ -170,9 +170,9 @@ cc_library(
         ":create",
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
     ],
 )
 
@@ -198,9 +198,9 @@ cc_library(
         ":create",
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink/util:statusor",
     ],
 )
@@ -226,9 +226,9 @@ cc_library(
         ":create",
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
     ],
 )
 
@@ -253,9 +253,9 @@ cc_library(
         ":create",
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
     ],
 )
 
@@ -282,10 +282,10 @@ cc_library(
         ":testing_api_cpp_library",
         "@com_google_absl//absl/base:core_headers",
         "@com_google_absl//absl/time",
-        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:tink_cc",
         "@tink_cc//tink/jwt:jwk_set_converter",
         "@tink_cc//tink/jwt:jwt_mac",
         "@tink_cc//tink/jwt:jwt_public_key_sign",

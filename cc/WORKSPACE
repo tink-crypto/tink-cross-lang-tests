@@ -4,20 +4,20 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "tink_cc",
-    urls = ["https://github.com/tink-crypto/tink-cc/archive/main.zip"],
     strip_prefix = "tink-cc-main",
+    urls = ["https://github.com/tink-crypto/tink-cc/archive/main.zip"],
 )
 
 http_archive(
     name = "tink_cc_gcpkms",
-    urls = ["https://github.com/tink-crypto/tink-cc-gcpkms/archive/main.zip"],
     strip_prefix = "tink-cc-gcpkms-main",
+    urls = ["https://github.com/tink-crypto/tink-cc-gcpkms/archive/main.zip"],
 )
 
 http_archive(
     name = "tink_cc_awskms",
-    urls = ["https://github.com/tink-crypto/tink-cc-awskms/archive/main.zip"],
     strip_prefix = "tink-cc-awskms-main",
+    urls = ["https://github.com/tink-crypto/tink-cc-awskms/archive/main.zip"],
 )
 
 load("@tink_cc//:tink_cc_deps.bzl", "tink_cc_deps")
@@ -43,17 +43,21 @@ tink_cc_awskms_deps()
 # Release from 2021-12-12
 http_archive(
     name = "rules_proto_grpc",
-    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.1.0.tar.gz"],
     sha256 = "8383116d4c505e93fd58369841814acc3f25bdb906887a2023980d8f49a0b95b",
     strip_prefix = "rules_proto_grpc-4.1.0",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/4.1.0.tar.gz"],
 )
 
-load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_toolchains", "rules_proto_grpc_repos")
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
+
 rules_proto_grpc_toolchains()
+
 rules_proto_grpc_repos()
 
-load("@rules_proto_grpc//cpp:repositories.bzl", rules_proto_grpc_cpp_repos="cpp_repos")
+load("@rules_proto_grpc//cpp:repositories.bzl", rules_proto_grpc_cpp_repos = "cpp_repos")
+
 rules_proto_grpc_cpp_repos()
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+
 grpc_deps()

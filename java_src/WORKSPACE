@@ -4,20 +4,20 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "tink_java",
-    urls = ["https://github.com/tink-crypto/tink-java/archive/main.zip"],
     strip_prefix = "tink-java-main",
+    urls = ["https://github.com/tink-crypto/tink-java/archive/main.zip"],
 )
 
 http_archive(
     name = "tink_java_gcpkms",
-    urls = ["https://github.com/tink-crypto/tink-java-gcpkms/archive/main.zip"],
     strip_prefix = "tink-java-gcpkms-main",
+    urls = ["https://github.com/tink-crypto/tink-java-gcpkms/archive/main.zip"],
 )
 
 http_archive(
     name = "tink_java_awskms",
-    urls = ["https://github.com/tink-crypto/tink-java-awskms/archive/main.zip"],
     strip_prefix = "tink-java-awskms-main",
+    urls = ["https://github.com/tink-crypto/tink-java-awskms/archive/main.zip"],
 )
 
 load("@tink_java//:tink_java_deps.bzl", "TINK_MAVEN_ARTIFACTS", "tink_java_deps")
@@ -28,28 +28,27 @@ load("@tink_java//:tink_java_deps_init.bzl", "tink_java_deps_init")
 
 tink_java_deps_init()
 
-load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
-
 load("@tink_java_awskms//:tink_java_awskms_deps.bzl", "TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS")
+load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
 
 # Release X.21.9 from 2022-10-26.
 http_archive(
     name = "com_google_protobuf_javalite",
+    sha256 = "5babb8571f1cceafe0c18e13ddb3be556e87e12ceea3463d6b0d0064e6cc1ac3",
     strip_prefix = "protobuf-21.9",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.9.zip"],
-    sha256 = "5babb8571f1cceafe0c18e13ddb3be556e87e12ceea3463d6b0d0064e6cc1ac3",
 )
 
 # Release from 2022-10-19.
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "992f757b022bb40d2db07a4924f169c0abacbbddcae8f32edb99921683fdffe9",
-    strip_prefix = "grpc-java-1.50.2",
-    url = "https://github.com/grpc/grpc-java/archive/v1.50.2.tar.gz",
+    patch_args = ["-p1"],
     # Replaces `protobuf_java_lite` with `protobuf_javalite`. Protobuf
     # does not expose a `protobuf_java_lite` target.
     patches = ["@testing_java//third_party:io_grpc_grpc_java.diff"],
-    patch_args = ["-p1"],
+    sha256 = "992f757b022bb40d2db07a4924f169c0abacbbddcae8f32edb99921683fdffe9",
+    strip_prefix = "grpc-java-1.50.2",
+    url = "https://github.com/grpc/grpc-java/archive/v1.50.2.tar.gz",
 )
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
@@ -59,11 +58,11 @@ grpc_java_repositories()
 
 maven_install(
     artifacts = TINK_MAVEN_ARTIFACTS +
-      TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
-      TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS +
-      IO_GRPC_GRPC_JAVA_ARTIFACTS + [
+                TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
+                TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS +
+                IO_GRPC_GRPC_JAVA_ARTIFACTS + [
         "args4j:args4j:2.33",
-      ],
+    ],
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
