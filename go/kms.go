@@ -17,16 +17,17 @@ package kms
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 
-	"crypto/tls"
+	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
+
 	"flag"
 	"google.golang.org/api/option"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go-awskms/v2/integration/awskms"
 	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
 	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
-	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 )
 
 var (
@@ -59,11 +60,12 @@ func RegisterAll() {
 	registry.RegisterKMSClient(awsClient)
 
 	vaultClient, err := hcvault.NewClient(
-        *hcvaultKeyURIPrefix,
-        &tls.Config{InsecureSkipVerify: true},
-        *hcvaultToken)
-  if err != nil {
-    log.Fatalf("hcvault.NewClient failed: %v", err)
-  }
-  registry.RegisterKMSClient(vaultClient)
+		*hcvaultKeyURIPrefix,
+		// Using InsecureSkipVerify is fine here, since this is just a test running locally.
+		&tls.Config{InsecureSkipVerify: true}, // NOLINT
+		*hcvaultToken)
+	if err != nil {
+		log.Fatalf("hcvault.NewClient failed: %v", err)
+	}
+	registry.RegisterKMSClient(vaultClient)
 }
