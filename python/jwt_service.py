@@ -14,20 +14,16 @@
 """JWT testing service API implementations in Python."""
 
 import datetime
-import io
 import json
-
 from typing import Tuple
 
 import grpc
 import tink
-from tink import cleartext_keyset_handle
-
 from tink import jwt
+from tink import secret_key_access
 
 from google.protobuf import duration_pb2
 from google.protobuf import timestamp_pb2
-
 from protos import testing_api_pb2
 from protos import testing_api_pb2_grpc
 
@@ -191,8 +187,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.CreationResponse:
     """Creates a JwtMac without using it."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       keyset_handle.primitive(jwt.JwtMac)
       return testing_api_pb2.CreationResponse()
     except tink.TinkError as e:
@@ -203,8 +200,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.CreationResponse:
     """Creates a JwtPublicKeySign without using it."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       keyset_handle.primitive(jwt.JwtPublicKeySign)
       return testing_api_pb2.CreationResponse()
     except tink.TinkError as e:
@@ -215,8 +213,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.CreationResponse:
     """Creates a JwtPublicKeyVerify without using it."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       keyset_handle.primitive(jwt.JwtPublicKeyVerify)
       return testing_api_pb2.CreationResponse()
     except tink.TinkError as e:
@@ -227,8 +226,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.JwtSignResponse:
     """Computes a MACed compact JWT."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       p = keyset_handle.primitive(jwt.JwtMac)
       raw_jwt = raw_jwt_from_proto(request.raw_jwt)
       signed_compact_jwt = p.compute_mac_and_encode(raw_jwt)
@@ -242,8 +242,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.JwtVerifyResponse:
     """Verifies a MAC value."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       validator = validator_from_proto(request.validator)
       p = keyset_handle.primitive(jwt.JwtMac)
       verified_jwt = p.verify_mac_and_decode(request.signed_compact_jwt,
@@ -258,8 +259,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.JwtSignResponse:
     """Computes a signed compact JWT token."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       p = keyset_handle.primitive(jwt.JwtPublicKeySign)
       raw_jwt = raw_jwt_from_proto(request.raw_jwt)
       signed_compact_jwt = p.sign_and_encode(raw_jwt)
@@ -273,8 +275,9 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.JwtVerifyResponse:
     """Verifies the validity of the signed compact JWT token."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.annotated_keyset.serialized_keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
       validator = validator_from_proto(request.validator)
       p = keyset_handle.primitive(jwt.JwtPublicKeyVerify)
       verified_jwt = p.verify_and_decode(request.signed_compact_jwt, validator)
@@ -288,22 +291,25 @@ class JwtServicer(testing_api_pb2_grpc.JwtServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.JwtToJwkSetResponse:
     """Converts a Tink Keyset with JWT keys into a JWK set."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.BinaryKeysetReader(request.keyset))
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.keyset, secret_key_access.TOKEN
+      )
       jwk_set = jwt.jwk_set_from_public_keyset_handle(keyset_handle)
       return testing_api_pb2.JwtToJwkSetResponse(jwk_set=jwk_set)
     except tink.TinkError as e:
       return testing_api_pb2.JwtToJwkSetResponse(err=str(e))
 
   def FromJwkSet(
-      self, request: testing_api_pb2.JwtFromJwkSetRequest,
-      context: grpc.ServicerContext) -> testing_api_pb2.JwtFromJwkSetResponse:
+      self,
+      request: testing_api_pb2.JwtFromJwkSetRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.JwtFromJwkSetResponse:
     """Converts a JWK set into a Tink Keyset."""
     try:
       keyset_handle = jwt.jwk_set_to_public_keyset_handle(request.jwk_set)
-      keyset = io.BytesIO()
-      cleartext_keyset_handle.write(
-          tink.BinaryKeysetWriter(keyset), keyset_handle)
-      return testing_api_pb2.JwtFromJwkSetResponse(keyset=keyset.getvalue())
+      keyset = tink.proto_keyset_format.serialize(
+          keyset_handle, secret_key_access.TOKEN
+      )
+      return testing_api_pb2.JwtFromJwkSetResponse(keyset=keyset)
     except tink.TinkError as e:
       return testing_api_pb2.JwtFromJwkSetResponse(err=str(e))
