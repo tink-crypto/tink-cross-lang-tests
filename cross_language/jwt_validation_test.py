@@ -24,9 +24,9 @@ import datetime
 from absl.testing import absltest
 from absl.testing import parameterized
 import tink
-from tink import cleartext_keyset_handle
 from tink import jwt
 from tink import mac
+from tink import secret_key_access
 
 from tink.proto import common_pb2
 from tink.proto import hmac_pb2
@@ -84,7 +84,9 @@ def _mac() -> mac.Mac:
   key.key_id = 123
   key.output_prefix_type = tink_pb2.RAW
   keyset.primary_key_id = 123
-  keyset_handle = cleartext_keyset_handle.from_keyset(keyset)
+  keyset_handle = tink.proto_keyset_format.parse(
+      keyset.SerializeToString(), secret_key_access.TOKEN
+  )
   return keyset_handle.primitive(mac.Mac)
 
 

@@ -237,6 +237,52 @@ class ServicesTest(absltest.TestCase):
         read_encrypted_request, self._ctx)
     self.assertEqual(read_encrypted_response.WhichOneof('result'), 'err')
 
+  def test_generate_write_read_encrypted_json(self):
+    keyset_servicer = services.KeysetServicer()
+
+    template = aead.aead_key_templates.AES128_GCM.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    master_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(master_response.WhichOneof('result'), 'keyset')
+    master_keyset = master_response.keyset
+
+    keyset_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(keyset_response.WhichOneof('result'), 'keyset')
+    keyset = keyset_response.keyset
+
+    associated_data = b'associated_data'
+
+    write_encrypted_request = testing_api_pb2.KeysetWriteEncryptedRequest(
+        keyset=keyset,
+        master_keyset=master_keyset,
+        associated_data=testing_api_pb2.BytesValue(value=associated_data),
+        keyset_writer_type=testing_api_pb2.KEYSET_WRITER_JSON)
+    write_encrypted_response = keyset_servicer.WriteEncrypted(
+        write_encrypted_request, self._ctx)
+    self.assertEqual(
+        write_encrypted_response.WhichOneof('result'), 'encrypted_keyset')
+    encrypted_keyset = write_encrypted_response.encrypted_keyset
+
+    read_encrypted_request = testing_api_pb2.KeysetReadEncryptedRequest(
+        encrypted_keyset=encrypted_keyset,
+        master_keyset=master_keyset,
+        associated_data=testing_api_pb2.BytesValue(value=associated_data),
+        keyset_reader_type=testing_api_pb2.KEYSET_READER_JSON)
+    read_encrypted_response = keyset_servicer.ReadEncrypted(
+        read_encrypted_request, self._ctx)
+    self.assertEqual(read_encrypted_response.WhichOneof('result'), 'keyset')
+    self.assertEqual(read_encrypted_response.keyset, keyset)
+
+    # Using the wrong associated_data fails
+    read_encrypted_request = testing_api_pb2.KeysetReadEncryptedRequest(
+        encrypted_keyset=encrypted_keyset,
+        master_keyset=master_keyset,
+        associated_data=testing_api_pb2.BytesValue(value=b'wrong ad'),
+        keyset_reader_type=testing_api_pb2.KEYSET_READER_JSON)
+    read_encrypted_response = keyset_servicer.ReadEncrypted(
+        read_encrypted_request, self._ctx)
+    self.assertEqual(read_encrypted_response.WhichOneof('result'), 'err')
+
   def test_keyset_write_encrypted_fails_when_keyset_is_invalid(self):
     keyset_servicer = services.KeysetServicer()
 

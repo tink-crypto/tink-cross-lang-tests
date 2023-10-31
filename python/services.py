@@ -18,7 +18,6 @@ import io
 import grpc
 import tink
 from tink import aead
-from tink import cleartext_keyset_handle
 from tink import daead
 from tink import hybrid
 from tink import jwt
@@ -257,7 +256,6 @@ class KeysetServicer(testing_api_pb2_grpc.KeysetServicer):
       template = tink_pb2.KeyTemplate()
       template.ParseFromString(request.template)
       keyset_handle = tink.new_keyset_handle(template)
-      keyset = io.BytesIO()
       keyset = tink.proto_keyset_format.serialize(
           keyset_handle, secret_key_access.TOKEN
       )
@@ -289,11 +287,10 @@ class KeysetServicer(testing_api_pb2_grpc.KeysetServicer):
       keyset_handle = tink.proto_keyset_format.parse(
           request.keyset, secret_key_access.TOKEN
       )
-      json_keyset = io.StringIO()
-      cleartext_keyset_handle.write(
-          tink.JsonKeysetWriter(json_keyset), keyset_handle)
-      return testing_api_pb2.KeysetToJsonResponse(
-          json_keyset=json_keyset.getvalue())
+      json_keyset = tink.json_proto_keyset_format.serialize(
+          keyset_handle, secret_key_access.TOKEN
+      )
+      return testing_api_pb2.KeysetToJsonResponse(json_keyset=json_keyset)
     except tink.TinkError as e:
       return testing_api_pb2.KeysetToJsonResponse(err=str(e))
 
@@ -302,8 +299,9 @@ class KeysetServicer(testing_api_pb2_grpc.KeysetServicer):
       context: grpc.ServicerContext) -> testing_api_pb2.KeysetFromJsonResponse:
     """Converts a keyset from JSON to binary format."""
     try:
-      keyset_handle = cleartext_keyset_handle.read(
-          tink.JsonKeysetReader(request.json_keyset))
+      keyset_handle = tink.json_proto_keyset_format.parse(
+          request.json_keyset, secret_key_access.TOKEN
+      )
       keyset = tink.proto_keyset_format.serialize(
           keyset_handle, secret_key_access.TOKEN
       )
@@ -322,17 +320,23 @@ class KeysetServicer(testing_api_pb2_grpc.KeysetServicer):
       )
       master_aead = master_keyset_handle.primitive(aead.Aead)
 
+      if request.HasField('associated_data'):
+        associated_data = request.associated_data.value
+      else:
+        associated_data = b''
+
       if request.keyset_reader_type == testing_api_pb2.KEYSET_READER_BINARY:
-        reader = tink.BinaryKeysetReader(request.encrypted_keyset)
+        keyset_handle = tink.proto_keyset_format.parse_encrypted(
+            request.encrypted_keyset, master_aead, associated_data
+        )
       elif request.keyset_reader_type == testing_api_pb2.KEYSET_READER_JSON:
-        reader = tink.JsonKeysetReader(request.encrypted_keyset.decode('utf8'))
+        keyset_handle = tink.json_proto_keyset_format.parse_encrypted(
+            request.encrypted_keyset.decode('utf-8'),
+            master_aead,
+            associated_data,
+        )
       else:
         raise ValueError('unknown keyset reader type')
-      if request.HasField('associated_data'):
-        keyset_handle = tink.read_keyset_handle_with_associated_data(
-            reader, master_aead, request.associated_data.value)
-      else:
-        keyset_handle = tink.read_keyset_handle(reader, master_aead)
 
       keyset = tink.proto_keyset_format.serialize(
           keyset_handle, secret_key_access.TOKEN
@@ -355,26 +359,20 @@ class KeysetServicer(testing_api_pb2_grpc.KeysetServicer):
       )
       master_aead = master_keyset_handle.primitive(aead.Aead)
 
+      if request.HasField('associated_data'):
+        associated_data = request.associated_data.value
+      else:
+        associated_data = b''
       if request.keyset_writer_type == testing_api_pb2.KEYSET_WRITER_BINARY:
-        encrypted_keyset = io.BytesIO()
-        writer = tink.BinaryKeysetWriter(encrypted_keyset)
-        if request.HasField('associated_data'):
-          keyset_handle.write_with_associated_data(
-              writer, master_aead, request.associated_data.value)
-        else:
-          keyset_handle.write(writer, master_aead)
+        encrypted_keyset = tink.proto_keyset_format.serialize_encrypted(
+            keyset_handle, master_aead, associated_data)
         return testing_api_pb2.KeysetWriteEncryptedResponse(
-            encrypted_keyset=encrypted_keyset.getvalue())
+            encrypted_keyset=encrypted_keyset)
       elif request.keyset_writer_type == testing_api_pb2.KEYSET_WRITER_JSON:
-        encrypted_keyset = io.StringIO()
-        writer = tink.JsonKeysetWriter(encrypted_keyset)
-        if request.HasField('associated_data'):
-          keyset_handle.write_with_associated_data(
-              writer, master_aead, request.associated_data.value)
-        else:
-          keyset_handle.write(writer, master_aead)
+        encrypted_keyset = tink.json_proto_keyset_format.serialize_encrypted(
+            keyset_handle, master_aead, associated_data)
         return testing_api_pb2.KeysetWriteEncryptedResponse(
-            encrypted_keyset=encrypted_keyset.getvalue().encode('utf8'))
+            encrypted_keyset=encrypted_keyset.encode('utf8'))
       else:
         raise ValueError('unknown keyset writer type')
     except tink.TinkError as e:
