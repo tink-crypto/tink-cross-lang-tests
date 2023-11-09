@@ -95,7 +95,8 @@ TEST_F(KeysetImplTest, GenerateFail) {
 
 util::StatusOr<std::string> AeadKeyset() {
   util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-      KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm());
+      KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm(),
+                                KeyGenConfigGlobalRegistry());
   if (!handle.ok()) {
     return handle.status();
   }
@@ -115,7 +116,8 @@ util::StatusOr<std::string> AeadKeyset() {
 util::StatusOr<std::string> ValidPrivateKeyset() {
   util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(
-          HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm());
+          HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
+          KeyGenConfigGlobalRegistry());
   if (!handle.ok()) {
     return handle.status();
   }

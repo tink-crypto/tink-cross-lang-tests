@@ -229,7 +229,8 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
     response->set_err("Could not parse the key template");
     return grpc::Status::OK;
   }
-  auto handle_result = ::crypto::tink::KeysetHandle::GenerateNew(key_template);
+  auto handle_result = KeysetHandle::GenerateNew(
+      key_template, crypto::tink::KeyGenConfigGlobalRegistry());
   if (!handle_result.ok()) {
     response->set_err(std::string(handle_result.status().message()));
     return grpc::Status::OK;
@@ -267,7 +268,8 @@ grpc::Status KeysetImpl::Public(grpc::ServerContext* context,
     return grpc::Status::OK;
   }
   auto public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle();
+      private_handle_result.value()->GetPublicKeysetHandle(
+          crypto::tink::KeyGenConfigGlobalRegistry());
   if (!public_handle_result.ok()) {
     response->set_err(std::string(public_handle_result.status().message()));
     return grpc::Status::OK;

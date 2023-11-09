@@ -40,7 +40,8 @@ using ::testing::NotNull;
 
 std::string ValidAeadKeyset() {
   const KeyTemplate& key_template = crypto::tink::AeadKeyTemplates::Aes128Eax();
-  auto handle_result = crypto::tink::KeysetHandle::GenerateNew(key_template);
+  auto handle_result = crypto::tink::KeysetHandle::GenerateNew(
+      key_template, crypto::tink::KeyGenConfigGlobalRegistry());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result = crypto::tink::BinaryKeysetWriter::New(

@@ -48,7 +48,8 @@ using tink_testing_api::CreationResponse;
 
 std::string ValidKeyset() {
   const KeyTemplate& key_template = DeterministicAeadKeyTemplates::Aes256Siv();
-  auto handle_result = KeysetHandle::GenerateNew(key_template);
+  auto handle_result =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result =

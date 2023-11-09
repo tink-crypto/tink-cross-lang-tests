@@ -70,7 +70,8 @@ TEST_F(HybridImplTest, CreateHybridDecryptSuccess) {
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
   ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle = KeysetHandle::GenerateNew(key_template);
+      private_keyset_handle =
+          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
 
@@ -99,11 +100,14 @@ TEST_F(HybridImplTest, CreateHybridEncryptSuccess) {
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
   ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle = KeysetHandle::GenerateNew(key_template);
+      private_keyset_handle =
+          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
   ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      public_keyset_handle = (*private_keyset_handle)->GetPublicKeysetHandle();
+      public_keyset_handle =
+          (*private_keyset_handle)
+              ->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(public_keyset_handle.status().ok())
       << public_keyset_handle.status();
 
@@ -131,10 +135,12 @@ TEST_F(HybridImplTest, EncryptDecryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  auto private_handle_result = KeysetHandle::GenerateNew(key_template);
+  auto private_handle_result =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   EXPECT_TRUE(private_handle_result.ok());
   auto public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle();
+      private_handle_result.value()->GetPublicKeysetHandle(
+          KeyGenConfigGlobalRegistry());
   EXPECT_TRUE(public_handle_result.ok());
 
   HybridEncryptRequest enc_request;
@@ -176,7 +182,8 @@ TEST_F(HybridImplTest, DecryptBadCiphertextFail) {
   tink_testing_api::HybridImpl hybrid;
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  auto private_handle_result = KeysetHandle::GenerateNew(key_template);
+  auto private_handle_result =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   EXPECT_TRUE(private_handle_result.ok());
 
   HybridDecryptRequest dec_request;
