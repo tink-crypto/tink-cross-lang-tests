@@ -60,6 +60,15 @@ class HelpersTest(absltest.TestCase):
     with self.assertRaises(ValueError):
       _helpers.supported_languages_for_key_type('InvalidKeyType21b9a1')
 
+  def test_supported_languages_for_key_type_nothing(self):
+    self.assertCountEqual(
+        _helpers.unsupported_languages_for_key_type('AesGcmKey'), [])
+
+  def test_supported_languages_for_key_type_something(self):
+    self.assertCountEqual(
+        _helpers.unsupported_languages_for_key_type('ChaCha20Poly1305Key'),
+        ['cc', 'python'])
+
   def test_supported_languages_for_primitive(self):
     self.assertCountEqual(
         _helpers.supported_languages_for_primitive(aead.Aead),

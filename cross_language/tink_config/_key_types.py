@@ -101,6 +101,8 @@ PRIVATE_TO_PUBLIC_KEY = {
     'JwtRsaSsaPssPrivateKey': 'JwtRsaSsaPssPublicKey',
 }
 
+ALL_LANGUAGES = ['cc', 'java', 'go', 'python']
+
 # All languages that are supported by a KeyType
 SUPPORTED_LANGUAGES = {
     'AesEaxKey': ['cc', 'java', 'python'],

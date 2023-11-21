@@ -83,6 +83,27 @@ def supported_languages_for_key_type(key_type: str) -> List[str]:
   return _key_types.SUPPORTED_LANGUAGES[key_type]
 
 
+def unsupported_languages_for_key_type(key_type: str) -> List[str]:
+  """Returns the list of languages which do *not* support a given KeyType.
+
+    Throws an except if the key type is unkonwn.
+  Args:
+    key_type: The shortened type URL (e.g. 'AesGcmKey')
+  Returns:
+    The list of languages which this key type does not support.
+  Raises:
+    ValueError if the key type is unknown.
+  """
+  if key_type not in all_key_types():
+    raise ValueError('key_type unknown: ' + key_type)
+  result = []
+  supported = set(supported_languages_for_key_type(key_type))
+  for language in _key_types.ALL_LANGUAGES:
+    if language not in supported:
+      result.append(language)
+  return result
+
+
 def supported_languages_for_primitive(p: Any) -> List[str]:
   """Returns the list of languages which support a primitive.
 
