@@ -7,19 +7,37 @@ package(
 
 licenses(["notice"])
 
-py_test(
-    name = "hmac_test",
-    srcs = ["hmac_test.py"],
+py_library(
+    name = "hmac_keys",
+    srcs = ["hmac_keys.py"],
     deps = [
-        "//tink_config",
-        "//util:testing_servers",
-        "//util:utilities",
-        "@tink_py//tink/testing:keyset_builder",
-        requirement("absl-py"),
-        "@tink_py//tink:tink_python",
         "@tink_py//tink/proto:common_py_pb2",
         "@tink_py//tink/proto:hmac_py_pb2",
+    ],
+)
+
+py_test(
+    name = "creation_consistency_test",
+    srcs = ["creation_consistency_test.py"],
+    deps = [
+        ":hmac_keys",
+        requirement("absl-py"),
+        "//tink_config",
+        "//util:testing_servers",
+        "@tink_py//tink:tink_python",
         "@tink_py//tink/proto:tink_py_pb2",
-        "@tink_py//tink/mac",
+    ],
+)
+
+py_test(
+    name = "evaluation_consistency_test",
+    srcs = ["evaluation_consistency_test.py"],
+    deps = [
+        ":hmac_keys",
+        requirement("absl-py"),
+        "//tink_config",
+        "//util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
     ],
 )

@@ -12,51 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import random
+"""Test keys for HMAC."""
 
-from absl.testing import absltest
-from absl.testing import parameterized
-import tink
+from collections.abc import Iterable
+import os
+from typing import Iterator, Tuple
 
 from tink.proto import common_pb2
 from tink.proto import hmac_pb2
-from tink.proto import tink_pb2
-import tink_config
-from util import testing_servers
 
 
-def setUpModule():
-  tink.mac.register()
-  testing_servers.start('aes_ctr_hmac_streaming_key_test')
-
-
-def tearDownModule():
-  testing_servers.stop()
-
-
-def to_keyset(
-    key: hmac_pb2.HmacKey, output_prefix_type: tink_pb2.OutputPrefixType
-) -> tink_pb2.Keyset:
-  """Embeds a HmacKey with the output_prefix_type in a keyset."""
-  return tink_pb2.Keyset(
-      primary_key_id=1234,
-      key=[
-          tink_pb2.Keyset.Key(
-              key_data=tink_pb2.KeyData(
-                  type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-                  value=key.SerializeToString(),
-                  key_material_type='SYMMETRIC',
-              ),
-              output_prefix_type=output_prefix_type,
-              status=tink_pb2.KeyStatusType.ENABLED,
-              key_id=1234,
-          )
-      ],
-  )
-
-
-def valid_keys():
+def _valid_hmac_keys_no_type_url() -> Iterable[hmac_pb2.HmacKey]:
   return [
       # Try SHA1 tag sizes
       hmac_pb2.HmacKey(
@@ -142,12 +108,22 @@ def valid_keys():
   ]
 
 
-def invalid_keys():
+def valid_hmac_keys() -> Iterator[Tuple[str, bytes]]:
+  """Returns pairs (type_url, value) for valid HMAC keys (as in KeyData)."""
+  for msg in _valid_hmac_keys_no_type_url():
+    yield (
+        'type.googleapis.com/google.crypto.tink.HmacKey',
+        msg.SerializeToString(),
+    )
+
+
+def _invalid_hmac_keys_no_type_url() -> Iterable[hmac_pb2.HmacKey]:
+  """Returns a list of HmacKeys which Tink considers invalid."""
   return [
       # Short key size
       hmac_pb2.HmacKey(
           version=0,
-          key_value=os.urandom(9),
+          key_value=os.urandom(15),
           params=hmac_pb2.HmacParams(
               hash=common_pb2.HashType.SHA1, tag_size=10
           ),
@@ -156,9 +132,7 @@ def invalid_keys():
       hmac_pb2.HmacKey(
           version=0,
           key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=9
-          ),
+          params=hmac_pb2.HmacParams(hash=common_pb2.HashType.SHA1, tag_size=9),
       ),
       hmac_pb2.HmacKey(
           version=0,
@@ -227,59 +201,15 @@ def invalid_keys():
   ]
 
 
-def valid_lang_and_key():
-  for lang in tink_config.supported_languages_for_key_type('HmacKey'):
-    for key in valid_keys():
-      yield (lang, key)
-
-
-def consistency_test_cases():
-  for lang1 in tink_config.supported_languages_for_key_type('HmacKey'):
-    for lang2 in tink_config.supported_languages_for_key_type('HmacKey'):
-      for key in valid_keys():
-        for output_prefix_type in [tink_pb2.OutputPrefixType.TINK,
-                                   tink_pb2.OutputPrefixType.LEGACY,
-                                   tink_pb2.OutputPrefixType.RAW,
-                                   tink_pb2.OutputPrefixType.CRUNCHY]:
-          yield (lang1, lang2, key, output_prefix_type)
-
-
-def invalid_lang_and_key():
-  for lang in tink_config.supported_languages_for_key_type('HmacKey'):
-    for key in invalid_keys():
-      yield (lang, key)
-
-
-class HmacKeyTest(parameterized.TestCase):
-  """Tests specific for keys of type HmacKey."""
-
-  @parameterized.parameters(valid_lang_and_key())
-  def test_create_mac(
-      self, lang: str, key: hmac_pb2.HmacKey
-  ):
-    keyset = to_keyset(key, tink_pb2.OutputPrefixType.TINK)
-    testing_servers.remote_primitive(
-        lang, keyset.SerializeToString(), tink.mac.Mac
+def invalid_hmac_keys() -> Iterator[Tuple[str, bytes]]:
+  """Returns pairs (type_url, value) for invalid HMAC keys (as in KeyData)."""
+  for msg in _invalid_hmac_keys_no_type_url():
+    yield (
+        'type.googleapis.com/google.crypto.tink.HmacKey',
+        msg.SerializeToString(),
     )
-
-  @parameterized.parameters(consistency_test_cases())
-  def test_compute_mac_lang1_lang2(
-      self,
-      lang1: str,
-      lang2: str,
-      key: hmac_pb2.HmacKey,
-      output_prefix_type: tink_pb2.OutputPrefixType,
-  ):
-    keyset = to_keyset(key, output_prefix_type)
-    mac1 = testing_servers.remote_primitive(
-        lang1, keyset.SerializeToString(), tink.mac.Mac
-    )
-    mac2 = testing_servers.remote_primitive(
-        lang2, keyset.SerializeToString(), tink.mac.Mac
-    )
-    message = os.urandom(random.choice([0, 1, 17, 31, 1027]))
-    mac2.verify_mac(mac1.compute_mac(message), message)
-
-
-if __name__ == '__main__':
-  absltest.main()
+  # Proto-Unparseable value
+  yield (
+      'type.googleapis.com/google.crypto.tink.HmacKey',
+      b'\x80',
+  )

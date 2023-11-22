@@ -22,6 +22,10 @@ from tink_config import _key_types
 _TYPE_URL_PREFIX = 'type.googleapis.com/google.crypto.tink.'
 
 
+def all_tested_languages() -> List[str]:
+  return ['cc', 'java', 'python', 'go']
+
+
 def all_key_types() -> List[str]:
   """Returns all key types which Tink currently knows in short format.
 
