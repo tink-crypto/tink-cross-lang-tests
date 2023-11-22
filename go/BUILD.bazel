@@ -86,11 +86,13 @@ go_library(
     srcs = ["kms.go"],
     importpath = "github.com/tink-crypto/tink-cross-lang-tests/go/kms",
     deps = [
+        "@com_github_hashicorp_vault_api//:api",
         "@com_github_tink_crypto_tink_go_awskms_v2//integration/awskms",
         "@com_github_tink_crypto_tink_go_gcpkms_v2//integration/gcpkms",
         "@com_github_tink_crypto_tink_go_hcvault_v2//integration/hcvault",
         "@com_github_tink_crypto_tink_go_v2//core/registry",
         "@com_github_tink_crypto_tink_go_v2//testing/fakekms",
+        "@com_github_tink_crypto_tink_go_v2//tink",
         "@org_golang_google_api//option",
     ],
 )

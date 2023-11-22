@@ -18,16 +18,22 @@ package kms
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
 
-	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
+	"github.com/hashicorp/vault/api"
 
 	"flag"
 	"google.golang.org/api/option"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
 	"github.com/tink-crypto/tink-go-awskms/v2/integration/awskms"
 	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
+	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
+	"github.com/tink-crypto/tink-go/v2/tink"
 )
 
 var (
@@ -59,7 +65,7 @@ func RegisterAll() {
 	}
 	registry.RegisterKMSClient(awsClient)
 
-	vaultClient, err := hcvault.NewClient(
+	vaultClient, err := newVaultClient(
 		*hcvaultKeyURIPrefix,
 		// Using InsecureSkipVerify is fine here, since this is just a test running locally.
 		&tls.Config{InsecureSkipVerify: true}, // NOLINT
@@ -68,4 +74,60 @@ func RegisterAll() {
 		log.Fatalf("hcvault.NewClient failed: %v", err)
 	}
 	registry.RegisterKMSClient(vaultClient)
+}
+
+// vaultClient represents a client that connects to the HashiCorp Vault backend. We can't use
+// [hcvault.NewClient] because that uses the legacy format. We only want to test the non-legacy
+// format implemented by [hcvault.NewAEAD].
+type vaultClient struct {
+	keyURIPrefix string
+	client       *api.Logical
+}
+
+var _ registry.KMSClient = (*vaultClient)(nil)
+
+func newVaultClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
+	httpClient := api.DefaultConfig().HttpClient
+	transport := httpClient.Transport.(*http.Transport)
+	if tlsCfg == nil {
+		tlsCfg = &tls.Config{}
+	} else {
+		tlsCfg = tlsCfg.Clone()
+	}
+	transport.TLSClientConfig = tlsCfg
+
+	vURL, err := url.Parse(uriPrefix)
+	if err != nil {
+		return nil, err
+	}
+	cfg := &api.Config{
+		Address:    "https://" + vURL.Host,
+		HttpClient: httpClient,
+	}
+	client, err := api.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+	client.SetToken(token)
+	return &vaultClient{
+		keyURIPrefix: uriPrefix,
+		client:       client.Logical(),
+	}, nil
+
+}
+
+func (c *vaultClient) Supported(keyURI string) bool {
+	return strings.HasPrefix(keyURI, c.keyURIPrefix)
+}
+
+func (c *vaultClient) GetAEAD(keyURI string) (tink.AEAD, error) {
+	if !c.Supported(keyURI) {
+		return nil, errors.New("unsupported keyURI")
+	}
+	u, err := url.Parse(keyURI)
+	if err != nil || u.Scheme != "hcvault" {
+		return nil, errors.New("malformed keyURI")
+	}
+	keyPath := u.EscapedPath()
+	return hcvault.NewAEAD(keyPath, c.client)
 }
