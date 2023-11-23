@@ -61,12 +61,12 @@ def to_keyset(
   )
 
 
-def valid_mac_keys() -> Iterator[Tuple[bytes, str]]:
+def valid_mac_keys() -> Iterator[Tuple[str, bytes]]:
   for pair in hmac_keys.valid_hmac_keys():
     yield pair
 
 
-def invalid_mac_keys() -> Iterator[Tuple[bytes, str]]:
+def invalid_mac_keys() -> Iterator[Tuple[str, bytes]]:
   for pair in hmac_keys.invalid_hmac_keys():
     yield pair
 
