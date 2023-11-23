@@ -23,7 +23,7 @@ _image_prefix() {
 
 # Linux container images for cross language tests.
 readonly TINK_CROSS_LANG_BASE_IMAGE_NAME="linux-tink-cross-lang-base"
-readonly TINK_CROSS_LANG_BASE_IMAGE_HASH="dd3cc25ab9ecbd212189e24762a4142940982a32a643f250247887be93a5d663"
+readonly TINK_CROSS_LANG_BASE_IMAGE_HASH="b2f1935ab3ca0e4b82d997aa4c54e8eabb7ec4d0c8a92354ea146f66dd7eec74"
 readonly TINK_CROSS_LANG_BASE_IMAGE="$(_image_prefix)/${TINK_CROSS_LANG_BASE_IMAGE_NAME}@sha256:${TINK_CROSS_LANG_BASE_IMAGE_HASH}"
 
 unset -f _image_prefix

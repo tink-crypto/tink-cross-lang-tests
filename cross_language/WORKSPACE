@@ -14,6 +14,15 @@ http_archive(
     ],
 )
 
+# Forcing 21.9 to allow building.
+# TODO(b/309764361): Use 25.X here too.
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "5babb8571f1cceafe0c18e13ddb3be556e87e12ceea3463d6b0d0064e6cc1ac3",
+    strip_prefix = "protobuf-21.9",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.9.zip"],
+)
+
 # Needed by com_github_grpc_grpc to build for Python 3.11.
 # See https://github.com/grpc/grpc/pull/33319.
 # TODO(b/295859835): Consider using a more recent version of
@@ -28,8 +37,9 @@ http_archive(
 
 http_archive(
     name = "com_github_grpc_grpc",
-    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.zip"],
+    sha256 = "12cb0fe1daecf80edd8521b3982a81d2b31929ad7eca0ad30365ec981c9a8037",
     strip_prefix = "grpc-1.54.3",
+    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.zip"],
 )
 
 http_archive(
@@ -59,7 +69,7 @@ load("@tink_py//:tink_py_deps_init.bzl", "tink_py_deps_init")
 
 tink_py_deps_init("tink_py")
 
-load("@tink_py_pip_deps//:requirements.bzl", tink_py_install_pypi_deps="install_deps")
+load("@tink_py_pip_deps//:requirements.bzl", tink_py_install_pypi_deps = "install_deps")
 
 tink_py_install_pypi_deps()
 
@@ -112,16 +122,16 @@ pip_parse(
     requirements_lock = "//:requirements.txt",
 )
 
-load("@pip_deps//:requirements.bzl", testing_server_deps_install="install_deps")
+load("@pip_deps//:requirements.bzl", testing_server_deps_install = "install_deps")
 
 testing_server_deps_install()
 
 http_archive(
     name = "org_python_pypi_portpicker",
+    build_file = "portpicker.BUILD.bazel",
+    sha256 = "c55683ad725f5c00a41bc7db0225223e8be024b1fa564d039ed3390e4fd48fb3",
+    strip_prefix = "portpicker-1.5.2/src",
     urls = [
         "https://files.pythonhosted.org/packages/3b/34/bfbd5236c7726452080a92a9f6ea9770cd65f51b05cef319ccb767ed32bf/portpicker-1.5.2.tar.gz",
     ],
-    sha256 = "c55683ad725f5c00a41bc7db0225223e8be024b1fa564d039ed3390e4fd48fb3",
-    strip_prefix = "portpicker-1.5.2/src",
-    build_file = "portpicker.BUILD.bazel",
 )
