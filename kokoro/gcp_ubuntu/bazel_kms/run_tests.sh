@@ -149,7 +149,7 @@ readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
 readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
 cd cross_language
 # TODO(b/276277854) It is not clear why this is needed.
-pip3 install protobuf==4.21.9 --user
+pip3 install protobuf==4.24.3 --user
 pip3 install google-cloud-kms==2.15.0 --user
 
 mkdir /tmp/vault-tls

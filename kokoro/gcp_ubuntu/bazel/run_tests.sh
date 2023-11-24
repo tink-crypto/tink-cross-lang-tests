@@ -29,14 +29,8 @@
 # The user may specify TINK_BASE_DIR as the folder where to look for
 # tink-cross-lang-tests and its dependencies. That is:
 #   ${TINK_BASE_DIR}/tink-cc
-#   ${TINK_BASE_DIR}/tink-cc-awskms
-#   ${TINK_BASE_DIR}/tink-cc-gcpkms
 #   ${TINK_BASE_DIR}/tink-go
-#   ${TINK_BASE_DIR}/tink-go-awskms
-#   ${TINK_BASE_DIR}/tink-go-gcpkms
 #   ${TINK_BASE_DIR}/tink-java
-#   ${TINK_BASE_DIR}/tink-java-awskms
-#   ${TINK_BASE_DIR}/tink-java-gcpkms
 #   ${TINK_BASE_DIR}/tink-py
 # NOTE: They are fetched from GitHub if not found.
 set -eEuo pipefail
@@ -80,14 +74,8 @@ readonly CROSS_LANG_CONTAINER_IMAGE
 readonly GITHUB_ORG="https://github.com/tink-crypto"
 readonly DEPS=(
   "${GITHUB_ORG}/tink-cc"
-  "${GITHUB_ORG}/tink-cc-awskms"
-  "${GITHUB_ORG}/tink-cc-gcpkms"
   "${GITHUB_ORG}/tink-go"
-  "${GITHUB_ORG}/tink-go-awskms"
-  "${GITHUB_ORG}/tink-go-gcpkms"
   "${GITHUB_ORG}/tink-java"
-  "${GITHUB_ORG}/tink-java-awskms"
-  "${GITHUB_ORG}/tink-java-gcpkms"
   "${GITHUB_ORG}/tink-py"
 )
 # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
@@ -140,8 +128,7 @@ if [[ "${FOLDER}" == "cross_language" ]]; then
     --experimental_ui_max_stdouterr_bytes=-1
   )
   # TODO(b/276277854) It is not clear why this is needed.
-  pip3 install protobuf==4.21.9 --user
-  pip3 install google-cloud-kms==2.15.0 --user
+  pip3 install protobuf==4.24.3 --user
 fi
 readonly TEST_OPTIONS
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \

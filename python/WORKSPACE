@@ -3,41 +3,47 @@ workspace(name = "testing_python")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Needed by com_github_grpc_grpc; Matches
-# https://github.com/grpc/grpc/blob/v1.54.3/bazel/grpc_deps.bzl#L384.
+# https://github.com/grpc/grpc/blob/v1.59.3/bazel/grpc_deps.bzl#L384.
 http_archive(
     name = "upb",
-    sha256 = "017a7e8e4e842d01dba5dc8aa316323eee080cd1b75986a7d1f94d87220e6502",
-    strip_prefix = "upb-e4635f223e7d36dfbea3b722a4ca4807a7e882e2",
+    sha256 = "5147e0ab6a28421d1e49004f4a205d84f06b924585e15eaa884cfe13289165b7",
+    strip_prefix = "upb-42cd08932e364a4cde35033b73f15c30250d7c2e",
     urls = [
-        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/upb/archive/e4635f223e7d36dfbea3b722a4ca4807a7e882e2.tar.gz",
-        "https://github.com/protocolbuffers/upb/archive/e4635f223e7d36dfbea3b722a4ca4807a7e882e2.tar.gz",
+        # https://github.com/protocolbuffers/upb/commits/24.x
+        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/upb/archive/42cd08932e364a4cde35033b73f15c30250d7c2e.tar.gz",
+        "https://github.com/protocolbuffers/upb/archive/42cd08932e364a4cde35033b73f15c30250d7c2e.tar.gz",
     ],
 )
 
-# Needed by com_github_grpc_grpc to build for Python 3.11.
-# See https://github.com/grpc/grpc/pull/33319.
-# TODO(b/295859835): Consider using a more recent version of
-# com_github_grpc_grpc that support Python 3.11.
+# Needed by com_github_grpc_grpc; Matches
+# https://github.com/grpc/grpc/blob/v1.59.3/bazel/grpc_deps.bzl#L243
 http_archive(
-    name = "cython",
-    build_file = "@com_github_grpc_grpc//third_party:cython.BUILD",
-    sha256 = "a2da56cc22be823acf49741b9aa3aa116d4f07fa8e8b35a3cb08b8447b37c607",
-    strip_prefix = "cython-0.29.35",
-    urls = ["https://github.com/cython/cython/archive/0.29.35.tar.gz"],
+    name = "com_google_protobuf",
+    patch_args = ["-p1"],
+    patches = [
+        "@com_github_grpc_grpc//third_party:protobuf.patch",
+    ],
+    sha256 = "660ce016f987550bc1ccec4a6ee4199afb871799b696227098e3641476a7d566",
+    strip_prefix = "protobuf-b2b7a51158418f41cff0520894836c15b1738721",
+    urls = [
+        # https://github.com/protocolbuffers/protobuf/commits/v24.3
+        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/protobuf/archive/b2b7a51158418f41cff0520894836c15b1738721.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/b2b7a51158418f41cff0520894836c15b1738721.tar.gz",
+    ],
 )
 
 http_archive(
     name = "com_github_grpc_grpc",
-    sha256 = "12cb0fe1daecf80edd8521b3982a81d2b31929ad7eca0ad30365ec981c9a8037",
-    strip_prefix = "grpc-1.54.3",
-    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.54.3.zip"],
+    sha256 = "03ca78ecf847783ac6e895dc7a24834e86981bd8c5408cf86f6ccee886bd3079",
+    strip_prefix = "grpc-1.59.3",
+    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.59.3.zip"],
 )
 
 http_archive(
     name = "rules_proto_grpc",
-    # sha256 = "928e4205f701b7798ce32f3d2171c1918b363e9a600390a25c876f075f1efc0a",
-    strip_prefix = "rules_proto_grpc-4.4.0",
-    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/refs/tags/4.4.0.zip"],
+    sha256 = "2046e520077f77a87f82cf9bf28cf08a95198a0ef68bd3ce540f657a6b6808da",
+    strip_prefix = "rules_proto_grpc-4.5.0",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/refs/tags/4.5.0.zip"],
 )
 
 http_archive(
