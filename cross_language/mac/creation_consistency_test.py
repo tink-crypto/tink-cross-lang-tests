@@ -21,6 +21,7 @@ import tink
 
 from tink.proto import tink_pb2
 import tink_config
+from mac import aes_cmac_keys
 from mac import hmac_keys
 from util import testing_servers
 
@@ -64,10 +65,14 @@ def to_keyset(
 def valid_mac_keys() -> Iterator[Tuple[str, bytes]]:
   for pair in hmac_keys.valid_hmac_keys():
     yield pair
+  for pair in aes_cmac_keys.valid_aes_cmac_keys():
+    yield pair
 
 
 def invalid_mac_keys() -> Iterator[Tuple[str, bytes]]:
   for pair in hmac_keys.invalid_hmac_keys():
+    yield pair
+  for pair in aes_cmac_keys.invalid_aes_cmac_keys():
     yield pair
 
 

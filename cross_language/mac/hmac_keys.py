@@ -198,6 +198,11 @@ def _invalid_hmac_keys_no_type_url() -> Iterable[hmac_pb2.HmacKey]:
               hash=common_pb2.HashType.SHA512, tag_size=65
           ),
       ),
+      # Params not set
+      hmac_pb2.HmacKey(
+          version=0,
+          key_value=os.urandom(16),
+      ),
   ]
 
 
