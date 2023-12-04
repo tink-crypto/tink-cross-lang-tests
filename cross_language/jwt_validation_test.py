@@ -106,6 +106,7 @@ def tearDownModule():
 def generate_token_from_bytes(header: bytes, payload: bytes) -> str:
   """Generates tokens from bytes with valid MACs."""
   unsigned_compact = (_base64_encode(header) + b'.' + _base64_encode(payload))
+  assert MAC is not None
   mac_value = MAC.compute_mac(unsigned_compact)
   return (unsigned_compact + b'.' + _base64_encode(mac_value)).decode('utf8')
 
