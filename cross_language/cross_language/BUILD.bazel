@@ -310,3 +310,22 @@ py_test(
         "@tink_py//tink/proto:tink_py_pb2",
     ],
 )
+
+py_library(
+    name = "test_key",
+    srcs = ["test_key.py"],
+    deps = [
+        "@tink_py//tink/proto:tink_py_pb2",
+        "//cross_language/tink_config",
+    ],
+)
+
+py_test(
+    name = "test_key_test",
+    srcs = ["test_key_test.py"],
+    deps = [
+        ":test_key",
+        requirement("absl-py"),
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
