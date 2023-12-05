@@ -200,7 +200,7 @@ class KmsAeadTest(parameterized.TestCase):
     encrypt_primitive = testing_servers.remote_primitive(
         lang=encrypt_lang, keyset=keyset, primitive_class=aead.Aead)
     plaintext, associated_data = _get_plaintext_and_aad(kms_aead_template_name,
-                                                        encrypt_primitive.lang)
+                                                        encrypt_lang)
     ciphertext = encrypt_primitive.encrypt(plaintext, associated_data)
     decrypt_primitive = testing_servers.remote_primitive(
         decrypt_lang, keyset, aead.Aead)
@@ -360,7 +360,7 @@ class KmsEnvelopeAeadTest(parameterized.TestCase):
     encrypt_primitive = testing_servers.remote_primitive(
         encrypt_lang, keyset, aead.Aead)
     plaintext, associated_data = _get_plaintext_and_aad(key_template_name,
-                                                        encrypt_primitive.lang)
+                                                        encrypt_lang)
     ciphertext = encrypt_primitive.encrypt(plaintext, associated_data)
 
     # Decrypt.
@@ -400,7 +400,7 @@ class KmsEnvelopeAeadTest(parameterized.TestCase):
     encrypt_primitive = testing_servers.remote_primitive(
         encrypt_lang, keyset, aead.Aead)
     plaintext, associated_data = _get_plaintext_and_aad(key_template_name,
-                                                        encrypt_primitive.lang)
+                                                        encrypt_lang)
     ciphertext = encrypt_primitive.encrypt(plaintext, associated_data)
     decrypt_primitive = testing_servers.remote_primitive(
         decrypt_lang, keyset, aead.Aead)
