@@ -183,7 +183,7 @@ TEST_OPTIONS+=(
 )
 readonly TEST_OPTIONS
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
-  "${TEST_OPTIONS[@]}" -- //:kms_aead_test
+  "${TEST_OPTIONS[@]}" -- //cross_language:kms_aead_test
 EOF
 chmod +x _run_cross_language_test.sh
 
