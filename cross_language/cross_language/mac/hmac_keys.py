@@ -23,8 +23,8 @@ from tink.proto import tink_pb2
 from cross_language import test_key
 
 
-def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
-  """Returns triples (name, validity, proto) for HmacKeys."""
+def _proto_keys_sha1() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys, HashType=SHA1."""
 
   key = hmac_pb2.HmacKey(
       version=0,
@@ -33,22 +33,45 @@ def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
           hash=common_pb2.HashType.SHA1, tag_size=10
       ),
   )
-  yield ('Basic key', True, key)
+  yield ('Basic SHA1 key', True, key)
 
-  ## SHA1 Tag Sizes
   key.params.tag_size = 15
-  yield ('Tag Size 15', True, key)
+  yield ('SHA1, Tag Size 15', True, key)
 
   key.params.tag_size = 20
-  yield ('Tag Size 20', True, key)
+  yield ('SHA1, Tag Size 20', True, key)
 
   key.params.tag_size = 21
-  yield ('Tag Size 21 (invalid)', False, key)
+  yield ('SHA1, Tag Size 21 (invalid)', False, key)
 
   key.params.tag_size = 9
-  yield ('Tag Size 9 (invalid)', False, key)
+  yield ('SHA1, Tag Size 9 (invalid)', False, key)
 
-  ## SHA224 Tag Sizes:
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA1, tag_size=10
+      ),
+  )
+  yield ('SHA1, Key Size 16', True, key)
+
+  key.key_value = os.urandom(15)
+  yield ('SHA1, Key Size 15 (invalid)', False, key)
+
+  key.key_value = os.urandom(8)
+  yield ('SHA1, Key Size 8 (invalid)', False, key)
+
+  key.key_value = os.urandom(27)
+  yield ('SHA1, Key Size 27', True, key)
+
+  key.key_value = os.urandom(1020304)
+  yield ('SHA1, Key Size 1020304', True, key)
+
+
+def _proto_keys_sha224() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys, HashType=SHA224."""
+
   key = hmac_pb2.HmacKey(
       version=0,
       key_value=os.urandom(16),
@@ -56,19 +79,206 @@ def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
           hash=common_pb2.HashType.SHA224, tag_size=10
       ),
   )
-  yield ('SHA224', True, key)
+  yield ('Basic SHA224 key', True, key)
 
-  key.params.tag_size = 10
-  yield ('SHA224 Tag Size 10', True, key)
-
-  key.params.tag_size = 9
-  yield ('SHA224 Tag Size 9 (invalid)', False, key)
+  key.params.tag_size = 15
+  yield ('SHA224, Tag Size 15', True, key)
 
   key.params.tag_size = 28
-  yield ('SHA224 Tag Size 28', True, key)
+  yield ('SHA224, Tag Size 28', True, key)
 
   key.params.tag_size = 29
-  yield ('SHA224 Tag Size 29 (invalid)', False, key)
+  yield ('SHA224, Tag Size 29 (invalid)', False, key)
+
+  key.params.tag_size = 9
+  yield ('SHA224, Tag Size 9 (invalid)', False, key)
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA224, tag_size=10
+      ),
+  )
+  yield ('SHA224, Key Size 16', True, key)
+
+  key.key_value = os.urandom(15)
+  yield ('SHA224, Key Size 15 (invalid)', False, key)
+
+  key.key_value = os.urandom(8)
+  yield ('SHA224, Key Size 8 (invalid)', False, key)
+
+  key.key_value = os.urandom(32)
+  yield ('SHA224, Key Size 32', True, key)
+
+  key.key_value = os.urandom(1020304)
+  yield ('SHA224, Key Size 1020304', True, key)
+
+
+def _proto_keys_sha256() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys, HashType=SHA256."""
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA256, tag_size=10
+      ),
+  )
+  yield ('Basic SHA256 key', True, key)
+
+  key.params.tag_size = 10
+  yield ('SHA256, Tag Size 10', True, key)
+
+  key.params.tag_size = 32
+  yield ('SHA256, Tag Size 32', True, key)
+
+  key.params.tag_size = 33
+  yield ('SHA256, Tag Size 33 (invalid)', False, key)
+
+  key.params.tag_size = 9
+  yield ('SHA256, Tag Size 9 (invalid)', False, key)
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA256, tag_size=10
+      ),
+  )
+  key.key_value = os.urandom(15)
+  yield ('SHA256, Key Size 15 (invalid)', False, key)
+
+  key.key_value = os.urandom(8)
+  yield ('SHA256, Key Size 8 (invalid)', False, key)
+
+  key.key_value = os.urandom(32)
+  yield ('SHA256, Key Size 32', True, key)
+
+  key.key_value = os.urandom(1020304)
+  yield ('SHA256, Key Size 1020304', True, key)
+
+
+def _proto_keys_sha384() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys, HashType=SHA512."""
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA384, tag_size=10
+      ),
+  )
+  yield ('Basic SHA384 key', True, key)
+
+  key.params.tag_size = 10
+  yield ('SHA384, Tag Size 10', True, key)
+
+  key.params.tag_size = 48
+  yield ('SHA384, Tag Size 48', True, key)
+
+  key.params.tag_size = 49
+  yield ('SHA384, Tag Size 49 (invalid)', False, key)
+
+  key.params.tag_size = 9
+  yield ('SHA384, Tag Size 9 (invalid)', False, key)
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA384, tag_size=10
+      ),
+  )
+  yield ('SHA384, Key Size 16', True, key)
+
+  key.key_value = os.urandom(15)
+  yield ('SHA384, Key Size 15 (invalid)', False, key)
+
+  key.key_value = os.urandom(8)
+  yield ('SHA384, Key Size 8 (invalid)', False, key)
+
+  key.key_value = os.urandom(32)
+  yield ('SHA384, Key Size 32', True, key)
+
+  key.key_value = os.urandom(1020304)
+  yield ('SHA384, Key Size 1020304', True, key)
+
+
+def _proto_keys_sha512() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys, HashType=SHA512."""
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA512, tag_size=10
+      ),
+  )
+  yield ('Basic SHA512 key', True, key)
+
+  key.params.tag_size = 10
+  yield ('SHA512, Tag Size 10', True, key)
+
+  key.params.tag_size = 64
+  yield ('SHA512, Tag Size 64', True, key)
+
+  key.params.tag_size = 65
+  yield ('SHA512, Tag Size 65 (invalid)', False, key)
+
+  key.params.tag_size = 9
+  yield ('SHA512, Tag Size 9 (invalid)', False, key)
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA512, tag_size=10
+      ),
+  )
+  yield ('SHA512, Key Size 16', True, key)
+
+  key.key_value = os.urandom(15)
+  yield ('SHA512, Key Size 15 (invalid)', False, key)
+
+  key.key_value = os.urandom(8)
+  yield ('SHA512, Key Size 8 (invalid)', False, key)
+
+  key.key_value = os.urandom(17)
+  yield ('SHA512, Key Size 17', True, key)
+
+  key.key_value = os.urandom(1020304)
+  yield ('SHA512, Key Size 1020304', True, key)
+
+
+def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys."""
+
+  for triple in _proto_keys_sha1():
+    yield triple
+  for triple in _proto_keys_sha224():
+    yield triple
+  for triple in _proto_keys_sha256():
+    yield triple
+  for triple in _proto_keys_sha384():
+    yield triple
+  for triple in _proto_keys_sha512():
+    yield triple
+
+  key = hmac_pb2.HmacKey(
+      version=1,
+      key_value=os.urandom(10),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA256, tag_size=10
+      ),
+  )
+  yield ('Version 1 (invalid)', False, key)
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(10),
+  )
+  yield ('Params not set (invalid)', False, key)
 
 
 def hmac_keys() -> Iterator[test_key.TestKey]:
