@@ -1,0 +1,48 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+py_library(
+    name = "ecies_keys",
+    srcs = ["ecies_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "//cross_language/util:utilities",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:ecies_aead_hkdf_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "creation_consistency_test",
+    srcs = ["creation_consistency_test.py"],
+    deps = [
+        ":ecies_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "evaluation_consistency_test",
+    srcs = ["evaluation_consistency_test.py"],
+    deps = [
+        ":ecies_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
