@@ -1,0 +1,58 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+py_library(
+    name = "aes_eax_keys",
+    srcs = ["aes_eax_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:aes_eax_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_library(
+    name = "aes_gcm_keys",
+    srcs = ["aes_gcm_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:aes_gcm_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "creation_consistency_test",
+    srcs = ["creation_consistency_test.py"],
+    deps = [
+        ":aes_eax_keys",
+        ":aes_gcm_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "evaluation_consistency_test",
+    srcs = ["evaluation_consistency_test.py"],
+    deps = [
+        ":aes_eax_keys",
+        ":aes_gcm_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
