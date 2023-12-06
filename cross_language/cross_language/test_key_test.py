@@ -26,6 +26,7 @@ class TestKeyTest(absltest.TestCase):
         type_url='type.googleapis.com/google.crypto.tink.HmacKey',
         serialized_value=b'some_serialized_value',
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
     )
 
   def test_to_string_works(self):
@@ -35,19 +36,88 @@ class TestKeyTest(absltest.TestCase):
         serialized_value=b'some_serialized_value',
         key_id=1234,
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
     )
     self.assertIn('HmacKey', str(key))
     self.assertIn('some_test_name', str(key))
 
-  def test_key_type_works(self):
+  def test_omit_valid_throws(self):
+    with self.assertRaises(AssertionError):
+      test_key.TestKey(
+          test_name='some_test_name',
+          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+          serialized_value=b'some_serialized_value',
+          key_id=1234,
+          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      )
+
+  def test_set_valid_and_supported_languages_throws(self):
+    with self.assertRaises(AssertionError):
+      test_key.TestKey(
+          test_name='some_test_name',
+          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+          serialized_value=b'some_serialized_value',
+          key_id=1234,
+          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+          valid=True,
+          supported_languages=['java'],
+      )
+
+  def test_valid_true_works(self):
     key = test_key.TestKey(
         test_name='some_test_name',
         type_url='type.googleapis.com/google.crypto.tink.HmacKey',
         serialized_value=b'some_serialized_value',
         key_id=1234,
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
     )
-    self.assertEqual(key.key_type(), 'HmacKey')
+    self.assertTrue(key.supported_in('cc'))
+
+  def test_valid_false_works(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_id=1234,
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=False,
+    )
+    self.assertFalse(key.supported_in('cc'))
+
+  def test_supported_languages_works(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_id=1234,
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        supported_languages=['java'],
+    )
+    self.assertTrue(key.supported_in('java'))
+    self.assertFalse(key.supported_in('cc'))
+
+  def test_supported_languages_empty_works(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_id=1234,
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        supported_languages=[],
+    )
+    self.assertFalse(key.supported_in('java'))
+
+  def test_supported_languages_none_throws(self):
+    with self.assertRaises(AssertionError):
+      test_key.TestKey(
+          test_name='some_test_name',
+          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+          serialized_value=b'some_serialized_value',
+          key_id=1234,
+          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+          supported_languages=None,
+      )
 
   def test_to_keyset_works(self):
     key = test_key.TestKey(
@@ -57,6 +127,7 @@ class TestKeyTest(absltest.TestCase):
         key_material_type=tink_pb2.KeyData.KeyMaterialType.REMOTE,
         output_prefix_type=tink_pb2.OutputPrefixType.RAW,
         key_status=tink_pb2.KeyStatusType.DISABLED,
+        valid=True,
     )
     keyset_bytes = key.as_serialized_keyset()
     keyset = tink_pb2.Keyset.FromString(keyset_bytes)
@@ -77,6 +148,30 @@ class TestKeyTest(absltest.TestCase):
         keyset.key[0].output_prefix_type, tink_pb2.OutputPrefixType.RAW
     )
 
+  def test_valid_false_works_with_invalid_keytype(self):
+    """Setting valid=False works if non-existing key types are used.
+
+    This because it should be possible to create TestKeys even for invalid
+    type_urls. If valid=True is used this forces a lookup in the tink_config.
+    This must be avoided if valid=False is used.
+    """
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='some invalid type url',
+        serialized_value=b'some_serialized_value',
+        key_id=1234,
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=False,
+    )
+    keyset_bytes = key.as_serialized_keyset()
+    keyset = tink_pb2.Keyset.FromString(keyset_bytes)
+    self.assertGreater(keyset.primary_key_id, 0)
+    self.assertLen(keyset.key, 1)
+    self.assertEqual(
+        keyset.key[0].key_data.type_url,
+        'some invalid type url',
+    )
+
   def test_setting_key_id_works(self):
     key = test_key.TestKey(
         test_name='some_test_name',
@@ -86,6 +181,7 @@ class TestKeyTest(absltest.TestCase):
         key_material_type=tink_pb2.KeyData.KeyMaterialType.REMOTE,
         output_prefix_type=tink_pb2.OutputPrefixType.RAW,
         key_status=tink_pb2.KeyStatusType.DISABLED,
+        valid=True,
     )
     keyset_bytes = key.as_serialized_keyset()
     keyset = tink_pb2.Keyset.FromString(keyset_bytes)

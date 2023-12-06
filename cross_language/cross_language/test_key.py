@@ -15,10 +15,15 @@
 """Provides TestKey objects to store keys in tests."""
 
 import random
-from typing import Optional
+from typing import Optional, List
 
 from tink.proto import tink_pb2
 from cross_language import tink_config
+
+
+def _languages_for(type_url: str) -> List[str]:
+  key_type = tink_config.key_type_from_type_url(type_url)
+  return tink_config.supported_languages_for_key_type(key_type)
 
 
 class TestKey:
@@ -37,6 +42,8 @@ class TestKey:
       type_url: str,
       serialized_value: bytes,
       key_material_type: tink_pb2.KeyData.KeyMaterialType,
+      valid: Optional[bool] = None,
+      supported_languages: Optional[List[str]] = None,
       key_id: Optional[int] = None,
       output_prefix_type: tink_pb2.OutputPrefixType = tink_pb2.OutputPrefixType.TINK,
       key_status: tink_pb2.KeyStatusType = tink_pb2.KeyStatusType.ENABLED,
@@ -50,12 +57,23 @@ class TestKey:
       type_url: The type_url for Keyset.Key.KeyData.type_url
       serialized_value: The value for Keyset.Key.KeyData.value
       key_material_type: The value for Keyset.Key.KeyData.key_material_type
+      valid: True or False, or omitted. If omitted, supported_languages needs to
+        be specified.
+      supported_languages (optional): The languages this key supports. If
+        omitted, valid needs to be specified.
       key_id (optional): The value which will go into Keyset.Key.key_id. Random
         if not set.
       output_prefix_type (optional): The value for Keyset.Key.output_prefix_type
       key_status (optional): The value for Keyset.Key.key_status
     """
     key_id = random.randint(0, 2**32) if key_id is None else key_id
+    if valid is not None:
+      assert supported_languages is None
+      self._supported_languages = _languages_for(type_url) if valid else []
+    else:
+      assert supported_languages is not None
+      self._supported_languages = supported_languages
+
     self._name = test_name
     self._key = tink_pb2.Keyset.Key(
         key_data=tink_pb2.KeyData(
@@ -68,13 +86,13 @@ class TestKey:
         output_prefix_type=output_prefix_type,
     )
 
-  def key_type(self) -> str:
-    """Returns the key type (i.e., the shortened type url)."""
-    return tink_config.key_type_from_type_url(self._key.key_data.type_url)
+  def supported_in(self, lang: str) -> bool:
+    return lang in self._supported_languages
 
   def __str__(self) -> str:
     """Returns the key type and name of this key."""
-    return self.key_type() + ":" + self._name
+    key_type = tink_config.key_type_from_type_url(self._key.key_data.type_url)
+    return key_type + ":" + self._name
 
   def as_serialized_keyset(self) -> bytes:
     """Embeds this key in a Keyset and returns the serialization of it."""

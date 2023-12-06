@@ -14,207 +14,78 @@
 
 """Test keys for HMAC."""
 
-from collections.abc import Iterable
 import os
 from typing import Iterator, Tuple
 
 from tink.proto import common_pb2
 from tink.proto import hmac_pb2
+from tink.proto import tink_pb2
+from cross_language import test_key
 
 
-def _valid_hmac_keys_no_type_url() -> Iterable[hmac_pb2.HmacKey]:
-  return [
-      # Try SHA1 tag sizes
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
+def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
+  """Returns triples (name, validity, proto) for HmacKeys."""
+
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA1, tag_size=10
       ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=15
-          ),
+  )
+  yield ('Basic key', True, key)
+
+  ## SHA1 Tag Sizes
+  key.params.tag_size = 15
+  yield ('Tag Size 15', True, key)
+
+  key.params.tag_size = 20
+  yield ('Tag Size 20', True, key)
+
+  key.params.tag_size = 21
+  yield ('Tag Size 21 (invalid)', False, key)
+
+  key.params.tag_size = 9
+  yield ('Tag Size 9 (invalid)', False, key)
+
+  ## SHA224 Tag Sizes:
+  key = hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA224, tag_size=10
       ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=20
-          ),
-      ),
-      # Try SHA1 key sizes
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(17),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(30),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
-      ),
-      # Very large key
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(1274),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
-      ),
-      # Different hash functions, min tag & key size.
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA224, tag_size=10
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA256, tag_size=10
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA384, tag_size=10
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA512, tag_size=10
-          ),
-      ),
-  ]
+  )
+  yield ('SHA224', True, key)
+
+  key.params.tag_size = 10
+  yield ('SHA224 Tag Size 10', True, key)
+
+  key.params.tag_size = 9
+  yield ('SHA224 Tag Size 9 (invalid)', False, key)
+
+  key.params.tag_size = 28
+  yield ('SHA224 Tag Size 28', True, key)
+
+  key.params.tag_size = 29
+  yield ('SHA224 Tag Size 29 (invalid)', False, key)
 
 
-def valid_hmac_keys() -> Iterator[Tuple[str, bytes]]:
-  """Returns pairs (type_url, value) for valid HMAC keys (as in KeyData)."""
-  for msg in _valid_hmac_keys_no_type_url():
-    yield (
-        'type.googleapis.com/google.crypto.tink.HmacKey',
-        msg.SerializeToString(),
-    )
-
-
-def _invalid_hmac_keys_no_type_url() -> Iterable[hmac_pb2.HmacKey]:
-  """Returns a list of HmacKeys which Tink considers invalid."""
-  return [
-      # Short key size
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(15),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=10
-          ),
-      ),
-      # Too short tag
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(hash=common_pb2.HashType.SHA1, tag_size=9),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA224, tag_size=9
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA256, tag_size=9
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA384, tag_size=9
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA512, tag_size=9
-          ),
-      ),
-      # Too long tag
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA1, tag_size=21
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA224, tag_size=29
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA256, tag_size=33
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA384, tag_size=49
-          ),
-      ),
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-          params=hmac_pb2.HmacParams(
-              hash=common_pb2.HashType.SHA512, tag_size=65
-          ),
-      ),
-      # Params not set
-      hmac_pb2.HmacKey(
-          version=0,
-          key_value=os.urandom(16),
-      ),
-  ]
-
-
-def invalid_hmac_keys() -> Iterator[Tuple[str, bytes]]:
-  """Returns pairs (type_url, value) for invalid HMAC keys (as in KeyData)."""
-  for msg in _invalid_hmac_keys_no_type_url():
-    yield (
-        'type.googleapis.com/google.crypto.tink.HmacKey',
-        msg.SerializeToString(),
+def hmac_keys() -> Iterator[test_key.TestKey]:
+  """Returns test keys for HMac."""
+  for (name, valid, msg) in _proto_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=msg.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=valid,
     )
   # Proto-Unparseable value
-  yield (
-      'type.googleapis.com/google.crypto.tink.HmacKey',
-      b'\x80',
+  yield test_key.TestKey(
+      test_name='Invalid proto-unparseable value',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=b'\x80',
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      valid=False,
   )

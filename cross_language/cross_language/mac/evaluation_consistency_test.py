@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import binascii
 import os
 import random
-from typing import Iterator, Tuple
+from typing import Iterator
 
 from absl.testing import absltest
 import tink
 
-from tink.proto import tink_pb2
+from cross_language import test_key
 from cross_language import tink_config
 from cross_language.mac import aes_cmac_keys
 from cross_language.mac import hmac_keys
@@ -36,37 +35,10 @@ def tearDownModule():
   testing_servers.stop()
 
 
-def to_hex(s: bytes) -> str:
-  return binascii.hexlify(s).decode('utf-8')
-
-
-def to_keyset(
-    serialized_key: bytes,
-    type_url: str,
-    output_prefix_type: tink_pb2.OutputPrefixType,
-) -> tink_pb2.Keyset:
-  """Embeds a Key in a keyset."""
-  return tink_pb2.Keyset(
-      primary_key_id=1234,
-      key=[
-          tink_pb2.Keyset.Key(
-              key_data=tink_pb2.KeyData(
-                  type_url=type_url,
-                  value=serialized_key,
-                  key_material_type='SYMMETRIC',
-              ),
-              output_prefix_type=output_prefix_type,
-              status=tink_pb2.KeyStatusType.ENABLED,
-              key_id=1234,
-          )
-      ],
-  )
-
-
-def valid_mac_keys() -> Iterator[Tuple[str, bytes]]:
-  for pair in hmac_keys.valid_hmac_keys():
+def valid_mac_keys() -> Iterator[test_key.TestKey]:
+  for pair in hmac_keys.hmac_keys():
     yield pair
-  for pair in aes_cmac_keys.valid_aes_cmac_keys():
+  for pair in aes_cmac_keys.aes_cmac_keys():
     yield pair
 
 
@@ -77,30 +49,20 @@ class EvaluationConsistencyTest(absltest.TestCase):
   """
 
   def test_evaluation_consistency(self):
-    for type_url, key in valid_mac_keys():
-      key_type = tink_config.key_type_from_type_url(type_url)
-      langs = tink_config.supported_languages_for_key_type(key_type)
-      for i, lang1 in enumerate(langs):
-        lang2 = langs[(i + 1) % len(langs)]
-        with self.subTest(
-            'lang1: '
-            + lang1
-            + ', lang2: '
-            + lang2
-            + ', key_type'
-            + key_type
-            + ', Key: '
-            + to_hex(key)
-        ):
-          keyset = to_keyset(key, type_url, tink_pb2.OutputPrefixType.TINK)
-          mac1 = testing_servers.remote_primitive(
-              lang1, keyset.SerializeToString(), tink.mac.Mac
-          )
-          mac2 = testing_servers.remote_primitive(
-              lang2, keyset.SerializeToString(), tink.mac.Mac
-          )
-          message = os.urandom(random.choice([0, 1, 17, 31, 1027]))
-          mac2.verify_mac(mac1.compute_mac(message), message)
+    for key in valid_mac_keys():
+      for lang1 in tink_config.all_tested_languages():
+        for lang2 in tink_config.all_tested_languages():
+          if key.supported_in(lang1) and key.supported_in(lang2):
+            with self.subTest(lang1 + '->' + lang2 + ': ' + str(key)):
+              keyset = key.as_serialized_keyset()
+              mac1 = testing_servers.remote_primitive(
+                  lang1, keyset, tink.mac.Mac
+              )
+              mac2 = testing_servers.remote_primitive(
+                  lang2, keyset, tink.mac.Mac
+              )
+              message = os.urandom(random.choice([0, 1, 17, 31, 1027]))
+              mac2.verify_mac(mac1.compute_mac(message), message)
 
 
 if __name__ == '__main__':
