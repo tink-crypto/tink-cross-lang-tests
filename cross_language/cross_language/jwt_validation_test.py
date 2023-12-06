@@ -43,7 +43,6 @@ EXAMPLE_TOKEN = ('eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.'
                  'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk')
 KEY_VALUE = (b'AyM1SysPpbyDfgZld3umj1qzKObwVMkoqQ-EstJQLr_T-'
              b'1qS0gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr1Z9CAow==')
-KEYSET = None
 MAC = None
 EMPTY_VALIDATOR = jwt.new_validator(allow_missing_expiration=True)
 
@@ -91,11 +90,10 @@ def _mac() -> mac.Mac:
 
 
 def setUpModule():
-  global KEYSET, MAC
+  global MAC
   jwt.register_jwt_mac()
   mac.register()
   testing_servers.start('jwt')
-  KEYSET = _keyset()
   MAC = _mac()
 
 
@@ -129,7 +127,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_valid(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     verified_jwt = jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
     self.assertEqual(verified_jwt.jwt_id(), '123')
 
@@ -137,7 +135,7 @@ class JwtTest(parameterized.TestCase):
   def test_verify_unknown_header_valid(self, lang):
     token = generate_token('{"alg":"HS256", "unknown":{"a":"b"}}',
                            '{"jti":"123"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     verified_jwt = jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
     self.assertEqual(verified_jwt.jwt_id(), '123')
 
@@ -145,7 +143,7 @@ class JwtTest(parameterized.TestCase):
   def test_verify_empty_crit_header_invalid(self, lang):
     # See https://tools.ietf.org/html/rfc7515#section-4.1.11
     token = generate_token('{"alg":"HS256", "crit":[]}', '{"jti":"123"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
@@ -155,7 +153,7 @@ class JwtTest(parameterized.TestCase):
     token = generate_token(
         '{"alg":"HS256","crit":["http://example.invalid/UNDEFINED"],'
         '"http://example.invalid/UNDEFINED":true}', '{"jti":"123"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
@@ -163,7 +161,7 @@ class JwtTest(parameterized.TestCase):
   def test_verify_typ_header(self, lang):
     token = generate_token(
         '{"typ":"typeHeader", "alg":"HS256"}', '{"jti":"123"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validator_with_correct_type_header = jwt.new_validator(
         expected_type_header='typeHeader', allow_missing_expiration=True)
@@ -185,7 +183,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_expiration(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "exp":1234}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     # same time is expired.
     validator_with_same_time = jwt.new_validator(
@@ -215,7 +213,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_float_expiration(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "exp":1234.5}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validate_after = jwt.new_validator(
         fixed_now=datetime.datetime.fromtimestamp(1235.5,
@@ -231,33 +229,33 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_exp_expiration_is_fine(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"exp":1e10}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_large_expiration_is_fine(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"exp":253402300799}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_too_large_expiration_is_invalid(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"exp":253402300800}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_way_too_large_expiration_is_invalid(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"exp":1e30}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_infinity_expiration_is_invalid(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "exp":Infinity}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -265,7 +263,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_not_before(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "nbf":1234}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     # same time as not-before fine.
     validator_same_time = jwt.new_validator(
@@ -298,7 +296,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_float_not_before(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "nbf":1234.5}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validator_before = jwt.new_validator(
         allow_missing_expiration=True,
@@ -316,7 +314,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_issued_at(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "iat":1234}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     # same time as issued-at fine.
     validator_same_time = jwt.new_validator(
@@ -359,7 +357,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_issuer(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"iss":"joe"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validator_with_correct_issuer = jwt.new_validator(
         expected_issuer='joe', allow_missing_expiration=True)
@@ -386,7 +384,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_duplicated_issuer(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"iss":"joe", "iss":"jane"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validator_with_second_issuer = jwt.new_validator(
         ignore_issuer=True, allow_missing_expiration=True)
@@ -396,7 +394,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_empty_string_issuer(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"iss":""}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     jwt_mac.verify_mac_and_decode(
         token,
         jwt.new_validator(expected_issuer='', allow_missing_expiration=True))
@@ -404,7 +402,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_issuer_with_wrong_type(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"iss":123}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -413,14 +411,14 @@ class JwtTest(parameterized.TestCase):
   def test_verify_invalid_utf8_in_header(self, lang):
     token = generate_token_from_bytes(b'{"alg":"HS256", "a":"\xc2"}',
                                       b'{"iss":"joe"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_invalid_utf8_in_payload(self, lang):
     token = generate_token_from_bytes(b'{"alg":"HS256"}', b'{"jti":"joe\xc2"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
@@ -429,7 +427,7 @@ class JwtTest(parameterized.TestCase):
     # The JSON string contains the G clef character (U+1D11E) in UTF8.
     token = generate_token_from_bytes(b'{"alg":"HS256"}',
                                       b'{"jti":"\xF0\x9D\x84\x9E"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     token = jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
     self.assertEqual(token.jwt_id(), u'\U0001d11e')
 
@@ -438,7 +436,7 @@ class JwtTest(parameterized.TestCase):
     # The JSON string contains "\uD834\uDD1E", which should decode to
     # the G clef character (U+1D11E).
     token = generate_token('{"alg":"HS256"}', '{"jti":"\\uD834\\uDD1E"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     token = jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
     self.assertEqual(token.jwt_id(), u'\U0001d11e')
 
@@ -447,7 +445,7 @@ class JwtTest(parameterized.TestCase):
     # The JSON string contains "\uD834", which gets decoded into an invalid
     # UTF16 character.
     token = generate_token('{"alg":"HS256"}', '{"jti":"\\uD834"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
@@ -455,14 +453,14 @@ class JwtTest(parameterized.TestCase):
   def test_verify_with_invalid_json_escaped_utf16_in_claim_name(self, lang):
     token = generate_token('{"alg":"HS256"}',
                            '{"\\uD800\\uD800claim":"value"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_audience(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"aud":["joe", "jane"]}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     validator_with_correct_audience = jwt.new_validator(
         expected_audience='joe', allow_missing_expiration=True)
@@ -494,7 +492,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_audience_string(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"aud":"joe"}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     val1 = jwt.new_validator(
         expected_audience='joe', allow_missing_expiration=True)
@@ -507,7 +505,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_audiences_with_wrong_type(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"aud":["joe", 123]}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -515,7 +513,7 @@ class JwtTest(parameterized.TestCase):
   @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_token_with_empty_audiences(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"aud":[]}')
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -524,7 +522,7 @@ class JwtTest(parameterized.TestCase):
   def test_verify_token_with_utf_16_encoded_payload_fails(self, lang):
     token = generate_token_from_bytes('{"alg":"HS256"}'.encode('utf-8'),
                                       '{"iss":"joe"}'.encode('utf-16'))
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -533,7 +531,7 @@ class JwtTest(parameterized.TestCase):
   def test_verify_token_with_utf_32_encoded_payload_fails(self, lang):
     token = generate_token_from_bytes('{"alg":"HS256"}'.encode('utf-8'),
                                       '{"iss":"joe"}'.encode('utf-32'))
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
 
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
@@ -543,7 +541,7 @@ class JwtTest(parameterized.TestCase):
     num_recursions = 10
     payload = ('{"a":' * num_recursions) + '""' + ('}' * num_recursions)
     token = generate_token('{"alg":"HS256"}', payload)
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
@@ -556,7 +554,7 @@ class JwtTest(parameterized.TestCase):
     num_recursions = 10000
     payload = ('{"a":' * num_recursions) + '""' + ('}' * num_recursions)
     token = generate_token('{"alg":"HS256"}', payload)
-    jwt_mac = testing_servers.remote_primitive(lang, KEYSET, jwt.JwtMac)
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
