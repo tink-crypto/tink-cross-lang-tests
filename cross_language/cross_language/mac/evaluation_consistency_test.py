@@ -53,7 +53,7 @@ class EvaluationConsistencyTest(absltest.TestCase):
       for lang1 in tink_config.all_tested_languages():
         for lang2 in tink_config.all_tested_languages():
           if key.supported_in(lang1) and key.supported_in(lang2):
-            with self.subTest(lang1 + '->' + lang2 + ': ' + str(key)):
+            with self.subTest(f'{lang1} -> {lang2}: {key}'):
               keyset = key.as_serialized_keyset()
               mac1 = testing_servers.remote_primitive(
                   lang1, keyset, tink.mac.Mac

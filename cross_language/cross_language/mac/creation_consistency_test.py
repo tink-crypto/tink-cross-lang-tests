@@ -51,7 +51,7 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in mac_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
-        with self.subTest(lang + ', ' + str(key) + '(' + str(supported) + ')'):
+        with self.subTest(f'{lang}, {key}, ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
             testing_servers.remote_primitive(lang, keyset, tink.mac.Mac)
