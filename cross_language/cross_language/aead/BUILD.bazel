@@ -27,12 +27,34 @@ py_library(
     ],
 )
 
+py_library(
+    name = "xchacha20_poly1305_keys",
+    srcs = ["xchacha20_poly1305_keys.py"],
+    deps = [
+        "@tink_py//tink/proto:tink_py_pb2",
+        "@tink_py//tink/proto:xchacha20_poly1305_py_pb2",
+        "//cross_language:test_key",
+    ],
+)
+
+py_library(
+    name = "chacha20_poly1305_keys",
+    srcs = ["chacha20_poly1305_keys.py"],
+    deps = [
+        "@tink_py//tink/proto:chacha20_poly1305_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+        "//cross_language:test_key",
+    ],
+)
+
 py_test(
     name = "creation_consistency_test",
     srcs = ["creation_consistency_test.py"],
     deps = [
         ":aes_eax_keys",
         ":aes_gcm_keys",
+        ":chacha20_poly1305_keys",
+        ":xchacha20_poly1305_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
@@ -48,6 +70,8 @@ py_test(
     deps = [
         ":aes_eax_keys",
         ":aes_gcm_keys",
+        ":chacha20_poly1305_keys",
+        ":xchacha20_poly1305_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
