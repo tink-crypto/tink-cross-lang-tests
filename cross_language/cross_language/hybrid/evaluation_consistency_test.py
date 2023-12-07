@@ -35,7 +35,7 @@ def tearDownModule():
 
 
 def hybrid_keys() -> Iterator[test_key.TestKey]:
-  for key in ecies_keys.ecies_keys():
+  for key in ecies_keys.ecies_private_keys():
     yield key
 
 

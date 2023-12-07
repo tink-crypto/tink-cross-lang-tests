@@ -33,7 +33,12 @@ def tearDownModule():
 
 
 def hybrid_private_keys() -> Iterator[test_key.TestKey]:
-  for key in ecies_keys.ecies_keys():
+  for key in ecies_keys.ecies_private_keys():
+    yield key
+
+
+def hybrid_public_keys() -> Iterator[test_key.TestKey]:
+  for key in ecies_keys.ecies_public_keys():
     yield key
 
 
@@ -43,8 +48,8 @@ class CreationConsistencyTest(absltest.TestCase):
   See https://developers.google.com/tink/design/consistency.
   """
 
-  def test_creation(self):
-    """Tests: Creation consistency, supported languages, valid keys."""
+  def test_create_hybrid_decrypt(self):
+    """Tests: Creation of HybridDecrypt from private key."""
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
@@ -60,8 +65,14 @@ class CreationConsistencyTest(absltest.TestCase):
                   lang, keyset, tink.hybrid.HybridDecrypt
               )
 
-  def test_creation_public_key(self):
-    """Tests: Creation consistency, supported languages, valid keys."""
+  def test_create_hybrid_encrypt_via_private_key(self):
+    """Tests: Creation of HybridEncrypt from private key.
+
+    For keys not supported in a language, this must fail either when we get the
+    keyset, or when we create the primitive. Note that getting the keyset alone
+    can be fine (for example, Tink may allow getting the public keyset with a
+    key size which is too short, but not creating the primitive).
+    """
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
@@ -75,6 +86,23 @@ class CreationConsistencyTest(absltest.TestCase):
           else:
             with self.assertRaises(tink.TinkError):
               public_keyset = testing_servers.public_keyset(lang, keyset)
+              testing_servers.remote_primitive(
+                  lang, public_keyset, tink.hybrid.HybridEncrypt
+              )
+
+  def test_create_hybrid_encrypt_via_public_key(self):
+    """Tests: Creation of HybridEncrypt from public key."""
+    for public_key in hybrid_public_keys():
+      for lang in tink_config.all_tested_languages():
+        supported = public_key.supported_in(lang)
+        with self.subTest(f'{lang}, {public_key} ({supported})'):
+          public_keyset = public_key.as_serialized_keyset()
+          if supported:
+            testing_servers.remote_primitive(
+                lang, public_keyset, tink.hybrid.HybridEncrypt
+            )
+          else:
+            with self.assertRaises(tink.TinkError):
               testing_servers.remote_primitive(
                   lang, public_keyset, tink.hybrid.HybridEncrypt
               )

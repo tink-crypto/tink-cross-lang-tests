@@ -136,8 +136,8 @@ def _valid_xchacha_keys() -> (
   yield ('XChaChaPoly201305', key_proto)
 
 
-def ecies_keys() -> Iterator[test_key.TestKey]:
-  """Returns test keys for ECIES."""
+def ecies_private_keys() -> Iterator[test_key.TestKey]:
+  """Returns test keys for ECIES (EciesAeadHkdfPrivateKey)."""
 
   for (name, valid, key_proto) in _varied_hash_function():
     yield test_key.TestKey(
@@ -176,5 +176,49 @@ def ecies_keys() -> Iterator[test_key.TestKey]:
       type_url='type.googleapis.com/google.crypto.tink.EciesAeadHkdfPrivateKey',
       serialized_value=b'\x80',
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+      valid=False,
+  )
+
+
+def ecies_public_keys() -> Iterator[test_key.TestKey]:
+  """Returns test keys for ECIES (EciesAeadHkdfPublicKey)."""
+
+  for (name, valid, key_proto) in _varied_hash_function():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=(
+            'type.googleapis.com/google.crypto.tink.EciesAeadHkdfPublicKey'
+        ),
+        serialized_value=key_proto.public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        valid=valid,
+    )
+  for (name, valid, key_proto) in _varied_point_format():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=(
+            'type.googleapis.com/google.crypto.tink.EciesAeadHkdfPublicKey'
+        ),
+        serialized_value=key_proto.public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        valid=valid,
+    )
+  for (name, key_proto) in _valid_xchacha_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=(
+            'type.googleapis.com/google.crypto.tink.EciesAeadHkdfPublicKey'
+        ),
+        serialized_value=key_proto.public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        supported_languages=['cc', 'python']
+    )
+
+  # Proto-Unparseable value
+  yield test_key.TestKey(
+      test_name='Invalid proto-unparseable value',
+      type_url='type.googleapis.com/google.crypto.tink.EciesAeadHkdfPublicKey',
+      serialized_value=b'\x80',
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       valid=False,
   )
