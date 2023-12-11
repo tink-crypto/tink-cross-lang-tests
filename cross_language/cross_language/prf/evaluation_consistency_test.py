@@ -23,6 +23,7 @@ import tink
 from cross_language import test_key
 from cross_language import tink_config
 from cross_language.prf import aes_cmac_prf_keys
+from cross_language.prf import hkdf_prf_keys
 from cross_language.prf import hmac_prf_keys
 from cross_language.util import testing_servers
 
@@ -36,10 +37,12 @@ def tearDownModule():
 
 
 def prf_keys() -> Iterator[test_key.TestKey]:
-  for pair in hmac_prf_keys.hmac_prf_keys():
-    yield pair
-  for pair in aes_cmac_prf_keys.aes_cmac_prf_keys():
-    yield pair
+  for key in aes_cmac_prf_keys.aes_cmac_prf_keys():
+    yield key
+  for key in hkdf_prf_keys.hkdf_prf_keys():
+    yield key
+  for key in hmac_prf_keys.hmac_prf_keys():
+    yield key
 
 
 class EvaluationConsistencyTest(absltest.TestCase):

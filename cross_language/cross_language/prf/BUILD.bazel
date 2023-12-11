@@ -18,6 +18,17 @@ py_library(
 )
 
 py_library(
+    name = "hkdf_prf_keys",
+    srcs = ["hkdf_prf_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:hkdf_prf_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_library(
     name = "hmac_prf_keys",
     srcs = ["hmac_prf_keys.py"],
     deps = [
@@ -33,6 +44,7 @@ py_test(
     srcs = ["creation_consistency_test.py"],
     deps = [
         ":aes_cmac_prf_keys",
+        ":hkdf_prf_keys",
         ":hmac_prf_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
@@ -48,6 +60,7 @@ py_test(
     srcs = ["evaluation_consistency_test.py"],
     deps = [
         ":aes_cmac_prf_keys",
+        ":hkdf_prf_keys",
         ":hmac_prf_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
