@@ -14,6 +14,7 @@
 
 """Test keys for HMAC."""
 
+import binascii
 import os
 from typing import Iterator, Tuple
 
@@ -21,6 +22,16 @@ from tink.proto import common_pb2
 from tink.proto import hmac_pb2
 from tink.proto import tink_pb2
 from cross_language import test_key
+
+
+def _basic_proto_key() -> hmac_pb2.HmacKey:
+  return hmac_pb2.HmacKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.SHA1, tag_size=10
+      ),
+  )
 
 
 def _proto_keys_sha1() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
@@ -281,6 +292,35 @@ def _proto_keys() -> Iterator[Tuple[str, bool, hmac_pb2.HmacKey]]:
   yield ('Params not set (invalid)', False, key)
 
 
+def _proto_stress_test_key() -> test_key.TestKey:
+  """Returns a key using details of how proto serializes."""
+
+  # Proto will ignore unknown fields and use the last entry.
+  # 0x2801 is the serialization of a int32 field with tag 5 and value 1.
+  # 0x2001 is the serialization of a int32 field with tag 4 and value 1.
+  int32_tag5_value1 = binascii.unhexlify('2801')
+  # This will be ignored: when non-repeated fields repeat, proto uses the last
+  # instance
+  ignored_key = hmac_pb2.HmacKey(
+      key_value=os.urandom(2),
+      params=hmac_pb2.HmacParams(
+          hash=common_pb2.HashType.UNKNOWN_HASH, tag_size=1
+      ),
+  ).SerializeToString()
+  key = _basic_proto_key().SerializeToString()
+  int32_tag4_value1 = binascii.unhexlify('2001')
+  return test_key.TestKey(
+      test_name='Proto stress test',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=int32_tag5_value1
+      + ignored_key
+      + key  # Overwrites the "ignored_key"
+      + int32_tag4_value1,
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      valid=True,
+  )
+
+
 def hmac_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HMac."""
   for (name, valid, msg) in _proto_keys():
@@ -291,6 +331,44 @@ def hmac_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         valid=valid,
     )
+
+  yield test_key.TestKey(
+      test_name='RAW Key',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=_basic_proto_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.RAW,
+      valid=True,
+  )
+
+  yield test_key.TestKey(
+      test_name='CRUNCHY Key',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=_basic_proto_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
+      valid=True,
+  )
+
+  yield test_key.TestKey(
+      test_name='LEGACY Key',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=_basic_proto_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
+      valid=True,
+  )
+
+  yield test_key.TestKey(
+      test_name='Invalid key material (ASYMMETRIC_PUBLIC)',
+      type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+      serialized_value=_basic_proto_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+      valid=True,
+  )
+
+  yield _proto_stress_test_key()
+
   # Proto-Unparseable value
   yield test_key.TestKey(
       test_name='Invalid proto-unparseable value',
