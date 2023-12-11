@@ -47,6 +47,7 @@ class TestKey:
       key_id: Optional[int] = None,
       output_prefix_type: tink_pb2.OutputPrefixType = tink_pb2.OutputPrefixType.TINK,
       key_status: tink_pb2.KeyStatusType = tink_pb2.KeyStatusType.ENABLED,
+      tags: Optional[List[str]] = None,
   ):
     """Creates a new TestKey object.
 
@@ -65,6 +66,7 @@ class TestKey:
         if not set.
       output_prefix_type (optional): The value for Keyset.Key.output_prefix_type
       key_status (optional): The value for Keyset.Key.key_status
+      tags (optional): A list of strings which will be available via tags()
     """
     key_id = random.randint(0, 2**32) if key_id is None else key_id
     if valid is not None:
@@ -85,9 +87,13 @@ class TestKey:
         key_id=key_id,
         output_prefix_type=output_prefix_type,
     )
+    self._tags = tags if tags else []
 
   def supported_in(self, lang: str) -> bool:
     return lang in self._supported_languages
+
+  def tags(self) -> List[str]:
+    return self._tags
 
   def __str__(self) -> str:
     """Returns the key type and name of this key."""

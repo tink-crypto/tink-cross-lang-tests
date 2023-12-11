@@ -189,6 +189,38 @@ class TestKeyTest(absltest.TestCase):
     self.assertLen(keyset.key, 1)
     self.assertEqual(keyset.key[0].key_id, 1234)
 
+  def test_tags_default(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
+    )
+    self.assertEqual(key.tags(), [])
+
+  def test_tags_explicit_empty(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
+        tags=[],
+    )
+    self.assertEqual(key.tags(), [])
+
+  def test_tags_works(self):
+    key = test_key.TestKey(
+        test_name='some_test_name',
+        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
+        serialized_value=b'some_serialized_value',
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+        valid=True,
+        tags=['these', 'are', 'tags'],
+    )
+    self.assertEqual(key.tags(), ['these', 'are', 'tags'])
+
 
 if __name__ == '__main__':
   absltest.main()
