@@ -35,11 +35,11 @@ def tearDownModule():
   testing_servers.stop()
 
 
-def valid_mac_keys() -> Iterator[test_key.TestKey]:
-  for pair in hmac_keys.hmac_keys():
-    yield pair
-  for pair in aes_cmac_keys.aes_cmac_keys():
-    yield pair
+def mac_keys() -> Iterator[test_key.TestKey]:
+  for key in hmac_keys.hmac_keys():
+    yield key
+  for key in aes_cmac_keys.aes_cmac_keys():
+    yield key
 
 
 class EvaluationConsistencyTest(absltest.TestCase):
@@ -49,7 +49,7 @@ class EvaluationConsistencyTest(absltest.TestCase):
   """
 
   def test_evaluation_consistency(self):
-    for key in valid_mac_keys():
+    for key in mac_keys():
       for lang1 in tink_config.all_tested_languages():
         for lang2 in tink_config.all_tested_languages():
           if key.supported_in(lang1) and key.supported_in(lang2):
