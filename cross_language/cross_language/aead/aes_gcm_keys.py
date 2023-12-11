@@ -45,7 +45,7 @@ def _proto_keys() -> Iterator[Tuple[str, bool, aes_gcm_pb2.AesGcmKey]]:
 
 
 def aes_gcm_keys() -> Iterator[test_key.TestKey]:
-  """Returns test keys for AesCmac."""
+  """Returns test keys for AesGcm."""
   for (name, valid, msg) in _proto_keys():
     yield test_key.TestKey(
         test_name=name,

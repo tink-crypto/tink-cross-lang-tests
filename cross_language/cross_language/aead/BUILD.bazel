@@ -28,6 +28,16 @@ py_library(
 )
 
 py_library(
+    name = "aes_gcm_siv_keys",
+    srcs = ["aes_gcm_siv_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:aes_gcm_siv_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_library(
     name = "xchacha20_poly1305_keys",
     srcs = ["xchacha20_poly1305_keys.py"],
     deps = [
@@ -53,6 +63,7 @@ py_test(
     deps = [
         ":aes_eax_keys",
         ":aes_gcm_keys",
+        ":aes_gcm_siv_keys",
         ":chacha20_poly1305_keys",
         ":xchacha20_poly1305_keys",
         requirement("absl-py"),
@@ -70,6 +81,7 @@ py_test(
     deps = [
         ":aes_eax_keys",
         ":aes_gcm_keys",
+        ":aes_gcm_siv_keys",
         ":chacha20_poly1305_keys",
         ":xchacha20_poly1305_keys",
         requirement("absl-py"),

@@ -12,23 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test keys for AES EAX."""
+"""Test keys for AES GCM SIV."""
 
 import os
 from typing import Iterator, Tuple
 
-from tink.proto import aes_eax_pb2
+from tink.proto import aes_gcm_siv_pb2
 from tink.proto import tink_pb2
 from cross_language import test_key
 
 
-def _proto_keys() -> Iterator[Tuple[str, bool, aes_eax_pb2.AesEaxKey]]:
-  """Returns triples (name, validity, proto) for AesEaxKeys."""
+def _proto_keys() -> Iterator[Tuple[str, bool, aes_gcm_siv_pb2.AesGcmSivKey]]:
+  """Returns triples (name, validity, proto) for AesGcmKeys."""
 
-  key = aes_eax_pb2.AesEaxKey(
+  key = aes_gcm_siv_pb2.AesGcmSivKey(
       version=0,
       key_value=os.urandom(32),
-      params=aes_eax_pb2.AesEaxParams(iv_size=12),
   )
   yield ('32 byte key', True, key)
 
@@ -38,39 +37,19 @@ def _proto_keys() -> Iterator[Tuple[str, bool, aes_eax_pb2.AesEaxKey]]:
   key.key_value = os.urandom(24)
   yield ('24 byte key (invalid)', False, key)
 
-  key = aes_eax_pb2.AesEaxKey(
-      version=0,
-      key_value=os.urandom(32),
-      params=aes_eax_pb2.AesEaxParams(iv_size=16),
-  )
-  yield ('IV Size 16', True, key)
-
-  key.params.iv_size = 13
-  yield ('IV Size 13 (invalid)', False, key)
-
-  key.params.iv_size = 13
-  yield ('IV Size 24 (invalid)', False, key)
-
-  key = aes_eax_pb2.AesEaxKey(
-      version=0,
-      key_value=os.urandom(32),
-  )
-  yield ('Params not set', False, key)
-
-  key = aes_eax_pb2.AesEaxKey(
+  key = aes_gcm_siv_pb2.AesGcmSivKey(
       version=1,
       key_value=os.urandom(32),
-      params=aes_eax_pb2.AesEaxParams(iv_size=12),
   )
   yield ('Version 1', False, key)
 
 
-def aes_eax_keys() -> Iterator[test_key.TestKey]:
-  """Returns test keys for AesEax."""
+def aes_gcm_siv_keys() -> Iterator[test_key.TestKey]:
+  """Returns test keys for AesGcmSiv."""
   for (name, valid, msg) in _proto_keys():
     yield test_key.TestKey(
         test_name=name,
-        type_url='type.googleapis.com/google.crypto.tink.AesEaxKey',
+        type_url='type.googleapis.com/google.crypto.tink.AesGcmSivKey',
         serialized_value=msg.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         valid=valid,
@@ -78,7 +57,7 @@ def aes_eax_keys() -> Iterator[test_key.TestKey]:
   # Proto-Unparseable value
   yield test_key.TestKey(
       test_name='Invalid proto-unparseable value',
-      type_url='type.googleapis.com/google.crypto.tink.AesEaxKey',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmSivKey',
       serialized_value=b'\x80',
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       valid=False,
