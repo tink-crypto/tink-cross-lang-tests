@@ -8,6 +8,19 @@ package(
 licenses(["notice"])
 
 py_library(
+    name = "aes_ctr_hmac_aead_keys",
+    srcs = ["aes_ctr_hmac_aead_keys.py"],
+    deps = [
+        "@tink_py//tink/proto:aes_ctr_hmac_aead_py_pb2",
+        "@tink_py//tink/proto:aes_ctr_py_pb2",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:hmac_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+        "//cross_language:test_key",
+    ],
+)
+
+py_library(
     name = "aes_eax_keys",
     srcs = ["aes_eax_keys.py"],
     deps = [
@@ -61,6 +74,7 @@ py_test(
     name = "creation_consistency_test",
     srcs = ["creation_consistency_test.py"],
     deps = [
+        ":aes_ctr_hmac_aead_keys",
         ":aes_eax_keys",
         ":aes_gcm_keys",
         ":aes_gcm_siv_keys",
@@ -79,6 +93,7 @@ py_test(
     name = "evaluation_consistency_test",
     srcs = ["evaluation_consistency_test.py"],
     deps = [
+        ":aes_ctr_hmac_aead_keys",
         ":aes_eax_keys",
         ":aes_gcm_keys",
         ":aes_gcm_siv_keys",

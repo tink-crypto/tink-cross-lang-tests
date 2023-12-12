@@ -21,6 +21,7 @@ import tink
 
 from cross_language import test_key
 from cross_language import tink_config
+from cross_language.aead import aes_ctr_hmac_aead_keys
 from cross_language.aead import aes_eax_keys
 from cross_language.aead import aes_gcm_keys
 from cross_language.aead import aes_gcm_siv_keys
@@ -39,6 +40,8 @@ def tearDownModule():
 
 
 def valid_aead_keys() -> Iterator[test_key.TestKey]:
+  for key in aes_ctr_hmac_aead_keys.aes_ctr_hmac_aead_keys():
+    yield key
   for key in aes_eax_keys.aes_eax_keys():
     yield key
   for key in aes_gcm_keys.aes_gcm_keys():
