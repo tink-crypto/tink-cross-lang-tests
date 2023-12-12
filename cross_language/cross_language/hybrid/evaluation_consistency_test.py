@@ -49,7 +49,14 @@ class EvaluationConsistencyTest(absltest.TestCase):
     for key in hybrid_keys():
       for lang1 in tink_config.all_tested_languages():
         for lang2 in tink_config.all_tested_languages():
-          if key.supported_in(lang1) and key.supported_in(lang2):
+          both_lang_supported = key.supported_in(lang1)
+          if not key.supported_in(lang2):
+            both_lang_supported = False
+          if lang1 in ['java', 'go'] and 'b/315928577' in key.tags():
+            both_lang_supported = False
+          if lang2 in ['java', 'go'] and 'b/315928577' in key.tags():
+            both_lang_supported = False
+          if both_lang_supported:
             with self.subTest(f'{lang1}->{lang2}: {key}'):
               keyset = key.as_serialized_keyset()
               hybrid_decrypt = testing_servers.remote_primitive(

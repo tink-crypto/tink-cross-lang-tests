@@ -42,8 +42,7 @@ class TestKey:
       type_url: str,
       serialized_value: bytes,
       key_material_type: tink_pb2.KeyData.KeyMaterialType,
-      valid: Optional[bool] = None,
-      supported_languages: Optional[List[str]] = None,
+      valid: bool,
       key_id: Optional[int] = None,
       output_prefix_type: tink_pb2.OutputPrefixType = tink_pb2.OutputPrefixType.TINK,
       key_status: tink_pb2.KeyStatusType = tink_pb2.KeyStatusType.ENABLED,
@@ -58,10 +57,7 @@ class TestKey:
       type_url: The type_url for Keyset.Key.KeyData.type_url
       serialized_value: The value for Keyset.Key.KeyData.value
       key_material_type: The value for Keyset.Key.KeyData.key_material_type
-      valid: True or False, or omitted. If omitted, supported_languages needs to
-        be specified.
-      supported_languages (optional): The languages this key supports. If
-        omitted, valid needs to be specified.
+      valid: Denotes whether this key is valid or invalid.
       key_id (optional): The value which will go into Keyset.Key.key_id. Random
         if not set.
       output_prefix_type (optional): The value for Keyset.Key.output_prefix_type
@@ -69,12 +65,7 @@ class TestKey:
       tags (optional): A list of strings which will be available via tags()
     """
     key_id = random.randint(0, 2**32) if key_id is None else key_id
-    if valid is not None:
-      assert supported_languages is None
-      self._supported_languages = _languages_for(type_url) if valid else []
-    else:
-      assert supported_languages is not None
-      self._supported_languages = supported_languages
+    self._supported_languages = _languages_for(type_url) if valid else []
 
     self._name = test_name
     self._key = tink_pb2.Keyset.Key(

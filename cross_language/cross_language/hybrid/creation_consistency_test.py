@@ -53,6 +53,8 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
+        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
+          supported = False
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -76,6 +78,8 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
+        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
+          supported = False
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -95,6 +99,8 @@ class CreationConsistencyTest(absltest.TestCase):
     for public_key in hybrid_public_keys():
       for lang in tink_config.all_tested_languages():
         supported = public_key.supported_in(lang)
+        if lang in ['java', 'go'] and 'b/315928577' in public_key.tags():
+          supported = False
         with self.subTest(f'{lang}, {public_key} ({supported})'):
           public_keyset = public_key.as_serialized_keyset()
           if supported:

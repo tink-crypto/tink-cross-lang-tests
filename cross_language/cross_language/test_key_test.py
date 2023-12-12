@@ -41,28 +41,6 @@ class TestKeyTest(absltest.TestCase):
     self.assertIn('HmacKey', str(key))
     self.assertIn('some_test_name', str(key))
 
-  def test_omit_valid_throws(self):
-    with self.assertRaises(AssertionError):
-      test_key.TestKey(
-          test_name='some_test_name',
-          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-          serialized_value=b'some_serialized_value',
-          key_id=1234,
-          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-      )
-
-  def test_set_valid_and_supported_languages_throws(self):
-    with self.assertRaises(AssertionError):
-      test_key.TestKey(
-          test_name='some_test_name',
-          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-          serialized_value=b'some_serialized_value',
-          key_id=1234,
-          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-          valid=True,
-          supported_languages=['java'],
-      )
-
   def test_valid_true_works(self):
     key = test_key.TestKey(
         test_name='some_test_name',
@@ -84,40 +62,6 @@ class TestKeyTest(absltest.TestCase):
         valid=False,
     )
     self.assertFalse(key.supported_in('cc'))
-
-  def test_supported_languages_works(self):
-    key = test_key.TestKey(
-        test_name='some_test_name',
-        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-        serialized_value=b'some_serialized_value',
-        key_id=1234,
-        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-        supported_languages=['java'],
-    )
-    self.assertTrue(key.supported_in('java'))
-    self.assertFalse(key.supported_in('cc'))
-
-  def test_supported_languages_empty_works(self):
-    key = test_key.TestKey(
-        test_name='some_test_name',
-        type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-        serialized_value=b'some_serialized_value',
-        key_id=1234,
-        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-        supported_languages=[],
-    )
-    self.assertFalse(key.supported_in('java'))
-
-  def test_supported_languages_none_throws(self):
-    with self.assertRaises(AssertionError):
-      test_key.TestKey(
-          test_name='some_test_name',
-          type_url='type.googleapis.com/google.crypto.tink.HmacKey',
-          serialized_value=b'some_serialized_value',
-          key_id=1234,
-          key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-          supported_languages=None,
-      )
 
   def test_to_keyset_works(self):
     key = test_key.TestKey(
