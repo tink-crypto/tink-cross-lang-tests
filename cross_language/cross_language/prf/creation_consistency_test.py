@@ -55,6 +55,8 @@ class CreationConsistencyTest(absltest.TestCase):
         supported = key.supported_in(lang)
         with self.subTest(f'{lang}, {key}, ({supported})'):
           keyset = key.as_serialized_keyset()
+          if lang == 'python' and 'b/315958864' in key.tags():
+            supported = True
           if supported:
             testing_servers.remote_primitive(lang, keyset, tink.prf.PrfSet)
           else:

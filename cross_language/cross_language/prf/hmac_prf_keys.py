@@ -23,6 +23,14 @@ from tink.proto import tink_pb2
 from cross_language import test_key
 
 
+def _basic_key() -> hmac_prf_pb2.HmacPrfKey:
+  return hmac_prf_pb2.HmacPrfKey(
+      version=0,
+      key_value=os.urandom(16),
+      params=hmac_prf_pb2.HmacPrfParams(hash=common_pb2.HashType.SHA1),
+  )
+
+
 def _proto_keys_() -> Iterator[Tuple[str, bool, hmac_prf_pb2.HmacPrfKey]]:
   """Returns triples (name, validity, proto) for HmacPrfKey, HashType=SHA1."""
 
@@ -85,6 +93,34 @@ def hmac_prf_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
         tags=['b/315441300']
     )
+  # For PRF Keys, only output prefix RAW is accepted.
+  yield test_key.TestKey(
+      test_name='TINK key (invalid)',
+      type_url='type.googleapis.com/google.crypto.tink.HmacPrfKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.TINK,
+      valid=False,
+      tags=['b/315958864'],
+  )
+  yield test_key.TestKey(
+      test_name='CRUNCHY key (invalid)',
+      type_url='type.googleapis.com/google.crypto.tink.HmacPrfKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
+      valid=False,
+      tags=['b/315958864'],
+  )
+  yield test_key.TestKey(
+      test_name='LEGACY key (invalid)',
+      type_url='type.googleapis.com/google.crypto.tink.HmacPrfKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
+      valid=False,
+      tags=['b/315958864'],
+  )
   # Proto-Unparseable value
   yield test_key.TestKey(
       test_name='Invalid proto-unparseable value',
