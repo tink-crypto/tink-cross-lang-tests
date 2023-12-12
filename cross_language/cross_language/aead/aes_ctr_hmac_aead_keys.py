@@ -261,6 +261,24 @@ def _proto_keys_vary_aes_ctr() -> (
   yield ('AES CTR 24 byte key (invalid)', False, key)
 
 
+def _invalid_version_keys() -> (
+    Iterator[Tuple[str, bool, aes_ctr_hmac_aead_pb2.AesCtrHmacAeadKey]]
+):
+  """Returns triples (name, validity, proto) where version is 1 somewhere."""
+
+  key = _basic_key()
+  key.hmac_key.version = 1
+  yield ('HMac Key version 1 (invalid)', False, key)
+
+  key = _basic_key()
+  key.aes_ctr_key.version = 1
+  yield ('AES CTR Key version 1 (invalid)', False, key)
+
+  key = _basic_key()
+  key.version = 1
+  yield ('Version 1 (invalid)', False, key)
+
+
 def _proto_keys() -> (
     Iterator[Tuple[str, bool, aes_ctr_hmac_aead_pb2.AesCtrHmacAeadKey]]
 ):
@@ -278,6 +296,8 @@ def _proto_keys() -> (
     yield triple
   for triple in _proto_keys_vary_aes_ctr():
     yield triple
+  for triple in _invalid_version_keys():
+    yield triple
 
 
 def aes_ctr_hmac_aead_keys() -> Iterator[test_key.TestKey]:
@@ -290,3 +310,45 @@ def aes_ctr_hmac_aead_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         valid=valid,
     )
+
+  yield test_key.TestKey(
+      test_name='CRUNCHY key',
+      type_url='type.googleapis.com/google.crypto.tink.AesCtrHmacAeadKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='LEGACY key',
+      type_url='type.googleapis.com/google.crypto.tink.AesCtrHmacAeadKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='RAW key',
+      type_url='type.googleapis.com/google.crypto.tink.AesCtrHmacAeadKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.RAW,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='UNKNOWN outputprefixtype key (invalid)',
+      type_url='type.googleapis.com/google.crypto.tink.AesCtrHmacAeadKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.UNKNOWN_PREFIX,
+      valid=False,
+  )
+
+  # Proto-Unparseable value
+  yield test_key.TestKey(
+      test_name='Invalid proto-unparseable value',
+      type_url='type.googleapis.com/google.crypto.tink.AesCtrHmacAeadKey',
+      serialized_value=b'\x80',
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      valid=False,
+  )

@@ -95,6 +95,16 @@ def xchacha20_poly1305_keys() -> Iterator[test_key.TestKey]:
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
       valid=True,
   )
+  yield test_key.TestKey(
+      test_name='UNKNOWN_PREFIX key (invalid)',
+      type_url=_TYPE_URL,
+      serialized_value=xchacha20_poly1305_pb2.XChaCha20Poly1305Key(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.UNKNOWN_PREFIX,
+      valid=False,
+  )
   # Proto-Unparseable value
   yield test_key.TestKey(
       test_name='Invalid proto-unparseable value',

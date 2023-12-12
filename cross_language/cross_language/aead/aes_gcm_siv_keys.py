@@ -54,6 +54,48 @@ def aes_gcm_siv_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         valid=valid,
     )
+
+  yield test_key.TestKey(
+      test_name='CRUNCHY key',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
+      serialized_value=aes_gcm_siv_pb2.AesGcmSivKey(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='LEGACY key',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
+      serialized_value=aes_gcm_siv_pb2.AesGcmSivKey(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='RAW key',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
+      serialized_value=aes_gcm_siv_pb2.AesGcmSivKey(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.RAW,
+      valid=True,
+  )
+  yield test_key.TestKey(
+      test_name='UNKNOWN outputprefixtype key (invalid)',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
+      serialized_value=aes_gcm_siv_pb2.AesGcmSivKey(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.UNKNOWN_PREFIX,
+      valid=False,
+  )
+
   # Proto-Unparseable value
   yield test_key.TestKey(
       test_name='Invalid proto-unparseable value',
