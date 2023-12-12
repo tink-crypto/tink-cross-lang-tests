@@ -22,6 +22,18 @@ py_test(
 )
 
 py_library(
+    name = "ecdsa_keys",
+    srcs = ["ecdsa_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "//cross_language/util:utilities",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:ecdsa_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_library(
     name = "ed25519_keys",
     srcs = ["ed25519_keys.py"],
     deps = [
@@ -37,6 +49,7 @@ py_test(
     name = "creation_consistency_test",
     srcs = ["creation_consistency_test.py"],
     deps = [
+        ":ecdsa_keys",
         ":ed25519_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
@@ -51,6 +64,7 @@ py_test(
     name = "evaluation_consistency_test",
     srcs = ["evaluation_consistency_test.py"],
     deps = [
+        ":ecdsa_keys",
         ":ed25519_keys",
         requirement("absl-py"),
         "//cross_language:test_key",

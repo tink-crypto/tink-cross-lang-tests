@@ -19,6 +19,7 @@ import tink
 
 from cross_language import test_key
 from cross_language import tink_config
+from cross_language.signature import ecdsa_keys
 from cross_language.signature import ed25519_keys
 from cross_language.util import testing_servers
 
@@ -34,10 +35,14 @@ def tearDownModule():
 def signature_private_keys() -> Iterator[test_key.TestKey]:
   for key in ed25519_keys.ed25519_private_keys():
     yield key
+  for key in ecdsa_keys.ecdsa_private_keys():
+    yield key
 
 
 def signature_public_keys() -> Iterator[test_key.TestKey]:
   for key in ed25519_keys.ed25519_public_keys():
+    yield key
+  for key in ecdsa_keys.ecdsa_public_keys():
     yield key
 
 
