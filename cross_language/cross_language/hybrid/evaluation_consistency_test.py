@@ -22,6 +22,7 @@ import tink
 from cross_language import test_key
 from cross_language import tink_config
 from cross_language.hybrid import ecies_keys
+from cross_language.hybrid import hpke_keys
 from cross_language.util import testing_servers
 
 
@@ -37,10 +38,12 @@ def tearDownModule():
 def hybrid_keys() -> Iterator[test_key.TestKey]:
   for key in ecies_keys.ecies_private_keys():
     yield key
+  for key in hpke_keys.hpke_private_keys():
+    yield key
 
 
 class EvaluationConsistencyTest(absltest.TestCase):
-  """Tests evaluation consistency of Mac implementations in different languages.
+  """Tests evaluation consistency of HybridEncrypt/Decrypt implementations.
 
   See https://developers.google.com/tink/design/consistency.
   """
@@ -52,10 +55,13 @@ class EvaluationConsistencyTest(absltest.TestCase):
           both_lang_supported = key.supported_in(lang1)
           if not key.supported_in(lang2):
             both_lang_supported = False
-          if lang1 in ['java', 'go'] and 'b/315928577' in key.tags():
-            both_lang_supported = False
-          if lang2 in ['java', 'go'] and 'b/315928577' in key.tags():
-            both_lang_supported = False
+          if lang1 in ['java', 'go'] or lang2 in ['java', 'go']:
+            if 'b/315928577' in key.tags():
+              both_lang_supported = False
+          if lang1 in ['python', 'cc', 'go'] or lang2 in ['python', 'cc', 'go']:
+            if 'b/235861932' in key.tags():
+              both_lang_supported = False
+
           if both_lang_supported:
             with self.subTest(f'{lang1}->{lang2}: {key}'):
               keyset = key.as_serialized_keyset()

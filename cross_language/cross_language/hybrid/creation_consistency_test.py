@@ -20,6 +20,7 @@ import tink
 from cross_language import test_key
 from cross_language import tink_config
 from cross_language.hybrid import ecies_keys
+from cross_language.hybrid import hpke_keys
 from cross_language.util import testing_servers
 
 
@@ -35,15 +36,19 @@ def tearDownModule():
 def hybrid_private_keys() -> Iterator[test_key.TestKey]:
   for key in ecies_keys.ecies_private_keys():
     yield key
+  for key in hpke_keys.hpke_private_keys():
+    yield key
 
 
 def hybrid_public_keys() -> Iterator[test_key.TestKey]:
   for key in ecies_keys.ecies_public_keys():
     yield key
+  for key in hpke_keys.hpke_public_keys():
+    yield key
 
 
 class CreationConsistencyTest(absltest.TestCase):
-  """Tests creation consistency of Mac implementations in different languages.
+  """Tests creation consistency of HybridDecrypt implementations.
 
   See https://developers.google.com/tink/design/consistency.
   """
@@ -54,6 +59,8 @@ class CreationConsistencyTest(absltest.TestCase):
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
         if lang in ['java', 'go'] and 'b/315928577' in key.tags():
+          supported = False
+        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
           supported = False
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
@@ -80,6 +87,8 @@ class CreationConsistencyTest(absltest.TestCase):
         supported = key.supported_in(lang)
         if lang in ['java', 'go'] and 'b/315928577' in key.tags():
           supported = False
+        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
+          supported = False
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -96,13 +105,15 @@ class CreationConsistencyTest(absltest.TestCase):
 
   def test_create_hybrid_encrypt_via_public_key(self):
     """Tests: Creation of HybridEncrypt from public key."""
-    for public_key in hybrid_public_keys():
+    for key in hybrid_public_keys():
       for lang in tink_config.all_tested_languages():
-        supported = public_key.supported_in(lang)
-        if lang in ['java', 'go'] and 'b/315928577' in public_key.tags():
+        supported = key.supported_in(lang)
+        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
           supported = False
-        with self.subTest(f'{lang}, {public_key} ({supported})'):
-          public_keyset = public_key.as_serialized_keyset()
+        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
+          supported = False
+        with self.subTest(f'{lang}, {key} ({supported})'):
+          public_keyset = key.as_serialized_keyset()
           if supported:
             testing_servers.remote_primitive(
                 lang, public_keyset, tink.hybrid.HybridEncrypt

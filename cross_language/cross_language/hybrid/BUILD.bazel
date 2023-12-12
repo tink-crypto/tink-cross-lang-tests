@@ -19,11 +19,24 @@ py_library(
     ],
 )
 
+py_library(
+    name = "hpke_keys",
+    srcs = ["hpke_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "//cross_language/util:utilities",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:hpke_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
 py_test(
     name = "creation_consistency_test",
     srcs = ["creation_consistency_test.py"],
     deps = [
         ":ecies_keys",
+        ":hpke_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
@@ -38,6 +51,7 @@ py_test(
     srcs = ["evaluation_consistency_test.py"],
     deps = [
         ":ecies_keys",
+        ":hpke_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
