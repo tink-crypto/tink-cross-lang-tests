@@ -77,7 +77,7 @@ RSA_SSA_PKCS1_PUBLIC_KEY_TYPE_URL = (
 
 def setUpModule():
   signature.register()
-  testing_servers.start('aes_ctr_hmac_streaming_key_test')
+  testing_servers.start('rsa_ssa_pkcs1_test')
 
 
 def tearDownModule():

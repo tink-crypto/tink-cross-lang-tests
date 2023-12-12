@@ -25,7 +25,7 @@ from cross_language.util import testing_servers
 
 def setUpModule():
   tink.mac.register()
-  testing_servers.start('mac.creation_consistency_test')
+  testing_servers.start('hybrid.creation_consistency_test')
 
 
 def tearDownModule():

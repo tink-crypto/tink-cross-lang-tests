@@ -27,7 +27,7 @@ from cross_language.util import testing_servers
 
 
 def setUpModule():
-  testing_servers.start('signature.creation_consistency_test')
+  testing_servers.start('signature.evaluation_consistency_test')
 
 
 def tearDownModule():
