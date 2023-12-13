@@ -57,6 +57,9 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
+        if 'b/315954817' in key.tags():
+          if lang in ['cc', 'go', 'python']:
+            supported = True
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -80,6 +83,9 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
+        if 'b/315954817' in key.tags():
+          if lang in ['cc', 'go', 'python', 'java']:
+            supported = True
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:

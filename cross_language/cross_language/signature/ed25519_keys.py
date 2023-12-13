@@ -74,6 +74,19 @@ def ed25519_private_keys() -> Iterator[test_key.TestKey]:
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
       valid=True,
   )
+  key = _basic_ed25519_key()
+  # Some bytes are replaced with "ff"
+  key.public_key.key_value = binascii.unhexlify(
+      'ff42ff1a6dcff1484390b2955bc7376d172eeb72640a54e5b50c95efa2fc6ad8'
+  )
+  yield test_key.TestKey(
+      test_name='Inconsistent public key value',
+      type_url=_PRIVATE_TYPE_URL,
+      serialized_value=key.SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+      valid=False,
+      tags=['b/315954817'],
+  )
 
 
 def ed25519_public_keys() -> Iterator[test_key.TestKey]:
