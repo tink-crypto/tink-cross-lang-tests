@@ -15,7 +15,7 @@
 """Test keys for HPKE."""
 
 import binascii
-from typing import Iterator
+from typing import Iterator, Tuple
 
 from tink.proto import hpke_pb2
 from tink.proto import tink_pb2
@@ -26,6 +26,7 @@ _PRIVATE_TYPE_URL = 'type.googleapis.com/google.crypto.tink.HpkePrivateKey'
 _PUBLIC_TYPE_URL = 'type.googleapis.com/google.crypto.tink.HpkePublicKey'
 
 
+# TestVector from https://www.rfc-editor.org/rfc/rfc9180.html#appendix-A
 def _basic_p256_key() -> hpke_pb2.HpkePrivateKey:
   return hpke_pb2.HpkePrivateKey(
       version=0,
@@ -44,6 +45,86 @@ def _basic_p256_key() -> hpke_pb2.HpkePrivateKey:
           '4995788ef4b9d6132b249ce59a77281493eb39af373d236a1fe415cb0c2d7beb'
       ),
   )
+
+
+# TestVector from Java Tink implementation
+def _basic_p384_key() -> hpke_pb2.HpkePrivateKey:
+  return hpke_pb2.HpkePrivateKey(
+      version=0,
+      public_key=hpke_pb2.HpkePublicKey(
+          version=0,
+          params=hpke_pb2.HpkeParams(
+              kem=hpke_pb2.DHKEM_P384_HKDF_SHA384,
+              kdf=hpke_pb2.HKDF_SHA384,
+              aead=hpke_pb2.AES_128_GCM,
+          ),
+          public_key=binascii.unhexlify(
+              '049d92e0330dfc60ba8b2be32e10f7d2f8457678a112cafd4544b29b7e6addf0249968f54c732aa49bc4a38f467edb842481a3a9c9e878b86755f018a8ec3c5e80921910af919b95f18976e35acc04efa2962e277a0b2c990ae92b62d6c75180ba'
+          ),
+      ),
+      private_key=binascii.unhexlify(
+          '670dc60402d8a4fe52f4e552d2b71f0f81bcf195d8a71a6c7d84efb4f0e4b4a5d0f60a27c94caac46bdeeb79897a3ed9'
+      ),
+  )
+
+
+# TestVector from Java Tink implementation
+def _basic_p521_key() -> hpke_pb2.HpkePrivateKey:
+  return hpke_pb2.HpkePrivateKey(
+      version=0,
+      public_key=hpke_pb2.HpkePublicKey(
+          version=0,
+          params=hpke_pb2.HpkeParams(
+              kem=hpke_pb2.DHKEM_P521_HKDF_SHA512,
+              kdf=hpke_pb2.HKDF_SHA512,
+              aead=hpke_pb2.AES_128_GCM,
+          ),
+          public_key=binascii.unhexlify(
+              '0401b45498c1714e2dce167d3caf162e45e0642afc7ed435df7902ccae0e84ba0f7d373f646b7738bbbdca11ed91bdeae3cdcba3301f2457be452f271fa6837580e661012af49583a62e48d44bed350c7118c0d8dc861c238c72a2bda17f64704f464b57338e7f40b60959480c0e58e6559b190d81663ed816e523b6b6a418f66d2451ec64'
+          ),
+      ),
+      private_key=binascii.unhexlify(
+          '01462680369ae375e4b3791070a7458ed527842f6a98a79ff5e0d4cbde83c27196a3916956655523a6a2556a7af62c5cadabe2ef9da3760bb21e005202f7b2462847'
+      ),
+  )
+
+
+def _nist_curve_proto_keys() -> (
+    Iterator[Tuple[str, bool, hpke_pb2.HpkePrivateKey]]
+):
+  """Returns proto keys which use NIST curves."""
+
+  yield('basic_p256_key', True, _basic_p256_key())
+  yield('basic_p384_key', True, _basic_p384_key())
+  yield('basic_p521_key', True, _basic_p521_key())
+
+  key = _basic_p384_key()
+  key.public_key.params.kem = hpke_pb2.DHKEM_P256_HKDF_SHA256
+  yield('P256 key with P384 point (invalid)', False, key)
+
+  key = _basic_p521_key()
+  key.public_key.params.kem = hpke_pb2.DHKEM_P384_HKDF_SHA384
+  yield('P384 key with P521 point (invalid)', False, key)
+
+  key = _basic_p256_key()
+  key.public_key.params.kem = hpke_pb2.DHKEM_P521_HKDF_SHA512
+  yield('P521 key with P256 point (invalid)', False, key)
+
+  key = _basic_p256_key()
+  key.public_key.params.kdf = hpke_pb2.HKDF_SHA512
+  yield('P256 key with SHA512', True, key)
+
+  key = _basic_p384_key()
+  key.public_key.params.kdf = hpke_pb2.HKDF_SHA256
+  yield('P384 key with SHA256', True, key)
+
+  key = _basic_p521_key()
+  key.public_key.params.kdf = hpke_pb2.HKDF_SHA384
+  yield('P521 key with SHA384', True, key)
+
+  key = _basic_p521_key()
+  key.public_key.params.kdf = hpke_pb2.KDF_UNKNOWN
+  yield('P521 key with KDF_UNKNOWN (invalid)', False, key)
 
 
 def _basic_x25519_key() -> hpke_pb2.HpkePrivateKey:
@@ -69,14 +150,15 @@ def _basic_x25519_key() -> hpke_pb2.HpkePrivateKey:
 def hpke_private_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HPKE."""
 
-  yield test_key.TestKey(
-      test_name='basic p256 key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p256_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      valid=True,
-      tags=['b/235861932'],
-  )
+  for (name, valid, proto_key) in _nist_curve_proto_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=proto_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=valid,
+        tags=['b/235861932'],
+    )
 
   yield test_key.TestKey(
       test_name='basic x25519 key',
@@ -90,14 +172,15 @@ def hpke_private_keys() -> Iterator[test_key.TestKey]:
 def hpke_public_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HPKE."""
 
-  yield test_key.TestKey(
-      test_name='basic p256 public key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p256_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
-      valid=True,
-      tags=['b/235861932'],
-  )
+  for (name, valid, proto_key) in _nist_curve_proto_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PUBLIC_TYPE_URL,
+        serialized_value=proto_key.public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        valid=valid,
+        tags=['b/235861932'],
+    )
 
   yield test_key.TestKey(
       test_name='basic x25519 key',
