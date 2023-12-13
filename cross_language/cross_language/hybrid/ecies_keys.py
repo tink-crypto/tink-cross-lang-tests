@@ -220,6 +220,18 @@ def _varied_point_format() -> (
   yield ('EcPointFormat.UNKNOWN_FORMAT (invalid)', False, key_proto)
 
 
+def _proto_private_keys() -> (
+    Iterator[Tuple[str, bool, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
+):
+  yield ('Basic P256 Key', True, _basic_p256_key())
+  yield ('Basic P384 Key', True, _basic_p384_key())
+  yield ('Basic P521 Key', True, _basic_p521_key())
+  for triple in _varied_hash_function():
+    yield triple
+  for triple in _varied_point_format():
+    yield triple
+
+
 def _valid_xchacha_keys() -> (
     Iterator[Tuple[str, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
 ):
@@ -230,10 +242,19 @@ def _valid_xchacha_keys() -> (
   yield ('XChaChaPoly201305', key_proto)
 
 
+def _output_prefix_with_validity() -> (
+    Iterator[Tuple[str, bool, tink_pb2.OutputPrefixType]]
+):
+  yield ('RAW Key', True, tink_pb2.OutputPrefixType.RAW)
+  yield ('CRUNCHY Key', True, tink_pb2.OutputPrefixType.CRUNCHY)
+  yield ('LEGACY Key', True, tink_pb2.OutputPrefixType.LEGACY)
+  yield ('UNKOWN_PREFIX', False, tink_pb2.OutputPrefixType.UNKNOWN_PREFIX)
+
+
 def ecies_private_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for ECIES (EciesAeadHkdfPrivateKey)."""
 
-  for (name, valid, key_proto) in _varied_hash_function():
+  for (name, valid, key_proto) in _proto_private_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PRIVATE_TYPE_URL,
@@ -241,14 +262,7 @@ def ecies_private_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=valid,
     )
-  for (name, valid, key_proto) in _varied_point_format():
-    yield test_key.TestKey(
-        test_name=name,
-        type_url=_PRIVATE_TYPE_URL,
-        serialized_value=key_proto.SerializeToString(),
-        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-        valid=valid,
-    )
+
   for (name, key_proto) in _valid_xchacha_keys():
     yield test_key.TestKey(
         test_name=name,
@@ -259,48 +273,15 @@ def ecies_private_keys() -> Iterator[test_key.TestKey]:
         tags=['b/315928577'],
     )
 
-  yield test_key.TestKey(
-      test_name='Basic P384 Key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p384_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='Basic P521 Key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p521_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='RAW Key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p256_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.RAW,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='CRUNCHY Key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p256_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='LEGACY Key',
-      type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_p256_key().SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
-      valid=True,
-  )
+  for (name, valid, output_prefix_type) in _output_prefix_with_validity():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=_basic_p256_key().SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        output_prefix_type=output_prefix_type,
+        valid=valid,
+    )
 
   # Proto-Unparseable value
   yield test_key.TestKey(
@@ -315,7 +296,7 @@ def ecies_private_keys() -> Iterator[test_key.TestKey]:
 def ecies_public_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for ECIES (EciesAeadHkdfPublicKey)."""
 
-  for (name, valid, key_proto) in _varied_hash_function():
+  for (name, valid, key_proto) in _proto_private_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PUBLIC_TYPE_URL,
@@ -323,14 +304,7 @@ def ecies_public_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         valid=valid,
     )
-  for (name, valid, key_proto) in _varied_point_format():
-    yield test_key.TestKey(
-        test_name=name,
-        type_url=_PUBLIC_TYPE_URL,
-        serialized_value=key_proto.public_key.SerializeToString(),
-        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
-        valid=valid,
-    )
+
   for (name, key_proto) in _valid_xchacha_keys():
     yield test_key.TestKey(
         test_name=name,
@@ -341,48 +315,15 @@ def ecies_public_keys() -> Iterator[test_key.TestKey]:
         tags=['b/315928577'],
     )
 
-  yield test_key.TestKey(
-      test_name='Basic P384 Key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p384_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='Basic P521 Key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p521_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='RAW Key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p256_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.RAW,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='CRUNCHY Key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p256_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
-      valid=True,
-  )
-
-  yield test_key.TestKey(
-      test_name='LEGACY Key',
-      type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_p256_key().public_key.SerializeToString(),
-      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
-      output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
-      valid=True,
-  )
+  for (name, valid, output_prefix_type) in _output_prefix_with_validity():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PUBLIC_TYPE_URL,
+        serialized_value=_basic_p256_key().public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        output_prefix_type=output_prefix_type,
+        valid=valid,
+    )
 
   # Proto-Unparseable value
   yield test_key.TestKey(
