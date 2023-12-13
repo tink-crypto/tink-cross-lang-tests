@@ -1,0 +1,33 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+py_library(
+    name = "jwt_hmac_keys",
+    srcs = ["jwt_hmac_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:jwt_hmac_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "jwt_mac_creation_consistency_test",
+    srcs = ["jwt_mac_creation_consistency_test.py"],
+    deps = [
+        ":jwt_hmac_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
