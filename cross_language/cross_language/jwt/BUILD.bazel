@@ -31,3 +31,17 @@ py_test(
         "@tink_py//tink/proto:tink_py_pb2",
     ],
 )
+
+py_test(
+    name = "jwt_mac_evaluation_consistency_test",
+    srcs = ["jwt_mac_evaluation_consistency_test.py"],
+    deps = [
+        ":jwt_hmac_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
