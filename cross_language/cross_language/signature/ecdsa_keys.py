@@ -141,6 +141,32 @@ def _basic_p521_key() -> ecdsa_pb2.EcdsaPrivateKey:
   )
 
 
+def _unsupported_hash_function_keys() -> (
+    Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
+):
+  """Returns keys with unsupported hash functions."""
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA1
+  yield ('SHA1 key (invalid)', False, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA224
+  yield ('SHA224 key (invalid)', False, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.UNKNOWN_HASH
+  yield ('UNKNOWN_HASH key (invalid)', False, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA384
+  yield ('P256 & SHA384 (invalid)', False, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA512
+  yield ('P256 & SHA512 (invalid)', False, key_proto)
+
+
 def _proto_keys() -> (
     Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
 ):
@@ -159,18 +185,6 @@ def _proto_keys() -> (
   yield ('UNKNOWN encoding (invalid)', False, key_proto)
 
   key_proto = _basic_p256_key()
-  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA224
-  yield ('P256 & SHA224 (invalid)', False, key_proto)
-
-  key_proto = _basic_p256_key()
-  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA384
-  yield ('P256 & SHA384 (invalid)', False, key_proto)
-
-  key_proto = _basic_p256_key()
-  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA512
-  yield ('P256 & SHA512 (invalid)', False, key_proto)
-
-  key_proto = _basic_p256_key()
   key_proto.public_key.params.curve = common_pb2.EllipticCurveType.NIST_P384
   yield ('P384 with P256 point (invalid)', False, key_proto)
 
@@ -187,6 +201,9 @@ def _proto_keys() -> (
   key_proto = _basic_p521_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.SHA256
   yield ('Basic P521Key with SHA256 (invalid)', False, key_proto)
+
+  for triple in _unsupported_hash_function_keys():
+    yield triple
 
 
 def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
