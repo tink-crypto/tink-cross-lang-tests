@@ -31,14 +31,14 @@ from tink import streaming_aead
 # 'type.googleapis.com/google.crypto.tink.')
 KEY_TYPES = {
     aead.Aead: (
+        'AesCtrHmacAeadKey',
         'AesEaxKey',
         'AesGcmKey',
         'AesGcmSivKey',
-        'AesCtrHmacAeadKey',
         'ChaCha20Poly1305Key',
-        'XChaCha20Poly1305Key',
         'KmsAeadKey',
         'KmsEnvelopeAeadKey',
+        'XChaCha20Poly1305Key',
     ),
     daead.DeterministicAead: ('AesSivKey',),
     streaming_aead.StreamingAead: (
@@ -47,9 +47,25 @@ KEY_TYPES = {
     ),
     hybrid.HybridDecrypt: ('EciesAeadHkdfPrivateKey', 'HpkePrivateKey'),
     hybrid.HybridEncrypt: ('EciesAeadHkdfPublicKey', 'HpkePublicKey'),
+    jwt.JwtMac: ('JwtHmacKey',),
+    jwt.JwtPublicKeySign: (
+        'JwtEcdsaPrivateKey',
+        'JwtRsaSsaPkcs1PrivateKey',
+        'JwtRsaSsaPssPrivateKey',
+    ),
+    jwt.JwtPublicKeyVerify: (
+        'JwtEcdsaPublicKey',
+        'JwtRsaSsaPkcs1PublicKey',
+        'JwtRsaSsaPssPublicKey',
+    ),
     mac.Mac: (
         'AesCmacKey',
         'HmacKey',
+    ),
+    prf.PrfSet: (
+        'AesCmacPrfKey',
+        'HmacPrfKey',
+        'HkdfPrfKey',
     ),
     signature.PublicKeySign: (
         'EcdsaPrivateKey',
@@ -63,22 +79,6 @@ KEY_TYPES = {
         'RsaSsaPkcs1PublicKey',
         'RsaSsaPssPublicKey',
     ),
-    prf.PrfSet: (
-        'AesCmacPrfKey',
-        'HmacPrfKey',
-        'HkdfPrfKey',
-    ),
-    jwt.JwtMac: ('JwtHmacKey',),
-    jwt.JwtPublicKeySign: (
-        'JwtEcdsaPrivateKey',
-        'JwtRsaSsaPkcs1PrivateKey',
-        'JwtRsaSsaPssPrivateKey',
-    ),
-    jwt.JwtPublicKeyVerify: (
-        'JwtEcdsaPublicKey',
-        'JwtRsaSsaPkcs1PublicKey',
-        'JwtRsaSsaPssPublicKey',
-    )
 }
 
 # Map from Asymmetric Private Primitive to Asymmetric Public Primitive
