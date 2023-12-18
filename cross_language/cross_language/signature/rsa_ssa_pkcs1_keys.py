@@ -91,16 +91,75 @@ def _basic_2048bit_key() -> rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey:
   return key
 
 
+def _to_bytes(i: int) -> bytes:
+  return i.to_bytes((i.bit_length() + 7) // 8, 'big')
+
+
+def _key_with_p_and_q(
+    p: int, q: int
+) -> rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey:
+  """Creates a key from two primes p and q (without checking validity)."""
+
+  n = p * q
+  e = 65537
+  phi = (p-1) * (q-1)
+  d = pow(e, -1, phi)
+  dp = d % (p-1)
+  dq = d % (q-1)
+  crt = pow(q, -1, p)
+  return rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey(
+      version=0,
+      public_key=rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PublicKey(
+          version=0,
+          params=rsa_ssa_pkcs1_pb2.RsaSsaPkcs1Params(
+              hash_type=common_pb2.HashType.SHA256,
+          ),
+          n=_to_bytes(n),
+          e=_to_bytes(e),
+      ),
+      d=_to_bytes(d),
+      p=_to_bytes(p),
+      q=_to_bytes(q),
+      dp=_to_bytes(dp),
+      dq=_to_bytes(dq),
+      crt=_to_bytes(crt),
+  )
+
+
+## Some primes:
+## (2 << 1023) + [1155, 1493, 1583, 1685, 1863]
+## (2 << 1024) - [105, 179, 1397, 3177, 5025]
+def _keys_close_to_2048_bit_threshold() -> (
+    Iterator[Tuple[str, bool, rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey]]
+):
+  """Yields triples with p * q close to 2^2047.
+
+  Note that 2^2047 is the smallest number which needs 2048 bits.
+  """
+
+  p = (1 << 1024) - 3177
+  q1 = (1 << 1023) + 1155
+  q2 = (1 << 1023) + 1863
+  # p * q1 = (2^2047 - 3177 * 2^1023 + 2 * 1155 * 2^1023 - 3177*1155)
+  yield('2047 bit key', False, _key_with_p_and_q(p, q1))
+  # p * q1 = (2^2047 - 3177 * 2^1023 + 2 * 1863 * 2^1023 - 3177*1863)
+  yield('2048 bit key', True, _key_with_p_and_q(p, q2))
+
+
 def _proto_keys() -> (
     Iterator[Tuple[str, bool, rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey]]
 ):
-  """Returns triples (name, validity, proto) for EcdsaPrivateKey."""
+  """Yields triples (name, validity, proto) for RsaSsaPkcs1PrivateKey."""
+
   key_proto = _basic_2048bit_key()
   yield ('Basic 2048 bit key', True, key_proto)
 
+  for triple in _keys_close_to_2048_bit_threshold():
+    yield triple
+
 
 def rsa_ssa_pkcs1_private_keys() -> Iterator[test_key.TestKey]:
-  """Returns private test keys for Ecdsa."""
+  """Returns private test keys for RsaSsaPkcs1."""
 
   for (name, valid, key_proto) in _proto_keys():
     yield test_key.TestKey(
@@ -113,7 +172,7 @@ def rsa_ssa_pkcs1_private_keys() -> Iterator[test_key.TestKey]:
 
 
 def rsa_ssa_pkcs1_public_keys() -> Iterator[test_key.TestKey]:
-  """Returns public test keys for Ecdsa."""
+  """Returns public test keys for RsaSsaPkcs1."""
 
   for (name, valid, key_proto) in _proto_keys():
     yield test_key.TestKey(
