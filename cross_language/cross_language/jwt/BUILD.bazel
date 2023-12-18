@@ -18,6 +18,17 @@ py_library(
     ],
 )
 
+py_library(
+    name = "jwt_ecdsa_keys",
+    srcs = ["jwt_ecdsa_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:jwt_ecdsa_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
 py_test(
     name = "jwt_mac_creation_consistency_test",
     srcs = ["jwt_mac_creation_consistency_test.py"],
@@ -37,6 +48,20 @@ py_test(
     srcs = ["jwt_mac_evaluation_consistency_test.py"],
     deps = [
         ":jwt_hmac_keys",
+        requirement("absl-py"),
+        "//cross_language:test_key",
+        "//cross_language/tink_config",
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_test(
+    name = "jwt_signature_creation_consistency_test",
+    srcs = ["jwt_signature_creation_consistency_test.py"],
+    deps = [
+        ":jwt_ecdsa_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
