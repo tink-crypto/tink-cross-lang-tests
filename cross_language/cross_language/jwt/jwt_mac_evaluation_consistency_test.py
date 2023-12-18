@@ -75,5 +75,33 @@ class EvaluationConsistencyTest(absltest.TestCase):
                   verified_jwt.custom_claim('CustomClaim1'), 'claimed'
               )
 
+  def test_b315970600_keys(self):
+    """Tests behavior of b/315970600 keys.
+
+    Keys with OutputPrefixType TINK should not have custom kid set. Optimally
+    Tink would prevent creation of JwtMac objects from keys which look like
+    this. At the moment this doesn't happen. Hence, it is important that at
+    least one cannot create tokens with such a key. This test checks this.
+    Note that in this case all which really happens is that the error is thrown
+    later than optimal.
+    """
+
+    for key in jwt_mac_keys():
+      for lang in tink_config.all_tested_languages():
+        if lang in ['cc', 'go', 'python'] and 'b/315970600' in key.tags():
+          with self.subTest(f'{lang}: {key}'):
+            keyset = key.as_serialized_keyset()
+            jwt_mac = testing_servers.remote_primitive(
+                lang, keyset, tink.jwt.JwtMac
+            )
+            raw_jwt = tink.jwt.new_raw_jwt(
+                issuer='test_issuer',
+                custom_claims={'CustomClaim1': 'claimed'},
+                without_expiration=True,
+            )
+            with self.assertRaises(tink.TinkError):
+              jwt_mac.compute_mac_and_encode(raw_jwt)
+
+
 if __name__ == '__main__':
   absltest.main()
