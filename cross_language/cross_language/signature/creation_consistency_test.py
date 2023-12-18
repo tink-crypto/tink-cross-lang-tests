@@ -62,7 +62,7 @@ class CreationConsistencyTest(absltest.TestCase):
   See https://developers.google.com/tink/design/consistency.
   """
 
-  def test_create_hybrid_decrypt(self):
+  def test_create_public_key_sign(self):
     """Tests: Creation of PublicKeySign from private key."""
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
