@@ -20,6 +20,8 @@ import tink
 from cross_language import test_key
 from cross_language import tink_config
 from cross_language.jwt import jwt_ecdsa_keys
+from cross_language.jwt import jwt_rsa_ssa_pkcs1_keys
+from cross_language.jwt import jwt_rsa_ssa_pss_keys
 from cross_language.util import testing_servers
 
 
@@ -34,10 +36,18 @@ def tearDownModule():
 def signature_private_keys() -> Iterator[test_key.TestKey]:
   for key in jwt_ecdsa_keys.jwt_ecdsa_private_keys():
     yield key
+  for key in jwt_rsa_ssa_pkcs1_keys.jwt_rsa_ssa_pkcs1_private_keys():
+    yield key
+  for key in jwt_rsa_ssa_pss_keys.jwt_rsa_ssa_pss_private_keys():
+    yield key
 
 
 def signature_public_keys() -> Iterator[test_key.TestKey]:
   for key in jwt_ecdsa_keys.jwt_ecdsa_public_keys():
+    yield key
+  for key in jwt_rsa_ssa_pkcs1_keys.jwt_rsa_ssa_pkcs1_public_keys():
+    yield key
+  for key in jwt_rsa_ssa_pss_keys.jwt_rsa_ssa_pss_public_keys():
     yield key
 
 

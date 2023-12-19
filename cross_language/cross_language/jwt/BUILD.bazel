@@ -29,6 +29,28 @@ py_library(
     ],
 )
 
+py_library(
+    name = "jwt_rsa_ssa_pkcs1_keys",
+    srcs = ["jwt_rsa_ssa_pkcs1_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:jwt_rsa_ssa_pkcs1_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
+py_library(
+    name = "jwt_rsa_ssa_pss_keys",
+    srcs = ["jwt_rsa_ssa_pss_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:common_py_pb2",
+        "@tink_py//tink/proto:jwt_rsa_ssa_pss_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)
+
 py_test(
     name = "jwt_mac_creation_consistency_test",
     srcs = ["jwt_mac_creation_consistency_test.py"],
@@ -62,6 +84,8 @@ py_test(
     srcs = ["jwt_signature_creation_consistency_test.py"],
     deps = [
         ":jwt_ecdsa_keys",
+        ":jwt_rsa_ssa_pkcs1_keys",
+        ":jwt_rsa_ssa_pss_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
