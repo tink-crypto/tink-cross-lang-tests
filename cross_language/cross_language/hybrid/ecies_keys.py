@@ -220,6 +220,35 @@ def _varied_point_format() -> (
   yield ('EcPointFormat.UNKNOWN_FORMAT (invalid)', False, key_proto)
 
 
+def _varied_aead_dem_key_template_output_prefix() -> (
+    Iterator[Tuple[str, bool, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
+):
+  """The OutputPrefix in the DEM Key Template is ignored."""
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.dem_params.aead_dem.output_prefix_type = (
+      tink_pb2.OutputPrefixType.RAW
+  )
+  yield ('DEM OutputPrefix RAW', True, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.dem_params.aead_dem.output_prefix_type = (
+      tink_pb2.OutputPrefixType.CRUNCHY
+  )
+  yield ('DEM OutputPrefix CRUNCHY', True, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.dem_params.aead_dem.output_prefix_type = (
+      tink_pb2.OutputPrefixType.LEGACY
+  )
+  yield ('DEM OutputPrefix LEGACY', True, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.dem_params.aead_dem.output_prefix_type = (
+      tink_pb2.OutputPrefixType.UNKNOWN_PREFIX
+  )
+  yield ('DEM OutputPrefix UNKNOWN_PREFIX', True, key_proto)
+
+
 def _proto_private_keys() -> (
     Iterator[Tuple[str, bool, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
 ):
@@ -229,6 +258,8 @@ def _proto_private_keys() -> (
   for triple in _varied_hash_function():
     yield triple
   for triple in _varied_point_format():
+    yield triple
+  for triple in _varied_aead_dem_key_template_output_prefix():
     yield triple
 
 
