@@ -242,6 +242,16 @@ def _proto_keys() -> (
     yield triple
 
 
+def _output_prefix_types() -> (
+    Iterator[Tuple[tink_pb2.OutputPrefixType, bool]]
+):
+  yield (tink_pb2.OutputPrefixType.UNKNOWN_PREFIX, False)
+  yield (tink_pb2.OutputPrefixType.TINK, True)
+  yield (tink_pb2.OutputPrefixType.LEGACY, True)
+  yield (tink_pb2.OutputPrefixType.CRUNCHY, True)
+  yield (tink_pb2.OutputPrefixType.RAW, True)
+
+
 def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
   """Returns private test keys for Ecdsa."""
 
@@ -261,6 +271,17 @@ def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       valid=False,
   )
+
+  for (output_prefix_type, valid) in _output_prefix_types():
+    output_prefix_type_name = tink_pb2.OutputPrefixType.Name(output_prefix_type)
+    yield test_key.TestKey(
+        test_name=f'OutputPrefixType={output_prefix_type_name}',
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=_basic_p256_key().SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        output_prefix_type=output_prefix_type,
+        valid=valid,
+    )
 
 
 def ecdsa_public_keys() -> Iterator[test_key.TestKey]:
@@ -282,3 +303,14 @@ def ecdsa_public_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       valid=False,
   )
+
+  for (output_prefix_type, valid) in _output_prefix_types():
+    output_prefix_type_name = tink_pb2.OutputPrefixType.Name(output_prefix_type)
+    yield test_key.TestKey(
+        test_name=f'OutputPrefixType={output_prefix_type_name}',
+        type_url=_PUBLIC_TYPE_URL,
+        serialized_value=_basic_p256_key().public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        output_prefix_type=output_prefix_type,
+        valid=valid,
+    )
