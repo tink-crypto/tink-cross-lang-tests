@@ -146,6 +146,36 @@ def _keys_close_to_2048_bit_threshold() -> (
   yield('2048 bit key', True, _key_with_p_and_q(p, q2))
 
 
+def _keys_with_varying_hash_type() -> (
+    Iterator[Tuple[str, bool, rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey]]
+):
+  """Yields triples where we vary params.hash_type."""
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA1
+  yield ('SHA1 key (invalid)', False, key_proto)
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA224
+  yield ('SHA224 key (invalid)', False, key_proto)
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA256
+  yield ('SHA256 key', True, key_proto)
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA384
+  yield ('SHA384 key', True, key_proto)
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA512
+  yield ('SHA512 key', True, key_proto)
+
+  key_proto = _basic_2048bit_key()
+  key_proto.public_key.params.hash_type = common_pb2.HashType.UNKNOWN_HASH
+  yield ('UNKNOWN_HASH key (invalid)', False, key_proto)
+
+
 def _proto_keys() -> (
     Iterator[Tuple[str, bool, rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PrivateKey]]
 ):
@@ -155,6 +185,9 @@ def _proto_keys() -> (
   yield ('Basic 2048 bit key', True, key_proto)
 
   for triple in _keys_close_to_2048_bit_threshold():
+    yield triple
+
+  for triple in _keys_with_varying_hash_type():
     yield triple
 
 
