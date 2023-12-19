@@ -141,6 +141,34 @@ def _basic_p521_key() -> ecdsa_pb2.EcdsaPrivateKey:
   )
 
 
+def _basic_x25519_key() -> ecdsa_pb2.EcdsaPrivateKey:
+  """Returns a 'X25519 key'.
+
+  Tink doesn't support X25519 for ECDSA, but the enum exists. We try our best
+  to fake a Tink implementation which thinks X25519 is valid and provide
+  something the implementation might interpret as valid.
+  """
+
+  # x and key_value are taken from hpke_keys.py.
+  return ecdsa_pb2.EcdsaPrivateKey(
+      version=0,
+      public_key=ecdsa_pb2.EcdsaPublicKey(
+          version=0,
+          params=ecdsa_pb2.EcdsaParams(
+              hash_type=common_pb2.HashType.SHA256,
+              curve=common_pb2.EllipticCurveType.CURVE25519,
+              encoding=ecdsa_pb2.EcdsaSignatureEncoding.IEEE_P1363,
+          ),
+          x=binascii.unhexlify(
+              '37fda3567bdbd628e88668c3c8d7e97d1d1253b6d4ea6d44c150f741f1bf4431'
+          ),
+      ),
+      key_value=binascii.unhexlify(
+          '52c4a758a802cd8b936eceea314432798d5baf2d7e9235dc084ab1b9cfa2f736'
+      ),
+  )
+
+
 def _unsupported_hash_function_keys() -> (
     Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
 ):
@@ -167,16 +195,10 @@ def _unsupported_hash_function_keys() -> (
   yield ('P256 & SHA512 (invalid)', False, key_proto)
 
 
-def _proto_keys() -> (
+def _vary_signature_encodings() -> (
     Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
 ):
-  """Returns triples (name, validity, proto) for EcdsaPrivateKey."""
-  key_proto = _basic_p256_key()
-  yield ('Basic P256Key', True, key_proto)
-
-  key_proto = _basic_p256_key()
-  key_proto.public_key.params.encoding = ecdsa_pb2.EcdsaSignatureEncoding.DER
-  yield ('DER encoding', True, key_proto)
+  """Returns keys with unsupported signature encodings."""
 
   key_proto = _basic_p256_key()
   key_proto.public_key.params.encoding = (
@@ -185,24 +207,38 @@ def _proto_keys() -> (
   yield ('UNKNOWN encoding (invalid)', False, key_proto)
 
   key_proto = _basic_p256_key()
-  key_proto.public_key.params.curve = common_pb2.EllipticCurveType.NIST_P384
-  yield ('P384 with P256 point (invalid)', False, key_proto)
+  key_proto.public_key.params.encoding = (
+      ecdsa_pb2.EcdsaSignatureEncoding.IEEE_P1363
+  )
+  yield ('IEEE_P1363 encoding', True, key_proto)
+
+  key_proto = _basic_p256_key()
+  key_proto.public_key.params.encoding = (
+      ecdsa_pb2.EcdsaSignatureEncoding.DER
+  )
+  yield ('DER encoding', True, key_proto)
+
+
+def _proto_keys() -> (
+    Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
+):
+  """Returns triples (name, validity, proto) for EcdsaPrivateKey."""
+  key_proto = _basic_p256_key()
+  yield ('Basic P256Key', True, key_proto)
 
   key_proto = _basic_p384_key()
   yield ('Basic P384Key', True, key_proto)
 
-  key_proto = _basic_p384_key()
-  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA256
-  yield ('Basic P384Key with SHA256 (invalid)', False, key_proto)
-
   key_proto = _basic_p521_key()
   yield ('Basic P521Key', True, key_proto)
 
-  key_proto = _basic_p521_key()
-  key_proto.public_key.params.hash_type = common_pb2.HashType.SHA256
-  yield ('Basic P521Key with SHA256 (invalid)', False, key_proto)
+  key_proto = _basic_x25519_key()
+  yield ('Basic X25519Key (invalid)', False, key_proto)
 
   for triple in _unsupported_hash_function_keys():
+    yield triple
+
+  for triple in _vary_signature_encodings():
     yield triple
 
 
@@ -218,6 +254,14 @@ def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
 
+  yield test_key.TestKey(
+      test_name='Invalid proto-unparseable value',
+      type_url=_PRIVATE_TYPE_URL,
+      serialized_value=b'\x80',
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+      valid=False,
+  )
+
 
 def ecdsa_public_keys() -> Iterator[test_key.TestKey]:
   """Returns public test keys for Ecdsa."""
@@ -230,3 +274,11 @@ def ecdsa_public_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         valid=valid,
     )
+
+  yield test_key.TestKey(
+      test_name='Invalid proto-unparseable value',
+      type_url=_PUBLIC_TYPE_URL,
+      serialized_value=b'\x80',
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+      valid=False,
+  )
