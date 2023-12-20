@@ -48,7 +48,7 @@ def signature_keys() -> Iterator[test_key.TestKey]:
 
 
 class EvaluationConsistencyTest(absltest.TestCase):
-  """Tests evaluation consistency of Mac implementations in different languages.
+  """Tests evaluation consistency of Signature implementations.
 
   See https://developers.google.com/tink/design/consistency.
   """
@@ -61,11 +61,11 @@ class EvaluationConsistencyTest(absltest.TestCase):
             with self.subTest(f'{lang1}->{lang2}: {key}'):
               keyset = key.as_serialized_keyset()
               public_key_sign = testing_servers.remote_primitive(
-                  lang2, keyset, tink.signature.PublicKeySign
+                  lang1, keyset, tink.signature.PublicKeySign
               )
-              public_keyset = testing_servers.public_keyset(lang1, keyset)
+              public_keyset = testing_servers.public_keyset(lang2, keyset)
               public_key_verify = testing_servers.remote_primitive(
-                  lang1, public_keyset, tink.signature.PublicKeyVerify
+                  lang2, public_keyset, tink.signature.PublicKeyVerify
               )
               message = os.urandom(random.choice([0, 1, 17, 31, 1027]))
               signature = public_key_sign.sign(message)
