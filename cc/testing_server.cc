@@ -64,33 +64,31 @@ namespace tink_testing_api {
 void RunServer() {
   auto status = crypto::tink::TinkConfig::Register();
   if (!status.ok()) {
-    std::cerr << "TinkConfig::Register() failed: " << status.message()
-              << std::endl;
+    std::cerr << "TinkConfig::Register() failed: " << status.message() << '\n';
     return;
   }
   auto hpke_status = crypto::tink::RegisterHpke();
   if (!hpke_status.ok()) {
-    std::cerr << "RegisterHpke() failed: " << hpke_status.message()
-              << std::endl;
+    std::cerr << "RegisterHpke() failed: " << hpke_status.message() << '\n';
     return;
   }
   auto jwt_mac_status = crypto::tink::JwtMacRegister();
   if (!jwt_mac_status.ok()) {
     std::cerr << "JwtMacRegister() failed: " << jwt_mac_status.message()
-              << std::endl;
+              << '\n';
     return;
   }
   auto jwt_signature_status = crypto::tink::JwtSignatureRegister();
   if (!jwt_signature_status.ok()) {
     std::cerr << "JwtSignatureRegister() failed: "
-              << jwt_signature_status.message() << std::endl;
+              << jwt_signature_status.message() << '\n';
     return;
   }
   auto register_fake_kms_client_status =
       crypto::tink::test::FakeKmsClient::RegisterNewClient("", "");
   if (!register_fake_kms_client_status.ok()) {
     std::cerr << "FakeKmsClient::RegisterNewClient(\"\", \"\") failed: "
-              << register_fake_kms_client_status.message() << std::endl;
+              << register_fake_kms_client_status.message() << '\n';
     return;
   }
   std::string gcp_credentials_path = absl::GetFlag(FLAGS_gcp_credentials_path);
@@ -102,7 +100,7 @@ void RunServer() {
     std::cerr << "GcpKmsClient::RegisterNewClient(\"\", \""
               << gcp_credentials_path
               << "\") failed: " << register_gcpkms_client_status.message()
-              << std::endl;
+              << '\n';
     return;
   }
 #ifdef TINK_CROSS_LANG_TESTS_AWSKMS
@@ -150,7 +148,7 @@ void RunServer() {
   builder.RegisterService(&jwt);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
+  std::cout << "Server listening on " << server_address << '\n';
   server->Wait();
 }
 
