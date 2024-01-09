@@ -65,10 +65,55 @@ def single_key_keysets():
     yield test_keys.new_or_stored_keyset(template)
 
 
+def single_key_keysets_one_per_primitive():
+  """Produces single key keysets which can be produced from a template.
+
+  This does not produce keysets which have public keys.
+  Yields:
+    valid keysets generated from templates
+  """
+  yield test_keys.new_or_stored_keyset(aead.aead_key_templates.AES128_GCM)
+  yield test_keys.new_or_stored_keyset(jwt.jwt_hs256_template())
+  yield test_keys.new_or_stored_keyset(jwt.jwt_es256_template())
+  yield test_keys.new_or_stored_keyset(
+      daead.deterministic_aead_key_templates.AES256_SIV
+  )
+  yield test_keys.new_or_stored_keyset(
+      hybrid.hybrid_key_templates.DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_CHACHA20_POLY1305
+  )
+  yield test_keys.new_or_stored_keyset(
+      mac.mac_key_templates.HMAC_SHA512_256BITTAG
+  )
+  yield test_keys.new_or_stored_keyset(prf.prf_key_templates.AES_CMAC)
+  yield test_keys.new_or_stored_keyset(
+      signature.signature_key_templates.ECDSA_P256_IEEE_P1363
+  )
+  yield test_keys.new_or_stored_keyset(
+      streaming_aead.streaming_aead_key_templates.AES128_CTR_HMAC_SHA256_1MB
+  )
+
+
 def named_testcases():
   case_num = 0
   for lang in utilities.ALL_LANGUAGES:
     for keyset in single_key_keysets():
+      key_type = utilities.key_types_in_keyset(keyset)[0]
+      primitive = tink_config.primitive_for_keytype(key_type)
+      yield {
+          'testcase_name':
+              str(case_num) + '-' + lang + '-' + primitive.__name__ + '-' +
+              utilities.key_types_in_keyset(keyset)[0],
+          'lang':
+              lang,
+          'primitive':
+              primitive,
+          'keyset':
+              keyset,
+      }
+      case_num += 1
+
+  for lang in utilities.ALL_LANGUAGES:
+    for keyset in single_key_keysets_one_per_primitive():
       for primitive in tink_config.all_primitives():
         yield {
             'testcase_name':
@@ -170,6 +215,25 @@ class SupportedKeyTypesTest(parameterized.TestCase):
     else:
       with self.assertRaises(tink.TinkError):
         _ = testing_servers.remote_primitive(lang, modified_keyset, primitive)
+
+  def test_single_key_keysets_one_per_primitive_complete(self):
+    """Checks that single_key_keysets_one_per_primitive is updated if needed.
+
+    We could miss updating single_key_keysets_one_per_primitive when we add
+    a primitive. However, this should really always give exactly one keyset
+    per primitive (excluding public key primitives).
+    """
+    primitives = []
+    for keyset in single_key_keysets_one_per_primitive():
+      keytypes = utilities.key_types_in_keyset(keyset)
+      keytype = keytypes[0]
+      primitives += [tink_config.primitive_for_keytype(keytype)]
+    primitives += [
+        hybrid.HybridEncrypt,
+        signature.PublicKeyVerify,
+        jwt.JwtPublicKeyVerify,
+    ]
+    self.assertCountEqual(primitives, tink_config.all_primitives())
 
 
 if __name__ == '__main__':
