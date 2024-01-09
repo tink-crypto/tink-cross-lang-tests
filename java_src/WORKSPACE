@@ -2,22 +2,19 @@ workspace(name = "testing_java")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
+local_repository(
     name = "tink_java",
-    strip_prefix = "tink-java-main",
-    urls = ["https://github.com/tink-crypto/tink-java/archive/main.zip"],
+    path = "../../tink_java",
 )
 
-http_archive(
+local_repository(
     name = "tink_java_gcpkms",
-    strip_prefix = "tink-java-gcpkms-main",
-    urls = ["https://github.com/tink-crypto/tink-java-gcpkms/archive/main.zip"],
+    path = "../../tink_java_gcpkms",
 )
 
-http_archive(
+local_repository(
     name = "tink_java_awskms",
-    strip_prefix = "tink-java-awskms-main",
-    urls = ["https://github.com/tink-crypto/tink-java-awskms/archive/main.zip"],
+    path = "../../tink_java_awskms",
 )
 
 load("@tink_java//:tink_java_deps.bzl", "TINK_MAVEN_ARTIFACTS", "tink_java_deps")

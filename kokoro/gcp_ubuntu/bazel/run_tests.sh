@@ -83,20 +83,11 @@ readonly DEPS=(
 ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
   "${DEPS[@]}"
 
-for folder in "${CROSS_LANG_TESTS_WORKSPACES[@]}"; do
-  cp "${folder}/WORKSPACE" "${folder}/WORKSPACE.bak"
-  ./kokoro/testutils/replace_http_archive_with_local_repository.py \
-    -f "${folder}/WORKSPACE" -t ../..
-done
-
 # Run cleanup on EXIT.
 trap cleanup EXIT
 
 cleanup() {
   rm -rf _do_build.sh _do_test.sh
-  for folder in "${CROSS_LANG_TESTS_WORKSPACES[@]}"; do
-    mv "${folder}/WORKSPACE.bak" "${folder}/WORKSPACE"
-  done
   # Give ownership to the current user.
   sudo chown -R "$(id -un):$(id -gn)" bazel/
 }

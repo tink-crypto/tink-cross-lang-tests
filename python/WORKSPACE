@@ -46,16 +46,14 @@ http_archive(
     urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/archive/refs/tags/4.5.0.zip"],
 )
 
-http_archive(
+local_repository(
     name = "tink_cc",
-    strip_prefix = "tink-cc-main",
-    urls = ["https://github.com/tink-crypto/tink-cc/archive/main.zip"],
+    path = "../../tink_cc",
 )
 
-http_archive(
+local_repository(
     name = "tink_py",
-    strip_prefix = "tink-py-main",
-    urls = ["https://github.com/tink-crypto/tink-py/archive/main.zip"],
+    path = "../../tink_py",
 )
 
 load("@tink_py//:tink_py_deps.bzl", "tink_py_deps")

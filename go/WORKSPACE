@@ -2,22 +2,19 @@ workspace(name = "testing_go")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
+local_repository(
     name = "com_github_tink_crypto_tink_go_v2",
-    strip_prefix = "tink-go-main",
-    urls = ["https://github.com/tink-crypto/tink-go/archive/main.zip"],
+    path = "../../tink_go",
 )
 
-http_archive(
+local_repository(
     name = "com_github_tink_crypto_tink_go_gcpkms_v2",
-    strip_prefix = "tink-go-gcpkms-main",
-    urls = ["https://github.com/tink-crypto/tink-go-gcpkms/archive/main.zip"],
+    path = "../../tink_go_gcpkms",
 )
 
-http_archive(
+local_repository(
     name = "com_github_tink_crypto_tink_go_awskms_v2",
-    strip_prefix = "tink-go-awskms-main",
-    urls = ["https://github.com/tink-crypto/tink-go-awskms/archive/main.zip"],
+    path = "../../tink_go_awskms",
 )
 
 http_archive(
