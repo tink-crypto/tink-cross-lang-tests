@@ -32,12 +32,14 @@
 #include "tink/integration/gcpkms/gcp_kms_client.h"
 #include "tink/jwt/jwt_mac_config.h"
 #include "tink/jwt/jwt_signature_config.h"
+#include "tink/keyderivation/key_derivation_config.h"
 #include "tink/util/fake_kms_client.h"
 #include "tink/util/status.h"
 #include "aead_impl.h"
 #include "deterministic_aead_impl.h"
 #include "hybrid_impl.h"
 #include "jwt_impl.h"
+#include "keyset_deriver_impl.h"
 #include "keyset_impl.h"
 #include "mac_impl.h"
 #include "metadata_impl.h"
@@ -82,6 +84,12 @@ void RunServer() {
   if (!jwt_signature_status.ok()) {
     std::cerr << "JwtSignatureRegister() failed: "
               << jwt_signature_status.message() << '\n';
+    return;
+  }
+  auto key_derivation_status = crypto::tink::KeyDerivationConfig::Register();
+  if (!key_derivation_status.ok()) {
+    std::cout << "KeyDerivationConfig::Register() failed: "
+              << key_derivation_status.message() << '\n';
     return;
   }
   auto register_fake_kms_client_status =
@@ -131,6 +139,7 @@ void RunServer() {
   StreamingAeadImpl streaming_aead;
   PrfSetImpl prf_set;
   JwtImpl jwt;
+  KeysetDeriverImpl keyset_deriver;
 
   grpc::ServerBuilder builder;
   builder.AddListeningPort(
@@ -146,6 +155,7 @@ void RunServer() {
   builder.RegisterService(&prf_set);
   builder.RegisterService(&streaming_aead);
   builder.RegisterService(&jwt);
+  builder.RegisterService(&keyset_deriver);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << '\n';

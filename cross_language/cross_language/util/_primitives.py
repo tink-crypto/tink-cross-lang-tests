@@ -16,7 +16,7 @@
 import datetime
 import io
 import json
-from typing import BinaryIO, Dict, Optional, Mapping, Tuple
+from typing import BinaryIO, Dict, Mapping, Optional, Tuple
 
 import tink
 from tink import aead
@@ -25,6 +25,7 @@ from tink import hybrid
 from tink import jwt
 from tink import mac
 from tink import prf
+from tink import secret_key_access
 from tink import signature as tink_signature
 from tink import streaming_aead
 
@@ -743,3 +744,34 @@ class JwtPublicKeyVerify():
     if response.err:
       raise tink.TinkError(response.err)
     return proto_to_verified_jwt(response.verified_jwt)
+
+
+class KeysetDeriver:
+  """Implements a KeysetDeriver from a KeysetDeriver service stub."""
+
+  def __init__(
+      self,
+      lang: str,
+      stub: testing_api_pb2_grpc.KeysetDeriverStub,
+      keyset: bytes,
+  ) -> None:
+    self.lang = lang
+    self._stub = stub
+    self._keyset = testing_api_pb2.AnnotatedKeyset(serialized_keyset=keyset)
+    creation_response = self._stub.Create(
+        testing_api_pb2.CreationRequest(annotated_keyset=self._keyset)
+    )
+    if creation_response.err:
+      raise tink.TinkError(creation_response.err)
+
+  def derive_keyset(self, salt: bytes) -> tink.KeysetHandle:
+    """Derives a Keyset."""
+    request = testing_api_pb2.DeriveKeysetRequest(
+        annotated_keyset=self._keyset, salt=salt
+    )
+    response = self._stub.DeriveKeyset(request)
+    if response.err:
+      raise tink.TinkError(response.err)
+    return tink.proto_keyset_format.parse(
+        response.derived_keyset, secret_key_access.TOKEN
+    )

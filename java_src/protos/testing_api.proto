@@ -564,3 +564,23 @@ message JwtFromJwkSetResponse {
     string err = 2;
   }
 }
+
+// Service for Key Derivation
+service KeysetDeriver {
+  // Creates an KeysetDeriver object.
+  rpc Create(CreationRequest) returns (CreationResponse) {}
+  // Derives keyset. The client must successfully call "Create" first.
+  rpc DeriveKeyset(DeriveKeysetRequest) returns (DeriveKeysetResponse) {}
+}
+
+message DeriveKeysetRequest {
+  AnnotatedKeyset annotated_keyset = 1;
+  bytes salt = 2;
+}
+
+message DeriveKeysetResponse {
+  oneof result {
+    bytes derived_keyset = 1;  // serialized google.crypto.tink.Keyset.
+    string err = 2;
+  }
+}

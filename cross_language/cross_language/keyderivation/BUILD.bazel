@@ -1,0 +1,26 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+py_test(
+    name = "key_derivation_test",
+    srcs = ["key_derivation_test.py"],
+    deps = [
+        requirement("absl-py"),
+        "//cross_language/util:key_util",
+        "//cross_language/util:testing_servers",
+        "//cross_language/util:utilities",
+        "//cross_language/util/test_keys",
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/aead",
+        "@tink_py//tink/prf",
+        "@tink_py//tink/proto:aes_ctr_hmac_aead_py_pb2",
+        "@tink_py//tink/proto:prf_based_deriver_py_pb2",
+        "@tink_py//tink/proto:tink_py_pb2",
+    ],
+)

@@ -31,6 +31,7 @@ from tink import prf
 from tink import signature
 from tink import streaming_aead
 
+from tink.proto import prf_based_deriver_pb2
 from tink.proto import tink_pb2
 from cross_language.util import key_util
 from cross_language.util import test_keys
@@ -399,6 +400,33 @@ class TestingServersTest(parameterized.TestCase):
     validator = jwt.new_validator(fixed_now=now)
     verified_jwt = verifier.verify_and_decode(compact, validator)
     self.assertEqual(verified_jwt.jwt_id(), 'jwt_id')
+
+  @parameterized.parameters(_SUPPORTED_LANGUAGES['keyset_deriver'])
+  def test_keyset_derive_success(self, lang):
+    key_format = prf_based_deriver_pb2.PrfBasedDeriverKeyFormat(
+        prf_key_template=prf.prf_key_templates.HKDF_SHA256,
+        params=prf_based_deriver_pb2.PrfBasedDeriverParams(
+            derived_key_template=aead.aead_key_templates.AES256_GCM
+        ),
+    )
+    template = tink_pb2.KeyTemplate(
+        type_url='type.googleapis.com/google.crypto.tink.PrfBasedDeriverKey',
+        output_prefix_type=aead.aead_key_templates.AES256_GCM.output_prefix_type,
+        value=key_format.SerializeToString(),
+    )
+    keyset = testing_servers.new_keyset(lang, template)
+    keyset_deriver = testing_servers.keyset_deriver(lang, keyset)
+    derived_keyset = keyset_deriver.derive_keyset(b'salt')
+    self.assertEqual(
+        derived_keyset._keyset.key[0].key_data.type_url,
+        'type.googleapis.com/google.crypto.tink.AesGcmKey',
+    )
+
+  @parameterized.parameters(_SUPPORTED_LANGUAGES['keyset_deriver'])
+  def test_keyset_derive_fails_on_invalid_input(self, lang):
+    with self.assertRaises(tink.TinkError):
+      keyset_deriver = testing_servers.keyset_deriver(lang, b'invalid')
+      keyset_deriver.derive_keyset(b'salt')
 
 
 if __name__ == '__main__':

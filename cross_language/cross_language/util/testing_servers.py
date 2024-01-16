@@ -63,6 +63,7 @@ _PRIMITIVE_STUBS = {
     'signature': testing_api_pb2_grpc.SignatureStub,
     'prf': testing_api_pb2_grpc.PrfSetStub,
     'jwt': testing_api_pb2_grpc.JwtStub,
+    'keyset_deriver': testing_api_pb2_grpc.KeysetDeriverStub,
 }
 
 # All primitives.
@@ -77,6 +78,7 @@ SUPPORTED_LANGUAGES_BY_PRIMITIVE = {
     'signature': ['cc', 'go', 'java', 'python'],
     'prf': ['cc', 'java', 'go', 'python'],
     'jwt': ['cc', 'java', 'go', 'python'],
+    'keyset_deriver': ['cc', 'java', 'go'],
 }
 
 # Needed in golang, because there key URIs are not optional.
@@ -196,6 +198,7 @@ class _TestingServers():
     self._signature_stub = {}
     self._prf_stub = {}
     self._jwt_stub = {}
+    self._keyset_deriver_stub = {}
     self._test_name = test_name
 
     for lang in LANGUAGES:
@@ -272,6 +275,9 @@ class _TestingServers():
 
   def jwt_stub(self, lang) -> testing_api_pb2_grpc.JwtStub:
     return self._jwt_stub[lang]
+
+  def keyset_deriver_stub(self, lang) -> testing_api_pb2_grpc.KeysetDeriverStub:
+    return self._keyset_deriver_stub[lang]
 
   def metadata_stub(self, lang) -> testing_api_pb2_grpc.MetadataStub:
     return self._metadata_stub[lang]
@@ -381,6 +387,11 @@ def jwk_set_to_keyset(lang: str, jwk_set: str) -> bytes:
 
 def jwk_set_from_keyset(lang: str, keyset: bytes) -> str:
   return _primitives.jwk_set_from_keyset(_ts.jwt_stub(lang), keyset)
+
+
+def keyset_deriver(lang: str, keyset: bytes) -> _primitives.KeysetDeriver:
+  """Returns a KeysetDeriver primitive, implemented in lang."""
+  return _primitives.KeysetDeriver(lang, _ts.keyset_deriver_stub(lang), keyset)
 
 
 def remote_primitive(lang: str, keyset: bytes, primitive_class: Type[P]) -> P:

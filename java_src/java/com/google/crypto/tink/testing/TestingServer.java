@@ -24,6 +24,7 @@ import com.google.crypto.tink.integration.awskms.AwsKmsClient;
 import com.google.crypto.tink.integration.gcpkms.GcpKmsClient;
 import com.google.crypto.tink.jwt.JwtMacConfig;
 import com.google.crypto.tink.jwt.JwtSignatureConfig;
+import com.google.crypto.tink.keyderivation.KeyDerivationConfig;
 import com.google.crypto.tink.mac.MacConfig;
 import com.google.crypto.tink.prf.PrfConfig;
 import com.google.crypto.tink.signature.SignatureConfig;
@@ -91,6 +92,7 @@ public final class TestingServer {
     HybridConfig.register();
     JwtMacConfig.register();
     JwtSignatureConfig.register();
+    KeyDerivationConfig.register();
     MacConfig.register();
     PrfConfig.register();
     SignatureConfig.register();
@@ -113,6 +115,7 @@ public final class TestingServer {
         .addService(new PrfSetServiceImpl())
         .addService(new SignatureServiceImpl())
         .addService(new JwtServiceImpl())
+        .addService(new KeysetDeriverServiceImpl())
         .build()
         .start()
         .awaitTermination();

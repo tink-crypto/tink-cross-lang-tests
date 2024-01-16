@@ -1,6 +1,6 @@
+load("@pip_deps//:requirements.bzl", "requirement")
 load("@rules_proto_grpc//python:defs.bzl", "python_grpc_library")
 load("@rules_python//python:defs.bzl", "py_library")
-load("@pip_deps//:requirements.bzl", "requirement")
 
 package(
     default_testonly = 1,
@@ -90,6 +90,7 @@ py_test(
         "@tink_py//tink/proto:common_py_pb2",
         "@tink_py//tink/proto:jwt_ecdsa_py_pb2",
         "@tink_py//tink/proto:jwt_hmac_py_pb2",
+        "@tink_py//tink/proto:prf_based_deriver_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
         "@tink_py//tink/signature",
         "@tink_py//tink/streaming_aead",
