@@ -98,7 +98,6 @@ def hkdf_prf_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       output_prefix_type=tink_pb2.OutputPrefixType.TINK,
       valid=False,
-      tags=['b/315958864'],
   )
   yield test_key.TestKey(
       test_name='CRUNCHY key (invalid)',
@@ -107,7 +106,6 @@ def hkdf_prf_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
       valid=False,
-      tags=['b/315958864'],
   )
   yield test_key.TestKey(
       test_name='LEGACY key (invalid)',
@@ -116,7 +114,6 @@ def hkdf_prf_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
       valid=False,
-      tags=['b/315958864'],
   )
   # Proto-Unparseable value
   yield test_key.TestKey(
