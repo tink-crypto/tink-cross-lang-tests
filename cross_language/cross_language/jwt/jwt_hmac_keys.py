@@ -173,7 +173,6 @@ def jwt_hmac_keys() -> Iterator[test_key.TestKey]:
       serialized_value=_basic_proto_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
-      tags=['b/315970619'],
       valid=False,
   )
 
@@ -183,6 +182,5 @@ def jwt_hmac_keys() -> Iterator[test_key.TestKey]:
       serialized_value=_basic_proto_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
-      tags=['b/315970619'],
       valid=False,
   )
