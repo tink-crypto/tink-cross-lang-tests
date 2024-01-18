@@ -50,8 +50,6 @@ class CreationConsistencyTest(absltest.TestCase):
         supported = key.supported_in(lang)
         if lang in ['cc', 'go', 'python'] and 'b/315970600' in key.tags():
           supported = True
-        if lang in ['go'] and 'b/315970619' in key.tags():
-          supported = True
         supported_string = 'should work' if supported else 'should throw'
         with self.subTest(f'{lang}, {key}, {supported_string}'):
           keyset = key.as_serialized_keyset()
