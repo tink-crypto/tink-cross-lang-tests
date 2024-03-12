@@ -28,40 +28,48 @@ tink_java_deps_init()
 load("@tink_java_awskms//:tink_java_awskms_deps.bzl", "TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS")
 load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
 
-# Release X.21.9 from 2022-10-26.
-http_archive(
-    name = "com_google_protobuf_javalite",
-    sha256 = "5babb8571f1cceafe0c18e13ddb3be556e87e12ceea3463d6b0d0064e6cc1ac3",
-    strip_prefix = "protobuf-21.9",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v21.9.zip"],
-)
+_GRPC_VERSION = "1.59.1"
 
-# Release from 2022-10-19.
 http_archive(
     name = "io_grpc_grpc_java",
-    patch_args = ["-p1"],
-    # Replaces `protobuf_java_lite` with `protobuf_javalite`. Protobuf
-    # does not expose a `protobuf_java_lite` target.
-    patches = ["@testing_java//third_party:io_grpc_grpc_java.diff"],
-    sha256 = "992f757b022bb40d2db07a4924f169c0abacbbddcae8f32edb99921683fdffe9",
-    strip_prefix = "grpc-java-1.50.2",
-    url = "https://github.com/grpc/grpc-java/archive/v1.50.2.tar.gz",
+    sha256 = "ec8f9db8f8c7d63c0ec8bda4838fcb1f178dea28664cb412ac0fe9b0527254d8",
+    strip_prefix = "grpc-java-%s" % _GRPC_VERSION,
+    url = "https://github.com/grpc/grpc-java/archive/v%s.zip" % _GRPC_VERSION,
 )
 
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "grpc_java_repositories")
 load("@rules_jvm_external//:defs.bzl", "maven_install")
-load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
+load("@rules_jvm_external//:specs.bzl", "maven")
 
 grpc_java_repositories()
+
+# gRPC direct deps used by this target.
+_GRPC_DEPS = [
+    "io.grpc:grpc-api:%s" % _GRPC_VERSION,
+    "io.grpc:grpc-inprocess:%s" % _GRPC_VERSION,
+    "io.grpc:grpc-protobuf:%s" % _GRPC_VERSION,
+    "io.grpc:grpc-stub:%s" % _GRPC_VERSION,
+    "io.grpc:grpc-netty-shaded:%s" % _GRPC_VERSION,
+    "io.grpc:grpc-testing:%s" % _GRPC_VERSION,
+    maven.artifact(
+        artifact = "grpc-core",
+        exclusions = [
+            "io.grpc:grpc-util",
+        ],
+        group = "io.grpc",
+        version = _GRPC_VERSION,
+    ),
+]
 
 maven_install(
     artifacts = TINK_MAVEN_ARTIFACTS +
                 TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
                 TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS +
-                IO_GRPC_GRPC_JAVA_ARTIFACTS + [
+                IO_GRPC_GRPC_JAVA_ARTIFACTS +
+                _GRPC_DEPS + [
         "args4j:args4j:2.33",
     ],
     generate_compat_repositories = True,
-    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
         "https://maven.google.com",
         "https://repo1.maven.org/maven2",
