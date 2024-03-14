@@ -28,11 +28,11 @@ tink_java_deps_init()
 load("@tink_java_awskms//:tink_java_awskms_deps.bzl", "TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS")
 load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
 
-_GRPC_VERSION = "1.59.1"
+_GRPC_VERSION = "1.62.2"
 
 http_archive(
     name = "io_grpc_grpc_java",
-    sha256 = "ec8f9db8f8c7d63c0ec8bda4838fcb1f178dea28664cb412ac0fe9b0527254d8",
+    sha256 = "5d617856c295d863307f4036a1b1e93f9eeaf6da41424d2de7c9b330a810fc3b",
     strip_prefix = "grpc-java-%s" % _GRPC_VERSION,
     url = "https://github.com/grpc/grpc-java/archive/v%s.zip" % _GRPC_VERSION,
 )
@@ -51,6 +51,10 @@ _GRPC_DEPS = [
     "io.grpc:grpc-stub:%s" % _GRPC_VERSION,
     "io.grpc:grpc-netty-shaded:%s" % _GRPC_VERSION,
     "io.grpc:grpc-testing:%s" % _GRPC_VERSION,
+    # This is needed to add grpc-core while removing a circular dependency
+    # between grpc-core and grpc-util.
+    #
+    # See https://github.com/grpc/grpc-java/issues/10576.
     maven.artifact(
         artifact = "grpc-core",
         exclusions = [
