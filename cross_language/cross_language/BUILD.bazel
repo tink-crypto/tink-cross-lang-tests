@@ -90,6 +90,7 @@ py_test(
         requirement("absl-py"),
         "@tink_py//tink:tink_python",
         "@tink_py//tink/aead",
+        "@tink_py//tink/proto:kms_envelope_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
         "@tink_py//tink/testing:keyset_builder",
     ],
@@ -315,8 +316,8 @@ py_library(
     name = "test_key",
     srcs = ["test_key.py"],
     deps = [
-        "@tink_py//tink/proto:tink_py_pb2",
         "//cross_language/tink_config",
+        "@tink_py//tink/proto:tink_py_pb2",
     ],
 )
 

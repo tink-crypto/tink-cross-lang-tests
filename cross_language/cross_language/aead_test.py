@@ -24,6 +24,7 @@ from absl.testing import parameterized
 import tink
 from tink import aead
 
+from tink.proto import kms_envelope_pb2
 from tink.proto import tink_pb2
 from tink.testing import keyset_builder
 from cross_language import tink_config
@@ -122,6 +123,20 @@ _ADDITIONAL_KEY_TEMPLATES = {
             _FAKE_KMS_KEY_URI, aead.aead_key_templates.XCHACHA20_POLY1305
         ),
         utilities.SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME['XCHACHA20_POLY1305'],
+    ),
+    '_FAKE_KMS_ENVELOPE_AEAD_WITH_AES128_GCM_WITH_TINK_PREFIX': (
+        tink_pb2.KeyTemplate(
+            value=kms_envelope_pb2.KmsEnvelopeAeadKeyFormat(
+                kek_uri=_FAKE_KMS_KEY_URI,
+                dek_template=aead.aead_key_templates.AES128_GCM,
+            ).SerializeToString(),
+            type_url=(
+                'type.googleapis.com/google.crypto.tink.KmsEnvelopeAeadKey'
+            ),
+            output_prefix_type=tink_pb2.TINK,
+        ),
+        # TODO(b/329404375): This currently fails in Java.
+        ['cc', 'go', 'python'],
     ),
 }
 
