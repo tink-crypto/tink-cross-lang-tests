@@ -120,6 +120,7 @@ if [[ "${FOLDER}" == "cross_language" ]]; then
   )
   # TODO(b/276277854) It is not clear why this is needed.
   pip3 install protobuf==4.24.3 --user
+  pip3 install hvac==2.1.0 --user
 fi
 readonly TEST_OPTIONS
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \

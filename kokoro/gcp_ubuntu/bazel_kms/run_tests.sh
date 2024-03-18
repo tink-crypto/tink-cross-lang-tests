@@ -142,6 +142,7 @@ cd cross_language
 # TODO(b/276277854) It is not clear why this is needed.
 pip3 install protobuf==4.24.3 --user
 pip3 install google-cloud-kms==2.15.0 --user
+pip3 install hvac==2.1.0 --user
 
 mkdir /tmp/vault-tls
 

@@ -168,6 +168,8 @@ def _server_cmd(lang: str, port: int) -> List[str]:
         '--aws_key_uri', AWS_KEY_URI_PREFIX,
         '--hcvault_key_uri_prefix', HCVAULT_KEY_URI_PREFIX,
         '--hcvault_token', HCVAULT_TOKEN])
+  if lang == 'python':
+    server_args.extend(['--hcvault_token', HCVAULT_TOKEN])
 
   if lang == 'java' and server_path.endswith('.jar'):
     java_path = os.path.join(_root_path(), _JAVA_PATH)

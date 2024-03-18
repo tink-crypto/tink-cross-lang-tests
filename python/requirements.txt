@@ -8,3 +8,9 @@ absl-py==1.4.0 \
     --hash=sha256:0d3fe606adfa4f7db64792dd4c7aee4ee0c38ab75dfd353b7a83ed3e957fcb47 \
     --hash=sha256:d2c244d01048ba476e7c080bd2c6df5e141d211de80223460d5b3b8a2a58433d
     # via -r requirements.in
+hvac==2.1.0 \
+    --hash=sha256:73bc91e58c3fc7c6b8107cdaca9cb71fa0a893dfd80ffbc1c14e20f24c0c29d7 \
+    --hash=sha256:b48bcda11a4ab0a7b6c47232c7ba7c87fda318ae2d4a7662800c465a78742894
+requests==2.31.0 \
+    --hash=sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f \
+    --hash=sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1

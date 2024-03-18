@@ -100,6 +100,7 @@ py_binary(
         "@tink_py//tink/hybrid",
         "@tink_py//tink/integration/awskms",
         "@tink_py//tink/integration/gcpkms",
+        "@tink_py//tink/integration/hcvault",
         "@tink_py//tink/jwt",
         "@tink_py//tink/mac",
         "@tink_py//tink/signature",

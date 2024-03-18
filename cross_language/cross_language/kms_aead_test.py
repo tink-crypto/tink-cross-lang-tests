@@ -97,13 +97,13 @@ _KMS_ENVELOPE_AEAD_KEY_TEMPLATES = _kms_envelope_aead_templates(['GCP', 'AWS', '
 _SUPPORTED_LANGUAGES_FOR_KMS_ENVELOPE_AEAD = {
     'GCP': ('python', 'cc', 'go', 'java'),
     'AWS': ('python', 'cc', 'go', 'java'),
-    'HCVAULT': ('go',),
+    'HCVAULT': ('python', 'go',),
 }
 
 _SUPPORTED_LANGUAGES_FOR_KMS_AEAD = {
     'AWS': ('python', 'cc', 'go', 'java'),
     'GCP': ('python', 'cc', 'go', 'java'),
-    'HCVAULT': ('go', ),
+    'HCVAULT': ('python', 'go'),
 }
 
 
@@ -204,9 +204,29 @@ class KmsAeadTest(parameterized.TestCase):
       with self.assertRaises(tink.TinkError):
         encrypt_primitive.encrypt(plaintext, associated_data)
       return
+    if (
+        kms_service == 'HCVAULT'
+        and encrypt_lang == 'python'
+        and associated_data
+    ):
+      # HCVAULT in python does not yet support associated_data
+      # See https://github.com/hvac/hvac/issues/1107.
+      with self.assertRaises(tink.TinkError):
+        encrypt_primitive.encrypt(plaintext, associated_data)
+      return
     ciphertext = encrypt_primitive.encrypt(plaintext, associated_data)
     decrypt_primitive = testing_servers.remote_primitive(
         decrypt_lang, keyset, aead.Aead)
+    if (
+        kms_service == 'HCVAULT'
+        and decrypt_lang == 'python'
+        and associated_data
+    ):
+      # HCVAULT in python does not yet support associated_data
+      # See https://github.com/hvac/hvac/issues/1107.
+      with self.assertRaises(tink.TinkError):
+        decrypt_primitive.decrypt(ciphertext, associated_data)
+      return
     output = decrypt_primitive.decrypt(ciphertext, associated_data)
     self.assertEqual(output, plaintext)
 
