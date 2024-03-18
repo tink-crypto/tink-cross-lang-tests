@@ -17,10 +17,9 @@ local_repository(
     path = "../../tink_go_awskms",
 )
 
-http_archive(
+local_repository(
     name = "com_github_tink_crypto_tink_go_hcvault_v2",
-    strip_prefix = "tink-go-hcvault-main",
-    urls = ["https://github.com/tink-crypto/tink-go-hcvault/archive/main.zip"],
+    path = "../../tink_go_hcvault",
 )
 
 # Release from 2023-04-20
