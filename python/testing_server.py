@@ -27,49 +27,17 @@ from tink import mac
 from tink import prf
 from tink import signature
 from tink import streaming_aead
-from tink.integration import gcpkms
 
 from tink.testing import fake_kms
 from protos import testing_api_pb2_grpc
 import jwt_service
+import kms
 import services
 
-from tink.integration import awskms
-import tink
-import hvac
-from tink.integration import hcvault
-
-
-class HcVaultKmsClient(tink.KmsClient):
-
-  def __init__(self, token: str) -> None:
-    self._client = hvac.Client(url='https://127.0.0.1:8200', token=token, verify=False)
-    self._prefix = 'hcvault://127.0.0.1:8200/'
-
-  def does_support(self, key_uri: str) -> bool:
-    return key_uri.startswith(self._prefix)
-
-  def get_aead(self, key_uri: str) -> aead.Aead:
-    if not key_uri.startswith(self._prefix):
-      raise tink.TinkError('Unknown key_uri.')
-    key_path = key_uri[len(self._prefix) :]
-    return hcvault.new_aead(key_path, self._client)
 
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer('port', 10000, 'The port of the server.')
-GCP_CREDENTIALS_PATH = flags.DEFINE_string(
-    'gcp_credentials_path', '', 'Google Cloud KMS credentials path.')
-GCP_KEY_URI = flags.DEFINE_string(
-    'gcp_key_uri', '', 'Google Cloud KMS key URL of the form: '
-    'gcp-kms://projects/*/locations/*/keyRings/*/cryptoKeys/*.')
-AWS_CREDENTIALS_PATH = flags.DEFINE_string('aws_credentials_path', '',
-                                           'AWS KMS credentials path.')
-AWS_KEY_URI = flags.DEFINE_string(
-    'aws_key_uri', '', 'AWS KMS key URL of the form: '
-    'aws-kms://arn:aws:kms:<region>:<account-id>:key/<key-id>.')
-HCVAULT_TOKEN = flags.DEFINE_string(
-    'hcvault_token', '', 'HC Vault access token.')
 
 
 def init_tink() -> None:
@@ -85,17 +53,11 @@ def init_tink() -> None:
   jwt.register_jwt_mac()
   jwt.register_jwt_signature()
   fake_kms.register_client()
-  awskms.AwsKmsClient.register_client(
-      key_uri=AWS_KEY_URI.value, credentials_path=AWS_CREDENTIALS_PATH.value)
-  tink.register_kms_client(HcVaultKmsClient(HCVAULT_TOKEN.value))
-
-  gcpkms.GcpKmsClient.register_client(
-      key_uri=GCP_KEY_URI.value, credentials_path=GCP_CREDENTIALS_PATH.value
-  )
 
 
 def main(unused_argv):
   init_tink()
+  kms.init()
 
   server = grpc.server(futures.ThreadPoolExecutor(max_workers=2))
   testing_api_pb2_grpc.add_MetadataServicer_to_server(

@@ -83,6 +83,19 @@ py_test(
     ],
 )
 
+py_library(
+    name = "kms",
+    srcs = ["kms.py"],
+    srcs_version = "PY3",
+    deps = [
+        requirement("absl-py"),
+        "@tink_py//tink:tink_python",
+        "@tink_py//tink/integration/awskms",
+        "@tink_py//tink/integration/gcpkms",
+        "@tink_py//tink/integration/hcvault",
+    ],
+)
+
 py_binary(
     name = "testing_server",
     srcs = ["testing_server.py"],
@@ -90,6 +103,7 @@ py_binary(
     srcs_version = "PY3",
     deps = [
         ":jwt_service",
+        ":kms",
         ":services",
         ":testing_api_python_library",
         "@com_google_protobuf//:protobuf_python",
