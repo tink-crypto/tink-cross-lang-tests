@@ -88,7 +88,7 @@ func refTime(t *tpb.Timestamp) *time.Time {
 	return &v
 }
 
-func arrayClaimToJSONString(array []interface{}) (string, error) {
+func arrayClaimToJSONString(array []any) (string, error) {
 	lv, err := spb.NewList(array)
 	if err != nil {
 		return "", err
@@ -100,7 +100,7 @@ func arrayClaimToJSONString(array []interface{}) (string, error) {
 	return string(b), nil
 }
 
-func jsonStringToArrayClaim(stringArray string) ([]interface{}, error) {
+func jsonStringToArrayClaim(stringArray string) ([]any, error) {
 	s := spb.NewListValue(&spb.ListValue{})
 	if err := s.UnmarshalJSON([]byte(stringArray)); err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func jsonStringToArrayClaim(stringArray string) ([]interface{}, error) {
 	return s.GetListValue().AsSlice(), nil
 }
 
-func objectClaimToJSONString(o map[string]interface{}) (string, error) {
+func objectClaimToJSONString(o map[string]any) (string, error) {
 	s, err := spb.NewStruct(o)
 	if err != nil {
 		return "", err
@@ -123,7 +123,7 @@ func objectClaimToJSONString(o map[string]interface{}) (string, error) {
 	return string(b), nil
 }
 
-func jsonStringToObjectClaim(obj string) (map[string]interface{}, error) {
+func jsonStringToObjectClaim(obj string) (map[string]any, error) {
 	s := &spb.Struct{}
 	if err := s.UnmarshalJSON([]byte(obj)); err != nil {
 		return nil, err
@@ -131,8 +131,8 @@ func jsonStringToObjectClaim(obj string) (map[string]interface{}, error) {
 	return s.AsMap(), nil
 }
 
-func customClaimsFromProto(cc map[string]*pb.JwtClaimValue) (map[string]interface{}, error) {
-	r := map[string]interface{}{}
+func customClaimsFromProto(cc map[string]*pb.JwtClaimValue) (map[string]any, error) {
+	r := map[string]any{}
 	for key, val := range cc {
 		switch val.Kind.(type) {
 		case *pb.JwtClaimValue_NullValue:
