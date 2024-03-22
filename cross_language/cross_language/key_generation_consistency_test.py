@@ -37,10 +37,8 @@ from cross_language.util import testing_servers
 
 # Test cases that succeed in a language but should fail
 SUCCEEDS_BUT_SHOULD_FAIL = [
-    # TODO(b/160130470): In CC and Python Hybrid templates are not checked for
+    # TODO(b/160130470): In Python Hybrid templates are not checked for
     # valid AEAD params. (These params *are* checked when the key is used.)
-    ('EciesAeadHkdfPrivateKey(NIST_P256,UNCOMPRESSED,SHA256,AesEaxKey(15,11))',
-     'cc'),
     ('EciesAeadHkdfPrivateKey(NIST_P256,UNCOMPRESSED,SHA256,AesEaxKey(15,11))',
      'python'),
 ]
