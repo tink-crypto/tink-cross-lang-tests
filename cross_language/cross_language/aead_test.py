@@ -144,13 +144,10 @@ _ADDITIONAL_KEY_TEMPLATES = {
             value=kms_aead_pb2.KmsAeadKeyFormat(
                 key_uri=_FAKE_KMS_KEY_URI,
             ).SerializeToString(),
-            type_url=(
-                'type.googleapis.com/google.crypto.tink.KmsAeadKey'
-            ),
+            type_url='type.googleapis.com/google.crypto.tink.KmsAeadKey',
             output_prefix_type=tink_pb2.TINK,
         ),
-        # TODO(b/329404375): This currently fails in Java.
-        ['cc', 'go', 'python'],
+        ['java', 'cc', 'go', 'python'],
     ),
 }
 
