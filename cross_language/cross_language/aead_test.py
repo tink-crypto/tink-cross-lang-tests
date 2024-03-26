@@ -136,8 +136,7 @@ _ADDITIONAL_KEY_TEMPLATES = {
             ),
             output_prefix_type=tink_pb2.TINK,
         ),
-        # TODO(b/329404375): This currently fails in Java.
-        ['cc', 'go', 'python'],
+        ['java', 'cc', 'go', 'python'],
     ),
     '_FAKE_KMS_AEAD_WITH_TINK_PREFIX': (
         tink_pb2.KeyTemplate(
