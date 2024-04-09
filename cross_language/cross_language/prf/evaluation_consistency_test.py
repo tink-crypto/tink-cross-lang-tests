@@ -61,10 +61,6 @@ class EvaluationConsistencyTest(absltest.TestCase):
             prf = testing_servers.remote_primitive(
                 lang, key.as_serialized_keyset(), tink.prf.PrfSet
             )
-            if 'b/315441300' in key.tags() and lang in ['cc', 'python']:
-              with self.assertRaises(tink.TinkError):
-                prf.primary().compute(message, 16)
-              continue
             prf_outputs[lang] = binascii.hexlify(
                 prf.primary().compute(message, 16)
             )

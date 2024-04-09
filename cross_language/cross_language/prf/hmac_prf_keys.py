@@ -48,15 +48,6 @@ def _proto_keys_() -> Iterator[Tuple[str, bool, hmac_prf_pb2.HmacPrfKey]]:
   )
   yield ('SHA256 key', True, key)
 
-
-def _b315441300_keys() -> Iterator[Tuple[str, bool, hmac_prf_pb2.HmacPrfKey]]:
-  """Yields triples (name, validity, proto) which fall under b/315441300.
-
-  Description of this bug: Trying to compute the HMacPrf with SHA224 or SHA384
-  in Python or C++ currently fails with:
-  "PRF only supports outputs up to 0 bytes, but 16 bytes were requested."
-  """
-
   key = hmac_prf_pb2.HmacPrfKey(
       version=0,
       key_value=os.urandom(16),
@@ -82,16 +73,6 @@ def hmac_prf_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         output_prefix_type=tink_pb2.OutputPrefixType.RAW,
         valid=valid,
-    )
-  for (name, valid, msg) in _b315441300_keys():
-    yield test_key.TestKey(
-        test_name=name,
-        type_url='type.googleapis.com/google.crypto.tink.HmacPrfKey',
-        serialized_value=msg.SerializeToString(),
-        key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
-        output_prefix_type=tink_pb2.OutputPrefixType.RAW,
-        valid=valid,
-        tags=['b/315441300']
     )
   # For PRF Keys, only output prefix RAW is accepted.
   yield test_key.TestKey(
