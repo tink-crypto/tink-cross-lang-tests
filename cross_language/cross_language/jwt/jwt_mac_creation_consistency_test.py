@@ -48,7 +48,7 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in jwt_mac_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
-        if lang in ['cc', 'go', 'python'] and 'b/315970600' in key.tags():
+        if lang in ['go', 'python'] and 'b/315970600' in key.tags():
           supported = True
         supported_string = 'should work' if supported else 'should throw'
         with self.subTest(f'{lang}, {key}, {supported_string}'):

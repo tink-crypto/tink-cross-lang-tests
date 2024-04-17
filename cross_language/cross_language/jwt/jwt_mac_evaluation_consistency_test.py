@@ -88,7 +88,7 @@ class EvaluationConsistencyTest(absltest.TestCase):
 
     for key in jwt_mac_keys():
       for lang in tink_config.all_tested_languages():
-        if lang in ['cc', 'go', 'python'] and 'b/315970600' in key.tags():
+        if lang in ['go', 'python'] and 'b/315970600' in key.tags():
           with self.subTest(f'{lang}: {key}'):
             keyset = key.as_serialized_keyset()
             jwt_mac = testing_servers.remote_primitive(
