@@ -19,7 +19,7 @@ package com.google.crypto.tink.testing;
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
-import com.google.crypto.tink.monitoring.MonitoringAnnotations;
+import com.google.crypto.tink.internal.MonitoringAnnotations;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
