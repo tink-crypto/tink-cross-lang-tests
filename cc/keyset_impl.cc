@@ -17,8 +17,8 @@
 // Implementation of a Keyset Service.
 #include "keyset_impl.h"
 
-#include <ostream>
 #include <memory>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -29,8 +29,8 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/daead/deterministic_aead_key_templates.h"
 #include "tink/hybrid/hybrid_key_templates.h"
-#include "tink/json_keyset_reader.h"
-#include "tink/json_keyset_writer.h"
+#include "tink/json/json_keyset_reader.h"
+#include "tink/json/json_keyset_writer.h"
 #include "tink/jwt/jwt_key_templates.h"
 #include "tink/keyset_handle.h"
 #include "tink/mac/mac_key_templates.h"
