@@ -18,11 +18,9 @@ package kms
 import (
 	"context"
 	"crypto/tls"
-	"errors"
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/hashicorp/vault/api"
 
@@ -33,7 +31,6 @@ import (
 	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
 	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
-	"github.com/tink-crypto/tink-go/v2/tink"
 )
 
 var (
@@ -76,16 +73,6 @@ func RegisterAll() {
 	registry.RegisterKMSClient(vaultClient)
 }
 
-// vaultClient represents a client that connects to the HashiCorp Vault backend. We can't use
-// [hcvault.NewClient] because that uses the legacy format. We only want to test the non-legacy
-// format implemented by [hcvault.NewAEAD].
-type vaultClient struct {
-	keyURIPrefix string
-	client       *api.Logical
-}
-
-var _ registry.KMSClient = (*vaultClient)(nil)
-
 func newVaultClient(uriPrefix string, tlsCfg *tls.Config, token string) (registry.KMSClient, error) {
 	httpClient := api.DefaultConfig().HttpClient
 	transport := httpClient.Transport.(*http.Transport)
@@ -109,25 +96,5 @@ func newVaultClient(uriPrefix string, tlsCfg *tls.Config, token string) (registr
 		return nil, err
 	}
 	client.SetToken(token)
-	return &vaultClient{
-		keyURIPrefix: uriPrefix,
-		client:       client.Logical(),
-	}, nil
-
-}
-
-func (c *vaultClient) Supported(keyURI string) bool {
-	return strings.HasPrefix(keyURI, c.keyURIPrefix)
-}
-
-func (c *vaultClient) GetAEAD(keyURI string) (tink.AEAD, error) {
-	if !c.Supported(keyURI) {
-		return nil, errors.New("unsupported keyURI")
-	}
-	u, err := url.Parse(keyURI)
-	if err != nil || u.Scheme != "hcvault" {
-		return nil, errors.New("malformed keyURI")
-	}
-	keyPath := u.EscapedPath()
-	return hcvault.NewAEAD(keyPath, c.client)
+	return hcvault.NewClientWithAEADOptions(uriPrefix, client.Logical())
 }
