@@ -96,13 +96,13 @@ class TestingServersTest(parameterized.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    super(TestingServersTest, cls).setUpClass()
+    super().setUpClass()
     testing_servers.start('testing_server')
 
   @classmethod
   def tearDownClass(cls):
     testing_servers.stop()
-    super(TestingServersTest, cls).tearDownClass()
+    super().tearDownClass()
 
   @parameterized.parameters(testing_servers.LANGUAGES)
   def test_get_template(self, lang):
