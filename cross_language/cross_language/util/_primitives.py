@@ -632,25 +632,34 @@ def jwt_validator_to_proto(
   return proto_validator
 
 
-class JwtMac():
+class JwtMac(jwt.JwtMac):
   """Implements a JwtMac from a Jwt service stub."""
 
-  def __init__(self, lang: str, stub: testing_api_pb2_grpc.JwtStub,
-               keyset: bytes) -> None:
+  def __init__(
+      self,
+      lang: str,
+      stub: testing_api_pb2_grpc.JwtStub,
+      keyset: bytes,
+      annotations: Optional[Dict[str, str]] = None,
+  ) -> None:
     self.lang = lang
     self._stub = stub
     self._keyset = keyset
+    self._annotations = annotations
     creation_response = self._stub.CreateJwtMac(
         testing_api_pb2.CreationRequest(
             annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-                serialized_keyset=self._keyset)))
+                serialized_keyset=self._keyset, annotations=self._annotations
+            )
+        )
+    )
     if creation_response.err:
       raise tink.TinkError(creation_response.err)
 
   def compute_mac_and_encode(self, raw_jwt: jwt.RawJwt) -> str:
     request = testing_api_pb2.JwtSignRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=self._keyset),
+            serialized_keyset=self._keyset, annotations=self._annotations),
         raw_jwt=raw_jwt_to_proto(raw_jwt))
     response = self._stub.ComputeMacAndEncode(request)
     if response.err:
@@ -672,53 +681,75 @@ class JwtMac():
     """
     request = testing_api_pb2.JwtVerifyRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=self._keyset),
+            serialized_keyset=self._keyset, annotations=self._annotations
+        ),
         validator=jwt_validator_to_proto(validator),
-        signed_compact_jwt=signed_compact_jwt)
+        signed_compact_jwt=signed_compact_jwt,
+    )
     response = self._stub.VerifyMacAndDecode(request)
     if response.err:
       raise tink.TinkError(response.err)
     return proto_to_verified_jwt(response.verified_jwt)
 
 
-class JwtPublicKeySign():
+class JwtPublicKeySign(jwt.JwtPublicKeySign):
   """Implements a JwtPublicKeySign from a Jwt service stub."""
 
-  def __init__(self, lang: str, stub: testing_api_pb2_grpc.JwtStub,
-               keyset: bytes) -> None:
+  def __init__(
+      self,
+      lang: str,
+      stub: testing_api_pb2_grpc.JwtStub,
+      keyset: bytes,
+      annotations: Optional[Dict[str, str]] = None,
+  ) -> None:
     self.lang = lang
     self._stub = stub
     self._keyset = keyset
+    self._annotations = annotations
     creation_response = self._stub.CreateJwtPublicKeySign(
         testing_api_pb2.CreationRequest(
             annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-                serialized_keyset=self._keyset)))
+                serialized_keyset=self._keyset, annotations=self._annotations
+            )
+        )
+    )
     if creation_response.err:
       raise tink.TinkError(creation_response.err)
 
   def sign_and_encode(self, raw_jwt: jwt.RawJwt) -> str:
     request = testing_api_pb2.JwtSignRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=self._keyset),
-        raw_jwt=raw_jwt_to_proto(raw_jwt))
+            serialized_keyset=self._keyset, annotations=self._annotations
+        ),
+        raw_jwt=raw_jwt_to_proto(raw_jwt),
+    )
     response = self._stub.PublicKeySignAndEncode(request)
     if response.err:
       raise tink.TinkError(response.err)
     return response.signed_compact_jwt
 
 
-class JwtPublicKeyVerify():
+class JwtPublicKeyVerify(jwt.JwtPublicKeyVerify):
   """Implements a JwtPublicKeyVerify from a Jwt service stub."""
 
-  def __init__(self, lang: str, stub: testing_api_pb2_grpc.JwtStub,
-               keyset: bytes) -> None:
+  def __init__(
+      self,
+      lang: str,
+      stub: testing_api_pb2_grpc.JwtStub,
+      keyset: bytes,
+      annotations: Optional[Dict[str, str]] = None,
+  ) -> None:
     self.lang = lang
     self._stub = stub
     self._keyset = keyset
+    self._annotations = annotations
     creation_response = self._stub.CreateJwtPublicKeyVerify(
         testing_api_pb2.CreationRequest(
             annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-                serialized_keyset=self._keyset)))
+                serialized_keyset=self._keyset, annotations=self._annotations
+            )
+        )
+    )
     if creation_response.err:
       raise tink.TinkError(creation_response.err)
 
@@ -737,9 +768,11 @@ class JwtPublicKeyVerify():
     """
     request = testing_api_pb2.JwtVerifyRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=self._keyset),
+            serialized_keyset=self._keyset, annotations=self._annotations
+        ),
         validator=jwt_validator_to_proto(validator),
-        signed_compact_jwt=signed_compact_jwt)
+        signed_compact_jwt=signed_compact_jwt,
+    )
     response = self._stub.PublicKeyVerifyAndDecode(request)
     if response.err:
       raise tink.TinkError(response.err)
