@@ -54,21 +54,6 @@ KEYSET_READER_WRITER_TYPES = [('KEYSET_READER_BINARY', 'KEYSET_WRITER_BINARY'),
 # all the server are located.
 _JAVA_PATH = ('java_src/bazel-bin/testing_server.runfiles/local_jdk/bin/java')
 
-_PRIMITIVE_STUBS = {
-    'aead': testing_api_pb2_grpc.AeadStub,
-    'daead': testing_api_pb2_grpc.DeterministicAeadStub,
-    'streaming_aead': testing_api_pb2_grpc.StreamingAeadStub,
-    'hybrid': testing_api_pb2_grpc.HybridStub,
-    'mac': testing_api_pb2_grpc.MacStub,
-    'signature': testing_api_pb2_grpc.SignatureStub,
-    'prf': testing_api_pb2_grpc.PrfSetStub,
-    'jwt': testing_api_pb2_grpc.JwtStub,
-    'keyset_deriver': testing_api_pb2_grpc.KeysetDeriverStub,
-}
-
-# All primitives.
-_PRIMITIVES = list(_PRIMITIVE_STUBS.keys())
-
 SUPPORTED_LANGUAGES_BY_PRIMITIVE = {
     'aead': ['cc', 'go', 'java', 'python'],
     'daead': ['cc', 'go', 'java', 'python'],
@@ -235,11 +220,23 @@ class _TestingServers():
           self._channel[lang])
       self._keyset_stub[lang] = testing_api_pb2_grpc.KeysetStub(
           self._channel[lang])
-    for primitive in _PRIMITIVES:
-      for lang in SUPPORTED_LANGUAGES_BY_PRIMITIVE[primitive]:
-        stub_name = '_%s_stub' % primitive
-        getattr(self, stub_name)[lang] = _PRIMITIVE_STUBS[primitive](
-            self._channel[lang])
+      self._aead_stub[lang] = testing_api_pb2_grpc.AeadStub(
+          self._channel[lang])
+      self._daead_stub[lang] = testing_api_pb2_grpc.DeterministicAeadStub(
+          self._channel[lang])
+      self._streaming_aead_stub[lang] = testing_api_pb2_grpc.StreamingAeadStub(
+          self._channel[lang])
+      self._hybrid_stub[lang] = testing_api_pb2_grpc.HybridStub(
+          self._channel[lang])
+      self._mac_stub[lang] = testing_api_pb2_grpc.MacStub(self._channel[lang])
+      self._signature_stub[lang] = testing_api_pb2_grpc.SignatureStub(
+          self._channel[lang])
+      self._prf_stub[lang] = testing_api_pb2_grpc.PrfSetStub(
+          self._channel[lang])
+      self._jwt_stub[lang] = testing_api_pb2_grpc.JwtStub(self._channel[lang])
+      self._keyset_deriver_stub[lang] = testing_api_pb2_grpc.KeysetDeriverStub(
+          self._channel[lang]
+      )
 
   def _get_output_path(self, lang) -> str:
     try:

@@ -75,17 +75,6 @@ def setUpModule():
 
 class TestingServersConfigTest(absltest.TestCase):
 
-  def test_primitives(self):
-    self.assertEqual(
-        testing_servers._PRIMITIVE_STUBS.keys(),
-        _SUPPORTED_LANGUAGES.keys(),
-        msg=(
-            'The primitives specified as keys in '
-            'testing_servers._PRIMITIVE_STUBS must match the primitives '
-            ' specified as keys in '
-            'testing_servers.SUPPORTED_LANGUAGES_BY_PRIMITIVE.'
-        ))
-
   def test_languages(self):
     for primitive in _SUPPORTED_LANGUAGES:
       languages = set(testing_servers.LANGUAGES)
