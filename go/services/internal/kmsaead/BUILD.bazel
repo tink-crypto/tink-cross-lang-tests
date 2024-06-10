@@ -1,0 +1,33 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+go_library(
+    name = "kmsaead",
+    srcs = ["kmsaead.go"],
+    importpath = "github.com/tink-crypto/tink-cross-lang-tests/go/services/internal/kmsaead",
+    deps = [
+        "@com_github_tink_crypto_tink_go_v2//core/registry",
+        "@com_github_tink_crypto_tink_go_v2//keyset",
+        "@com_github_tink_crypto_tink_go_v2//proto/kms_aead_go_proto",
+        "@com_github_tink_crypto_tink_go_v2//proto/tink_go_proto",
+        "@org_golang_google_protobuf//proto",
+    ],
+)
+
+go_test(
+    name = "kmsaead_test",
+    srcs = ["kmsaead_test.go"],
+    deps = [
+        ":kmsaead",
+        "@com_github_tink_crypto_tink_go_v2//aead",
+        "@com_github_tink_crypto_tink_go_v2//core/registry",
+        "@com_github_tink_crypto_tink_go_v2//keyset",
+        "@com_github_tink_crypto_tink_go_v2//testing/fakekms",
+    ],
+)

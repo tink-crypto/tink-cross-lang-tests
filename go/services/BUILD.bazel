@@ -26,8 +26,8 @@ go_library(
     importpath = "github.com/tink-crypto/tink-cross-lang-tests/go/services",
     deps = [
         "//protos/testing_api_go_grpc",
+        "//services/internal/kmsaead",
         "@com_github_tink_crypto_tink_go_v2//aead",
-        "@com_github_tink_crypto_tink_go_v2//aead/internal/testing/kmsaead",
         "@com_github_tink_crypto_tink_go_v2//core/registry",
         "@com_github_tink_crypto_tink_go_v2//daead",
         "@com_github_tink_crypto_tink_go_v2//hybrid",

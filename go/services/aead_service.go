@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	"github.com/tink-crypto/tink-go/v2/aead"
-	"github.com/tink-crypto/tink-go/v2/aead/internal/testing/kmsaead"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
+	"github.com/tink-crypto/tink-cross-lang-tests/go/services/internal/kmsaead"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 )
 
