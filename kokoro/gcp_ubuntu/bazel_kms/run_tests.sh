@@ -27,18 +27,8 @@
 #   sh ./kokoro/gcp_ubuntu/bazel_kms/run_tests.sh
 #
 # The user may specify TINK_BASE_DIR as the folder where to look for
-# tink-cross-lang-tests and its dependencies. That is:
-#   ${TINK_BASE_DIR}/tink-cc
-#   ${TINK_BASE_DIR}/tink-cc-awskms
-#   ${TINK_BASE_DIR}/tink-cc-gcpkms
-#   ${TINK_BASE_DIR}/tink-go
-#   ${TINK_BASE_DIR}/tink-go-awskms
-#   ${TINK_BASE_DIR}/tink-go-gcpkms
-#   ${TINK_BASE_DIR}/tink-java
-#   ${TINK_BASE_DIR}/tink-java-awskms
-#   ${TINK_BASE_DIR}/tink-java-gcpkms
-#   ${TINK_BASE_DIR}/tink-py
-# NOTE: They are fetched from GitHub if not found.
+# tink-cross-lang-tests and its dependencies, which are fetched from GitHub if
+# not found.
 set -eEuo pipefail
 
 IS_KOKORO="false"
@@ -85,9 +75,11 @@ readonly DEPS=(
   "${GITHUB_ORG}/tink-go"
   "${GITHUB_ORG}/tink-go-awskms"
   "${GITHUB_ORG}/tink-go-gcpkms"
+  "${GITHUB_ORG}/tink-go-hcvault"
   "${GITHUB_ORG}/tink-java"
   "${GITHUB_ORG}/tink-java-awskms"
   "${GITHUB_ORG}/tink-java-gcpkms"
+  "${GITHUB_ORG}/tink-java-hcvault"
   "${GITHUB_ORG}/tink-py"
 )
 # Check for dependencies in TINK_BASE_DIR. Any that aren't present will be
@@ -101,12 +93,13 @@ readonly DEPS=(
 trap cleanup EXIT
 
 cleanup() {
-  rm -rf _do_build.sh _do_test.sh _run_cross_language_test
+  rm -rf _bazel_build.sh _bazel_test.sh _go_build_and_test.sh \
+    _run_cross_language_test.sh
   # Give ownership to the current user.
   sudo chown -R "$(id -un):$(id -gn)" bazel/
 }
 
-cat <<'EOF' > _do_build.sh
+cat <<'EOF' > _bazel_build.sh
 #!/bin/bash
 set -xeEuo pipefail
 readonly FOLDER="$1"
@@ -116,9 +109,9 @@ cd "${FOLDER}"
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" build \
   -- "${BUILD_TARGETS[@]}"
 EOF
-chmod +x _do_build.sh
+chmod +x _bazel_build.sh
 
-cat <<'EOF' > _do_test.sh
+cat <<'EOF' > _bazel_test.sh
 #!/bin/bash
 set -xeEuo pipefail
 readonly FOLDER="$1"
@@ -131,7 +124,7 @@ readonly TEST_OPTIONS
 time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
 "${TEST_OPTIONS[@]}" -- "${TEST_TARGETS[@]}"
 EOF
-chmod +x _do_test.sh
+chmod +x _bazel_test.sh
 
 cat <<'EOF' > _run_cross_language_test.sh
 #!/bin/bash
@@ -193,15 +186,17 @@ run() {
   ./kokoro/testutils/run_command.sh "${run_command_args[@]}" "${command[@]}"
 }
 
-run "${CC_CONTAINER_IMAGE:-}" ./_do_build.sh cc ...
-run "${CC_CONTAINER_IMAGE:-}" ./_do_test.sh cc ...
-run "${GO_CONTAINER_IMAGE:-}" ./_do_build.sh go ...
-run "${GO_CONTAINER_IMAGE:-}" ./_do_test.sh go ...
-run "${JAVA_CONTAINER_IMAGE:-}" ./_do_build.sh java_src ... \
-  //:testing_server_deploy.jar
-run "${JAVA_CONTAINER_IMAGE:-}" ./_do_test.sh java_src ...
-run "${PY_CONTAINER_IMAGE:-}" ./_do_build.sh python ...
-run "${PY_CONTAINER_IMAGE:-}" ./_do_test.sh python ...
+run "${CC_CONTAINER_IMAGE:-}" ./_bazel_build.sh cc ...
+run "${CC_CONTAINER_IMAGE:-}" ./_bazel_test.sh cc ...
 
-run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_do_build.sh cross_language ...
+run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh
+
+run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_build.sh java_src ... \
+  //:testing_server_deploy.jar
+run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_test.sh java_src ...
+
+run "${PY_CONTAINER_IMAGE:-}" ./_bazel_build.sh python ...
+run "${PY_CONTAINER_IMAGE:-}" ./_bazel_test.sh python ...
+
+run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_bazel_build.sh cross_language ...
 run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_run_cross_language_test.sh
