@@ -91,46 +91,9 @@ readonly DEPS=(
 trap cleanup EXIT
 
 cleanup() {
-  rm -rf _bazel_build.sh _bazel_test.sh _go_build_and_test.sh
-  # Give ownership to the current user.
+  # Give ownership of the Bazel root folder to the current user.
   sudo chown -R "$(id -un):$(id -gn)" bazel/
 }
-
-cat <<'EOF' > _bazel_build.sh
-#!/bin/bash
-set -xeuo pipefail
-readonly FOLDER="$1"
-readonly BUILD_TARGETS=("${@:2}")
-readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
-cd "${FOLDER}"
-time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" build \
-  -- "${BUILD_TARGETS[@]}"
-EOF
-chmod +x _bazel_build.sh
-
-cat <<'EOF' > _bazel_test.sh
-#!/bin/bash
-set -xeuo pipefail
-readonly FOLDER="$1"
-readonly TEST_TARGETS=("${@:2}")
-readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
-readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
-cd "${FOLDER}"
-TEST_OPTIONS=( --test_output=errors )
-if [[ "${FOLDER}" == "cross_language" ]]; then
-  TEST_OPTIONS+=(
-    --test_env=TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
-    --experimental_ui_max_stdouterr_bytes=-1
-  )
-  # TODO(b/276277854) It is not clear why this is needed.
-  pip3 install protobuf==4.24.3 --user
-  pip3 install hvac==2.1.0 --user
-fi
-readonly TEST_OPTIONS
-time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
-  "${TEST_OPTIONS[@]}" -- "${TEST_TARGETS[@]}"
-EOF
-chmod +x _bazel_test.sh
 
 run() {
   local -r container_img="${1:-}"
@@ -146,17 +109,16 @@ run() {
   ./kokoro/testutils/run_command.sh "${run_command_args[@]}" "${command[@]}"
 }
 
-run "${CC_CONTAINER_IMAGE:-}" ./_bazel_build.sh cc ...
-run "${CC_CONTAINER_IMAGE:-}" ./_bazel_test.sh cc ...
+readonly OUTPUT_USER_ROOT="bazel"
 
-run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh
+# Build test servers.
+run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${JAVA_CONTAINER_IMAGE:-}" bash java_src/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
+run "${PY_CONTAINER_IMAGE:-}" bash python/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
 
-run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_build.sh java_src ... \
-  //:testing_server_deploy.jar
-run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_test.sh java_src ...
-
-run "${PY_CONTAINER_IMAGE:-}" ./_bazel_build.sh python ...
-run "${PY_CONTAINER_IMAGE:-}" ./_bazel_test.sh python ...
-
-run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_bazel_build.sh cross_language ...
-run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_bazel_test.sh cross_language ...
+# Run cross language tests.
+run "${CROSS_LANG_CONTAINER_IMAGE:-}" bash cross_language/run_tests.sh \
+  -o "${OUTPUT_USER_ROOT}"

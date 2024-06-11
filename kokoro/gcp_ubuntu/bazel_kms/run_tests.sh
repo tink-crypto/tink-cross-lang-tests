@@ -93,84 +93,9 @@ readonly DEPS=(
 trap cleanup EXIT
 
 cleanup() {
-  rm -rf _bazel_build.sh _bazel_test.sh _go_build_and_test.sh \
-    _run_cross_language_test.sh
-  # Give ownership to the current user.
+  # Give ownership of the Bazel root folder to the current user.
   sudo chown -R "$(id -un):$(id -gn)" bazel/
 }
-
-cat <<'EOF' > _bazel_build.sh
-#!/bin/bash
-set -xeEuo pipefail
-readonly FOLDER="$1"
-readonly BUILD_TARGETS=("${@:2}")
-readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
-cd "${FOLDER}"
-time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" build \
-  -- "${BUILD_TARGETS[@]}"
-EOF
-chmod +x _bazel_build.sh
-
-cat <<'EOF' > _bazel_test.sh
-#!/bin/bash
-set -xeEuo pipefail
-readonly FOLDER="$1"
-readonly TEST_TARGETS=("${@:2}")
-readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
-readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
-cd "${FOLDER}"
-TEST_OPTIONS=( --test_output=errors )
-readonly TEST_OPTIONS
-time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
-"${TEST_OPTIONS[@]}" -- "${TEST_TARGETS[@]}"
-EOF
-chmod +x _bazel_test.sh
-
-cat <<'EOF' > _run_cross_language_test.sh
-#!/bin/bash
-set -xeEuo pipefail
-readonly OUTPUT_USER_ROOT="$(pwd)/bazel"
-readonly TINK_CROSS_LANG_ROOT_PATH="$(pwd)"
-cd cross_language
-# TODO(b/276277854) It is not clear why this is needed.
-pip3 install protobuf==4.24.3 --user
-pip3 install google-cloud-kms==2.15.0 --user
-pip3 install hvac==2.1.0 --user
-
-mkdir /tmp/vault-tls
-
-# The following code starts a local hashicorp vault server in dev mode in background.
-# see:
-# https://developer.hashicorp.com/vault/tutorials/getting-started/getting-started-dev-server
-# https://developer.hashicorp.com/vault/docs/commands
-export VAULT_API_ADDR='https://127.0.0.1:8200'
-vault server -dev -dev-tls -dev-tls-cert-dir=/tmp/vault-tls &
-sleep 30
-
-export VAULT_TOKEN=`cat ~/.vault-token`
-export VAULT_SKIP_VERIFY=true
-export VAULT_ADDR='https://127.0.0.1:8200'
-export VAULT_CACERT='/tmp/vault-tls/vault-ca.pem'
-
-# enable the transit secrets engine and add testkey and derived_testkey, see:
-# https://developer.hashicorp.com/vault/tutorials/encryption-as-a-service/eaas-transit
-vault secrets enable transit
-vault write -f transit/keys/testkey
-vault write -f transit/keys/derived_testkey derived=true
-
-echo "HC vault server started and 'testkey' and 'derived_testkey' added."
-
-TEST_OPTIONS+=(
-  --test_output=errors
-  --test_env=TINK_CROSS_LANG_ROOT_PATH="${TINK_CROSS_LANG_ROOT_PATH}"
-  --test_env=VAULT_TOKEN="${VAULT_TOKEN}"
-  --experimental_ui_max_stdouterr_bytes=-1
-)
-readonly TEST_OPTIONS
-time bazelisk --output_user_root="${OUTPUT_USER_ROOT}" test \
-  "${TEST_OPTIONS[@]}" -- //cross_language:kms_aead_test
-EOF
-chmod +x _run_cross_language_test.sh
 
 run() {
   local -r container_img="${1:-}"
@@ -186,17 +111,16 @@ run() {
   ./kokoro/testutils/run_command.sh "${run_command_args[@]}" "${command[@]}"
 }
 
-run "${CC_CONTAINER_IMAGE:-}" ./_bazel_build.sh cc ...
-run "${CC_CONTAINER_IMAGE:-}" ./_bazel_test.sh cc ...
+readonly OUTPUT_USER_ROOT="bazel"
 
-run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh
+# Build test servers.
+run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${JAVA_CONTAINER_IMAGE:-}" bash java_src/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
+run "${PY_CONTAINER_IMAGE:-}" bash python/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
 
-run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_build.sh java_src ... \
-  //:testing_server_deploy.jar
-run "${JAVA_CONTAINER_IMAGE:-}" ./_bazel_test.sh java_src ...
-
-run "${PY_CONTAINER_IMAGE:-}" ./_bazel_build.sh python ...
-run "${PY_CONTAINER_IMAGE:-}" ./_bazel_test.sh python ...
-
-run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_bazel_build.sh cross_language ...
-run "${CROSS_LANG_CONTAINER_IMAGE:-}" ./_run_cross_language_test.sh
+# Run cross language tests.
+run "${CROSS_LANG_CONTAINER_IMAGE:-}" bash cross_language/run_tests.sh \
+  -k -o "${OUTPUT_USER_ROOT}"
