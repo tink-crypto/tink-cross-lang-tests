@@ -1,0 +1,18 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+
+package(
+    default_testonly = 1,
+    default_visibility = ["//:__subpackages__"],
+)
+
+licenses(["notice"])
+
+py_test(
+    name = "json_keyset_parsing_test",
+    srcs = ["json_keyset_parsing_test.py"],
+    deps = [
+        requirement("absl-py"),
+        "//cross_language/util:testing_servers",
+        "@tink_py//tink:tink_python",
+    ],
+)
