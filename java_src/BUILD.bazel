@@ -78,6 +78,20 @@ java_library(
     ],
 )
 
+java_library(
+    name = "kms",
+    testonly = 1,
+    srcs = [
+        "java/com/google/crypto/tink/testing/Kms.java",
+    ],
+    deps = [
+        "@tink_java//src/main/java/com/google/crypto/tink:kms_clients",
+        "@tink_java//src/main/java/com/google/crypto/tink/testing:fake_kms_client",
+        "@tink_java_awskms//src/main/java/com/google/crypto/tink/integration/awskms:aws_kms_client",
+        "@tink_java_gcpkms//src/main/java/com/google/crypto/tink/integration/gcpkms:gcp_kms_client",
+    ],
+)
+
 java_binary(
     name = "testing_server",
     testonly = 1,
@@ -90,10 +104,10 @@ java_binary(
     ],
     deps = [
         ":testing_services",
+        ":kms",
         "@maven//:args4j_args4j",
         "@maven//:io_grpc_grpc_api",
         "@maven//:org_conscrypt_conscrypt_openjdk_uber",
-        "@tink_java//src/main/java/com/google/crypto/tink:kms_clients",
         "@tink_java//src/main/java/com/google/crypto/tink/aead:aead_config",
         "@tink_java//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config",
         "@tink_java//src/main/java/com/google/crypto/tink/hybrid:hybrid_config",
@@ -104,9 +118,6 @@ java_binary(
         "@tink_java//src/main/java/com/google/crypto/tink/prf:prf_config",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config",
         "@tink_java//src/main/java/com/google/crypto/tink/streamingaead:streaming_aead_config",
-        "@tink_java//src/main/java/com/google/crypto/tink/testing:fake_kms_client",
-        "@tink_java_awskms//src/main/java/com/google/crypto/tink/integration/awskms:aws_kms_client",
-        "@tink_java_gcpkms//src/main/java/com/google/crypto/tink/integration/gcpkms:gcp_kms_client",
     ],
 )
 
