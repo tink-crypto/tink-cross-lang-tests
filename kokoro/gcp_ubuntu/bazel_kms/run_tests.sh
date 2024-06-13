@@ -114,6 +114,11 @@ run() {
 readonly OUTPUT_USER_ROOT="bazel"
 
 # Build test servers.
+if [[ "${IS_KOKORO}" == "true" ]] ; then
+  # Make the key available to the build scripts running in the containers.
+  cp "${TINK_REMOTE_BAZEL_CACHE_SERVICE_KEY}" cache_key
+fi
+
 run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh -o "${OUTPUT_USER_ROOT}"
 run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh -o "${OUTPUT_USER_ROOT}"
 run "${JAVA_CONTAINER_IMAGE:-}" bash java_src/build_server.sh \

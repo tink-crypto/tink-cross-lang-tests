@@ -18,7 +18,10 @@
 
 set -euo pipefail
 
+readonly GCS_URL="https://storage.googleapis.com"
 readonly TESTING_SERVER_DIR="$(dirname "${0}")"
+readonly BAZEL_CACHE_URL="${GCS_URL}/tink-ci-remote-cache/bazel/cross-lang-tests"
+readonly BAZEL_CACHE_KEY_FILE="$(realpath ./cache_key)"
 OUTPUT_USER_ROOT=
 
 usage() {
@@ -30,15 +33,11 @@ EOF
   exit 1
 }
 
-absolute_path() {
-  echo "$(cd "$(dirname "${1}")" && pwd)/$(basename "${1}")"
-}
-
 process_args() {
   # Parse options.
   while getopts "ho:" opt; do
     case "${opt}" in
-      o) OUTPUT_USER_ROOT="$(absolute_path "${OPTARG}")" ;;
+      o) OUTPUT_USER_ROOT="$(realpath "${OPTARG}")" ;;
       *) usage ;;
     esac
   done
@@ -54,13 +53,23 @@ if [[ -n "${OUTPUT_USER_ROOT}" ]]; then
 fi
 readonly BAZEL_STARTUP_OPTS
 
+CACHE_OPTS=()
+if [[ -f "${BAZEL_CACHE_KEY_FILE}" ]]; then
+  CACHE_OPTS+=(
+    "--remote_cache=${BAZEL_CACHE_URL}"
+    "--google_credentials=${BAZEL_CACHE_KEY_FILE}"
+  )
+fi
+readonly CACHE_OPTS
+
 readonly TEST_OPTIONS=( --test_output=errors )
 
 (
   set -x
 
   cd "${TESTING_SERVER_DIR}"
-  time bazelisk "${BAZEL_STARTUP_OPTS[@]}" build -- ...
+  time bazelisk "${BAZEL_STARTUP_OPTS[@]}" build "${CACHE_OPTS[@]}" -- ...
   # Run tests.
-  time bazelisk "${BAZEL_STARTUP_OPTS[@]}" test "${TEST_OPTIONS[@]}" -- ...
+  time bazelisk "${BAZEL_STARTUP_OPTS[@]}" test "${CACHE_OPTS[@]}" \
+    "${TEST_OPTIONS[@]}" -- ...
 )
