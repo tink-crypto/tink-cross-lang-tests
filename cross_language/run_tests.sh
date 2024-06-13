@@ -15,15 +15,13 @@
 ################################################################################
 
 # Run the cross language tests.
-#
-# Usage:
-#   run_tests.sh [-k] [-o Bazel output_user_root]
-#
-# If output_user_root is not specified, the script will use the default.
 
 set -euo pipefail
 
+readonly GCS_URL="https://storage.googleapis.com"
 readonly TESTING_SERVER_DIR="$(dirname "${0}")"
+readonly BAZEL_CACHE_URL="${GCS_URL}/tink-ci-remote-cache/bazel/cross-lang-tests"
+readonly BAZEL_CACHE_KEY_FILE="$(realpath ./cache_key)"
 
 OUTPUT_USER_ROOT=
 TEST_TARGETS="..."
@@ -112,11 +110,20 @@ fi
 
 readonly TEST_OPTIONS
 
+CACHE_OPTS=()
+if [[ -f "${BAZEL_CACHE_KEY_FILE}" ]]; then
+  CACHE_OPTS+=(
+    "--remote_cache=${BAZEL_CACHE_URL}"
+    "--google_credentials=${BAZEL_CACHE_KEY_FILE}"
+  )
+fi
+readonly CACHE_OPTS
+
 (
   set -x
 
   cd "${TESTING_SERVER_DIR}"
   # Run tests.
-  time bazelisk "${BAZEL_STARTUP_OPTS}" test "${TEST_OPTIONS[@]}" -- \
-    "${TEST_TARGETS}"
+  time bazelisk "${BAZEL_STARTUP_OPTS}" test "${CACHE_OPTS[@]}" \
+    "${TEST_OPTIONS[@]}" -- "${TEST_TARGETS}"
 )
