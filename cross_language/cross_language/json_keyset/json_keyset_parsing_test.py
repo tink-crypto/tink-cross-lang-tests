@@ -81,6 +81,44 @@ TEST_CASES = [
         lang_exceptions=['cc'],
     ),
     TestCase(
+        name='array_with_tailing_comma',
+        valid=False,
+        json_keyset="""{
+    "primaryKeyId":42,
+    "key":[
+      {
+          "keyData":{
+            "typeUrl":"type.googleapis.com/google.crypto.tink.AesGcmKey",
+            "keyMaterialType":"SYMMETRIC",
+            "value": "GiBWyUfGgYk3RTRhj/LIUzSudIWlyjCftCOypTr0jCNSLg=="
+          },
+          "outputPrefixType":"TINK",
+          "keyId": 42,
+          "status":"ENABLED"
+      },
+    ]
+}""",
+    ),
+    TestCase(
+        name='object_with_tailing_comma',
+        valid=False,
+        json_keyset="""{
+    "primaryKeyId":42,
+    "key":[
+      {
+          "keyData":{
+            "typeUrl":"type.googleapis.com/google.crypto.tink.AesGcmKey",
+            "keyMaterialType":"SYMMETRIC",
+            "value": "GiBWyUfGgYk3RTRhj/LIUzSudIWlyjCftCOypTr0jCNSLg=="
+          },
+          "outputPrefixType":"TINK",
+          "keyId": 42,
+          "status":"ENABLED",
+      }
+    ]
+}""",
+    ),
+    TestCase(
         name='without_primary_key_id',
         valid=False,
         json_keyset="""{
@@ -229,6 +267,63 @@ TEST_CASES = [
     ]
 }""",
         lang_exceptions=['go', 'python'],
+    ),
+    TestCase(
+        name='with_primary_key_id_as_float',
+        valid=False,
+        json_keyset="""{
+    "primaryKeyId": "42.001",
+    "key":[
+      {
+          "keyData":{
+            "typeUrl":"type.googleapis.com/google.crypto.tink.AesGcmKey",
+            "keyMaterialType":"SYMMETRIC",
+            "value": "GiBWyUfGgYk3RTRhj/LIUzSudIWlyjCftCOypTr0jCNSLg=="
+          },
+          "outputPrefixType":"TINK",
+          "keyId": 42.001,
+          "status":"ENABLED"
+      }
+    ]
+}""",
+    ),
+    TestCase(
+        name='with_primary_key_id_as_huge_int',
+        valid=False,
+        json_keyset="""{
+    "primaryKeyId": 123412341234123412312314312234122341234123412341231231,
+    "key":[
+      {
+          "keyData":{
+            "typeUrl":"type.googleapis.com/google.crypto.tink.AesGcmKey",
+            "keyMaterialType":"SYMMETRIC",
+            "value": "GiBWyUfGgYk3RTRhj/LIUzSudIWlyjCftCOypTr0jCNSLg=="
+          },
+          "outputPrefixType":"TINK",
+          "keyId": 123412341234123412312314312234122341234123412341231231,
+          "status":"ENABLED"
+      }
+    ]
+}""",
+    ),
+    TestCase(
+        name='with_primary_key_id_as_huge_int_with_exponent',
+        valid=False,
+        json_keyset="""{
+    "primaryKeyId": 1e1000,
+    "key":[
+      {
+          "keyData":{
+            "typeUrl":"type.googleapis.com/google.crypto.tink.AesGcmKey",
+            "keyMaterialType":"SYMMETRIC",
+            "value": "GiBWyUfGgYk3RTRhj/LIUzSudIWlyjCftCOypTr0jCNSLg=="
+          },
+          "outputPrefixType":"TINK",
+          "keyId": 1e1000,
+          "status":"ENABLED"
+      }
+    ]
+}""",
     ),
     TestCase(
         name='with_primary_key_id_as_bool',
