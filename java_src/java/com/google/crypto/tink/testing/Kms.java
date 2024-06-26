@@ -16,9 +16,16 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.KmsClient;
 import com.google.crypto.tink.KmsClients;
 import com.google.crypto.tink.integration.awskms.AwsKmsClient;
 import com.google.crypto.tink.integration.gcpkms.GcpKmsClient;
+import com.google.crypto.tink.integration.hcvault.HcVaultClient;
+import io.github.jopenlibs.vault.SslConfig;
+import io.github.jopenlibs.vault.Vault;
+import io.github.jopenlibs.vault.VaultConfig;
+import io.github.jopenlibs.vault.VaultException;
+import io.github.jopenlibs.vault.api.Logical;
 import java.security.GeneralSecurityException;
 
 /** Registers KMS clients. */
@@ -48,14 +55,42 @@ final class Kms {
     return client;
   }
 
+  private static KmsClient getHcVaultKmsClient(String authToken) throws GeneralSecurityException {
+    if (authToken == null) {
+      authToken = "";
+    }
+    try {
+      VaultConfig config =
+          new VaultConfig()
+              .address("https://127.0.0.1:8200")
+              .token(authToken)
+              .readTimeout(30)
+              .openTimeout(30)
+              .engineVersion(1)
+              .sslConfig(new SslConfig().verify(false).build()) // DO NOT DO THIS IN PRODUCTION
+              .build();
+      Logical hcVault = new Vault(config).logical();
+      return HcVaultClient.create(hcVault);
+    } catch (VaultException e) {
+      throw new GeneralSecurityException("failed to create client", e);
+    }
+  }
+
   public static void register(
-      String gcpKeyUri, String gcpCredentialsPath, String awsKeyUri, String awsCredentialsPath)
+      String gcpKeyUri,
+      String gcpCredentialsPath,
+      String awsKeyUri,
+      String awsCredentialsPath,
+      String hcvaultToken)
       throws GeneralSecurityException {
     System.out.println("Registering GCP KMS client");
     KmsClients.add(getGcpKmsClient(gcpKeyUri, gcpCredentialsPath));
 
     System.out.println("Registering AWS KMS client");
     KmsClients.add(getAwsKmsClient(awsKeyUri, awsCredentialsPath));
+
+    System.out.println("Registering HC Vault KMS client");
+    KmsClients.add(getHcVaultKmsClient(hcvaultToken));
 
     System.out.println("Registering Fake KMS client");
     KmsClients.add(new FakeKmsClient());

@@ -17,6 +17,11 @@ local_repository(
     path = "../../tink_java_awskms",
 )
 
+local_repository(
+    name = "tink_java_hcvault",
+    path = "../../tink_java_hcvault",
+)
+
 # To use `force_version`.
 RULES_JVM_EXTERNAL_TAG = "6.1"
 
@@ -37,6 +42,7 @@ tink_java_deps_init()
 
 load("@tink_java_awskms//:tink_java_awskms_deps.bzl", "TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS")
 load("@tink_java_gcpkms//:tink_java_gcpkms_deps.bzl", "TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS")
+load("@tink_java_hcvault//:tink_java_hcvault_deps.bzl", "TINK_JAVA_HCVAULT_MAVEN_ARTIFACTS")
 
 _GRPC_VERSION = "1.62.2"
 
@@ -79,6 +85,7 @@ maven_install(
     artifacts = TINK_MAVEN_ARTIFACTS +
                 TINK_JAVA_GCPKMS_MAVEN_ARTIFACTS +
                 TINK_JAVA_AWSKMS_MAVEN_ARTIFACTS +
+                TINK_JAVA_HCVAULT_MAVEN_ARTIFACTS +
                 IO_GRPC_GRPC_JAVA_ARTIFACTS +
                 _GRPC_DEPS + [
         # This is needed because `com.google.cloud.kms.v1.EncryptRequest` used in tink-java-gcpkms

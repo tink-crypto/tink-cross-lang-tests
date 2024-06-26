@@ -60,6 +60,9 @@ public final class TestingServer {
           "AWS KMS key URL of the form: aws-kms://arn:aws:kms:<region>:<account-id>:key/<key-id>.")
   private String awsKeyUri;
 
+  @Option(name = "--hcvault_token", usage = "HC Vault access token")
+  private String hcvaultToken;
+
   public void run() throws InterruptedException, GeneralSecurityException, IOException {
     installConscrypt();
     AeadConfig.register();
@@ -72,7 +75,7 @@ public final class TestingServer {
     PrfConfig.register();
     SignatureConfig.register();
     StreamingAeadConfig.register();
-    Kms.register(gcpKeyUri, gcpCredentialsPath, awsKeyUri, awsCredentialsPath);
+    Kms.register(gcpKeyUri, gcpCredentialsPath, awsKeyUri, awsCredentialsPath, hcvaultToken);
 
     System.out.println("Start server on port " + port);
     ServerBuilder.forPort(port)

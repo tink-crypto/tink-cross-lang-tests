@@ -85,10 +85,13 @@ java_library(
         "java/com/google/crypto/tink/testing/Kms.java",
     ],
     deps = [
+        "@maven//:io_github_jopenlibs_vault_java_driver",
+        "@tink_java//src/main/java/com/google/crypto/tink:kms_client",
         "@tink_java//src/main/java/com/google/crypto/tink:kms_clients",
         "@tink_java//src/main/java/com/google/crypto/tink/testing:fake_kms_client",
         "@tink_java_awskms//src/main/java/com/google/crypto/tink/integration/awskms:aws_kms_client",
         "@tink_java_gcpkms//src/main/java/com/google/crypto/tink/integration/gcpkms:gcp_kms_client",
+        "@tink_java_hcvault//src/main/java/com/google/crypto/tink/integration/hcvault:hcvault_client",
     ],
 )
 
@@ -103,8 +106,8 @@ java_binary(
         "@maven//:io_grpc_grpc_netty_shaded",
     ],
     deps = [
-        ":testing_services",
         ":kms",
+        ":testing_services",
         "@maven//:args4j_args4j",
         "@maven//:io_grpc_grpc_api",
         "@maven//:org_conscrypt_conscrypt_openjdk_uber",

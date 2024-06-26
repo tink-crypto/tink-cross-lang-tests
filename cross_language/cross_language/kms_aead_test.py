@@ -97,13 +97,13 @@ _KMS_ENVELOPE_AEAD_KEY_TEMPLATES = _kms_envelope_aead_templates(['GCP', 'AWS', '
 _SUPPORTED_LANGUAGES_FOR_KMS_ENVELOPE_AEAD = {
     'GCP': ('python', 'cc', 'go', 'java'),
     'AWS': ('python', 'cc', 'go', 'java'),
-    'HCVAULT': ('python', 'go',),
+    'HCVAULT': ('python', 'go', 'java'),
 }
 
 _SUPPORTED_LANGUAGES_FOR_KMS_AEAD = {
     'AWS': ('python', 'cc', 'go', 'java'),
     'GCP': ('python', 'cc', 'go', 'java'),
-    'HCVAULT': ('python', 'go'),
+    'HCVAULT': ('python', 'go', 'java'),
 }
 
 
