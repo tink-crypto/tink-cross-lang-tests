@@ -135,7 +135,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['go', 'java'],
+        lang_exceptions=['java'],
     ),
     TestCase(
         name='multiple_primary_keys',
@@ -165,7 +165,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['go', 'java', 'cc'],
+        lang_exceptions=['java', 'cc'],
     ),
     TestCase(
         name='keys_with_the_same_id',
