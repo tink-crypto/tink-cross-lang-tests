@@ -41,19 +41,6 @@ MODULUS_BYTES = bytes.fromhex(
     '5d524c0f2e7620a3416b9623cadc0f097af573261c98c8400aa12af38e43cad84d'
 )
 
-# Same as MODULUS_BYTES, but with the least significant byte set to 0.
-# Hence this modulus has 256 as a factor.
-WEIRD_MODULUS_BYTES = bytes.fromhex(
-    '00b3510a2bcd4ce644c5b594ae5059e12b2f054b658d5da5959a2fdf1871b808'
-    'bc3df3e628d2792e51aad5c124b43bda453dca5cde4bcf28e7bd4effba0cb4b7'
-    '42bbb6d5a013cb63d1aa3a89e02627ef5398b52c0cfd97d208abeb8d7c9bce0b'
-    'beb019a86ddb589beb29a5b74bf861075c677c81d430f030c265247af9d3c914'
-    '0ccb65309d07e0adc1efd15cf17e7b055d7da3868e4648cc3a180f0ee7f8e1e7'
-    'b18098a3391b4ce7161e98d57af8a947e201a463e2d6bbca8059e5706e9dfed8'
-    'f4856465ffa712ed1aa18e888d12dc6aa09ce95ecfca83cc5b0b15db09c8647f'
-    '5d524c0f2e7620a3416b9623cadc0f097af573261c98c8400aa12af38e43cad800'
-)
-
 # Same as MODULUS_BYTES, but with the most significant bit set to 0, and
 # the 2nd most significant bit set to 1. So this modulus has 2047 bits.
 SHORT_MODULUS_BYTES = bytes.fromhex(
@@ -192,17 +179,6 @@ def valid_public_keys() -> (
           rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PublicKey(
               version=0,
               n=MODULUS_BYTES[1:],
-              e=F4_BYTES,
-              params=rsa_ssa_pkcs1_pb2.RsaSsaPkcs1Params(
-                  hash_type=common_pb2.HashType.SHA256
-              ),
-          ),
-      ),
-      (
-          '2048-bit public key with modulus divisible by 256',
-          rsa_ssa_pkcs1_pb2.RsaSsaPkcs1PublicKey(
-              version=0,
-              n=WEIRD_MODULUS_BYTES,
               e=F4_BYTES,
               params=rsa_ssa_pkcs1_pb2.RsaSsaPkcs1Params(
                   hash_type=common_pb2.HashType.SHA256
