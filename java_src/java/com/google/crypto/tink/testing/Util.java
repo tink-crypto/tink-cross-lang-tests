@@ -18,6 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.internal.MonitoringAnnotations;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
@@ -49,7 +50,7 @@ final class Util {
     try {
       KeysetHandle keysetHandle = parseBinaryProtoKeyset(request.getAnnotatedKeyset());
       // We create to check if there is an exception thrown.
-      Object unused = keysetHandle.getPrimitive(primitiveClass);
+      Object unused = keysetHandle.getPrimitive(RegistryConfiguration.get(), primitiveClass);
     } catch (GeneralSecurityException e) {
       responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
       responseObserver.onCompleted();

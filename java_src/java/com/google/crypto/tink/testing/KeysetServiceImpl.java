@@ -24,6 +24,7 @@ import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Parameters;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkJsonProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoParametersFormat;
@@ -163,7 +164,7 @@ public final class KeysetServiceImpl extends KeysetImplBase {
       KeysetHandle masterKeysetHandle =
           TinkProtoKeysetFormat.parseKeyset(
               request.getMasterKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      Aead masterAead = masterKeysetHandle.getPrimitive(Aead.class);
+      Aead masterAead = masterKeysetHandle.getPrimitive(RegistryConfiguration.get(), Aead.class);
 
       // read encrypted keyset to keysetHandle
       byte[] associatedData = request.getAssociatedData().getValue().toByteArray();
@@ -203,7 +204,7 @@ public final class KeysetServiceImpl extends KeysetImplBase {
       KeysetHandle masterKeysetHandle =
           TinkProtoKeysetFormat.parseKeyset(
               request.getMasterKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      Aead masterAead = masterKeysetHandle.getPrimitive(Aead.class);
+      Aead masterAead = masterKeysetHandle.getPrimitive(RegistryConfiguration.get(), Aead.class);
 
       // get keysetHandle
       KeysetHandle keysetHandle =

@@ -18,6 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.PublicKeySign;
 import com.google.crypto.tink.PublicKeyVerify;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.SignatureGrpc.SignatureImplBase;
@@ -51,7 +52,7 @@ public final class SignatureServiceImpl extends SignatureImplBase {
     try {
       PublicKeySign signer =
           Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset())
-              .getPrimitive(PublicKeySign.class);
+              .getPrimitive(RegistryConfiguration.get(), PublicKeySign.class);
       byte[] signatureValue = signer.sign(request.getData().toByteArray());
       return SignatureSignResponse.newBuilder().setSignature(ByteString.copyFrom(signatureValue)).build();
     } catch (GeneralSecurityException e)  {
@@ -75,7 +76,7 @@ public final class SignatureServiceImpl extends SignatureImplBase {
     try {
       PublicKeyVerify verifier =
           Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset())
-              .getPrimitive(PublicKeyVerify.class);
+              .getPrimitive(RegistryConfiguration.get(), PublicKeyVerify.class);
       verifier.verify(request.getSignature().toByteArray(), request.getData().toByteArray());
       return SignatureVerifyResponse.getDefaultInstance();
     } catch (GeneralSecurityException e) {

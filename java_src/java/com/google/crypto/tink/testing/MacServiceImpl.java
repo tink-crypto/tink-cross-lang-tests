@@ -17,6 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.Mac;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.testing.proto.ComputeMacRequest;
 import com.google.crypto.tink.testing.proto.ComputeMacResponse;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -44,7 +45,7 @@ public final class MacServiceImpl extends MacImplBase {
     try {
       Mac mac =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(Mac.class);
+              .getPrimitive(RegistryConfiguration.get(), Mac.class);
       byte[] macValue = mac.computeMac(request.getData().toByteArray());
       return ComputeMacResponse.newBuilder().setMacValue(ByteString.copyFrom(macValue)).build();
     } catch (GeneralSecurityException e)  {
@@ -68,7 +69,7 @@ public final class MacServiceImpl extends MacImplBase {
     try {
       Mac mac =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(Mac.class);
+              .getPrimitive(RegistryConfiguration.get(), Mac.class);
       mac.verifyMac(request.getMacValue().toByteArray(), request.getData().toByteArray());
       return VerifyMacResponse.getDefaultInstance();
     } catch (GeneralSecurityException e) {

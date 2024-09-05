@@ -16,6 +16,7 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.prf.Prf;
 import com.google.crypto.tink.prf.PrfSet;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -46,7 +47,7 @@ public final class PrfSetServiceImpl extends PrfSetImplBase {
     try {
       PrfSet prfSet =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(PrfSet.class);
+              .getPrimitive(RegistryConfiguration.get(), PrfSet.class);
       PrfSetKeyIdsResponse.Output output = PrfSetKeyIdsResponse.Output.newBuilder()
           .setPrimaryKeyId(prfSet.getPrimaryId())
           .addAllKeyId(prfSet.getPrfs().keySet())
@@ -75,7 +76,7 @@ public final class PrfSetServiceImpl extends PrfSetImplBase {
     try {
       PrfSet prfSet =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(PrfSet.class);
+              .getPrimitive(RegistryConfiguration.get(), PrfSet.class);
       Map<Integer, Prf> prfs = prfSet.getPrfs();
       if (!prfs.containsKey(request.getKeyId())) {
         return PrfSetComputeResponse.newBuilder().setErr("Unknown Key ID.").build();

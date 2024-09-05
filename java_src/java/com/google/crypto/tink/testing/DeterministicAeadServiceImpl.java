@@ -17,6 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.DeterministicAead;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.DeterministicAeadDecryptRequest;
@@ -42,7 +43,7 @@ public final class DeterministicAeadServiceImpl extends DeterministicAeadImplBas
       DeterministicAeadEncryptRequest request) throws GeneralSecurityException {
     DeterministicAead daead =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(DeterministicAead.class);
+            .getPrimitive(RegistryConfiguration.get(), DeterministicAead.class);
     try {
       byte[] ciphertext =
           daead.encryptDeterministically(
@@ -72,7 +73,7 @@ public final class DeterministicAeadServiceImpl extends DeterministicAeadImplBas
       DeterministicAeadDecryptRequest request) throws GeneralSecurityException {
     DeterministicAead daead =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(DeterministicAead.class);
+            .getPrimitive(RegistryConfiguration.get(), DeterministicAead.class);
     try {
       byte[] plaintext =
           daead.decryptDeterministically(

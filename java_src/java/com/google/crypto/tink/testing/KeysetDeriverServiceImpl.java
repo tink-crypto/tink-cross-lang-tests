@@ -18,6 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.keyderivation.KeysetDeriver;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -42,7 +43,8 @@ public final class KeysetDeriverServiceImpl extends KeysetDeriverImplBase {
   private DeriveKeysetResponse deriveKeyset(DeriveKeysetRequest request)
       throws GeneralSecurityException {
     KeysetDeriver deriver =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset()).getPrimitive(KeysetDeriver.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
+            .getPrimitive(RegistryConfiguration.get(), KeysetDeriver.class);
     try {
       KeysetHandle derivedKeysetHandle = deriver.deriveKeyset(request.getSalt().toByteArray());
       byte[] serializedDerivedKeyset =

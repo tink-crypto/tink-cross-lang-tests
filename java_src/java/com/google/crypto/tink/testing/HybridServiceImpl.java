@@ -18,6 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.HybridDecrypt;
 import com.google.crypto.tink.HybridEncrypt;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.HybridDecryptRequest;
@@ -51,7 +52,7 @@ public final class HybridServiceImpl extends HybridImplBase {
       throws GeneralSecurityException {
     HybridEncrypt hybridEncrypt =
         Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset())
-            .getPrimitive(HybridEncrypt.class);
+            .getPrimitive(RegistryConfiguration.get(), HybridEncrypt.class);
     try {
       byte[] ciphertext =
           hybridEncrypt.encrypt(
@@ -80,7 +81,7 @@ public final class HybridServiceImpl extends HybridImplBase {
       throws GeneralSecurityException {
     HybridDecrypt hybridDecrypt =
         Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset())
-            .getPrimitive(HybridDecrypt.class);
+            .getPrimitive(RegistryConfiguration.get(), HybridDecrypt.class);
     try {
       byte[] plaintext =
           hybridDecrypt.decrypt(

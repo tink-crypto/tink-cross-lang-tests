@@ -16,6 +16,7 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.StreamingAead;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
@@ -48,7 +49,7 @@ public final class StreamingAeadServiceImpl extends StreamingAeadImplBase {
     try {
       StreamingAead streamingAead =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(StreamingAead.class);
+              .getPrimitive(RegistryConfiguration.get(), StreamingAead.class);
 
       ByteArrayOutputStream ciphertextStream = new ByteArrayOutputStream();
       try (OutputStream encryptingStream =
@@ -84,7 +85,7 @@ public final class StreamingAeadServiceImpl extends StreamingAeadImplBase {
     try {
       StreamingAead streamingAead =
           Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(StreamingAead.class);
+              .getPrimitive(RegistryConfiguration.get(), StreamingAead.class);
 
       InputStream ciphertextStream = request.getCiphertext().newInput();
       InputStream decryptingStream = streamingAead.newDecryptingStream(

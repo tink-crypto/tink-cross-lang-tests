@@ -17,6 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.Aead;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.testing.proto.AeadDecryptRequest;
 import com.google.crypto.tink.testing.proto.AeadDecryptResponse;
 import com.google.crypto.tink.testing.proto.AeadEncryptRequest;
@@ -39,7 +40,9 @@ public final class AeadServiceImpl extends AeadImplBase {
   }
 
   AeadEncryptResponse encrypt(AeadEncryptRequest request) throws GeneralSecurityException {
-    Aead aead = Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset()).getPrimitive(Aead.class);
+    Aead aead =
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
+            .getPrimitive(RegistryConfiguration.get(), Aead.class);
     try {
       byte[] ciphertext =
           aead.encrypt(
@@ -68,7 +71,7 @@ public final class AeadServiceImpl extends AeadImplBase {
   AeadDecryptResponse decrypt(AeadDecryptRequest request) throws GeneralSecurityException {
     Aead aead =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(Aead.class);
+            .getPrimitive(RegistryConfiguration.get(), Aead.class);
     try {
       byte[] plaintext =
           aead.decrypt(

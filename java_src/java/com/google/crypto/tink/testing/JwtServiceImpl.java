@@ -18,6 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
+import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.jwt.JwkSetConverter;
 import com.google.crypto.tink.jwt.JwtInvalidException;
@@ -153,7 +154,7 @@ public final class JwtServiceImpl extends JwtImplBase {
       throws GeneralSecurityException {
     JwtMac jwtMac =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(JwtMac.class);
+            .getPrimitive(RegistryConfiguration.get(), JwtMac.class);
     try {
       RawJwt rawJwt = convertJwtTokenToRawJwt(request.getRawJwt());
       String signedCompactJwt = jwtMac.computeMacAndEncode(rawJwt);
@@ -179,7 +180,7 @@ public final class JwtServiceImpl extends JwtImplBase {
       throws GeneralSecurityException {
     JwtPublicKeySign signer =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(JwtPublicKeySign.class);
+            .getPrimitive(RegistryConfiguration.get(), JwtPublicKeySign.class);
     try {
       RawJwt rawJwt = convertJwtTokenToRawJwt(request.getRawJwt());
       String signedCompactJwt = signer.signAndEncode(rawJwt);
@@ -313,7 +314,7 @@ public final class JwtServiceImpl extends JwtImplBase {
       throws GeneralSecurityException {
     JwtMac jwtMac =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(JwtMac.class);
+            .getPrimitive(RegistryConfiguration.get(), JwtMac.class);
     try {
       JwtValidator validator = convertProtoValidatorToValidator(request.getValidator());
       VerifiedJwt verifiedJwt = jwtMac.verifyMacAndDecode(request.getSignedCompactJwt(), validator);
@@ -341,7 +342,7 @@ public final class JwtServiceImpl extends JwtImplBase {
       throws GeneralSecurityException {
     JwtPublicKeyVerify verifier =
         Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(JwtPublicKeyVerify.class);
+            .getPrimitive(RegistryConfiguration.get(), JwtPublicKeyVerify.class);
     try {
       JwtValidator validator = convertProtoValidatorToValidator(request.getValidator());
       VerifiedJwt verifiedJwt = verifier.verifyAndDecode(request.getSignedCompactJwt(), validator);
