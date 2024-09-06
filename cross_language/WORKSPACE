@@ -16,27 +16,28 @@ http_archive(
 )
 
 # Needed by com_github_grpc_grpc; Matches
-# https://github.com/grpc/grpc/blob/v1.59.3/bazel/grpc_deps.bzl#L243
+# https://github.com/grpc/grpc/blob/v1.65.5/bazel/grpc_deps.bzl#L58
 http_archive(
     name = "com_google_protobuf",
-    patch_args = ["-p1"],
+    sha256 = "387478260190c540388839a3449c635a69708d92fc38ea6e2364b1196db90ea5",
+    strip_prefix = "protobuf-2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5",
+    urls = [
+        # https://github.com/protocolbuffers/protobuf/commits/v26.1
+        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/protobuf/archive/2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5.tar.gz",
+    ],
     patches = [
         "@com_github_grpc_grpc//third_party:protobuf.patch",
+        "@com_github_grpc_grpc//third_party:protobuf.10007.patch",
     ],
-    sha256 = "660ce016f987550bc1ccec4a6ee4199afb871799b696227098e3641476a7d566",
-    strip_prefix = "protobuf-b2b7a51158418f41cff0520894836c15b1738721",
-    urls = [
-        # https://github.com/protocolbuffers/protobuf/commits/v24.3
-        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/protobuf/archive/b2b7a51158418f41cff0520894836c15b1738721.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/archive/b2b7a51158418f41cff0520894836c15b1738721.tar.gz",
-    ],
+    patch_args = ["-p1"],
 )
 
 http_archive(
     name = "com_github_grpc_grpc",
-    sha256 = "03ca78ecf847783ac6e895dc7a24834e86981bd8c5408cf86f6ccee886bd3079",
-    strip_prefix = "grpc-1.59.3",
-    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.59.3.zip"],
+    sha256 = "14f301f9a6c295f2d3fdae4704182721097a996fb2211d05213096321fc572ac",
+    strip_prefix = "grpc-1.65.5",
+    urls = ["https://github.com/grpc/grpc/archive/refs/tags/v1.65.5.zip"],
 )
 
 http_archive(
