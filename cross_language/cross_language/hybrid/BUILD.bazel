@@ -24,8 +24,6 @@ py_library(
     srcs = ["hpke_keys.py"],
     deps = [
         "//cross_language:test_key",
-        "//cross_language/util:utilities",
-        "@tink_py//tink/proto:common_py_pb2",
         "@tink_py//tink/proto:hpke_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
     ],

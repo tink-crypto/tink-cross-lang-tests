@@ -151,13 +151,17 @@ def hpke_private_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HPKE."""
 
   for (name, valid, proto_key) in _nist_curve_proto_keys():
+    if name == 'basic_p256_key':
+      tags = ['b/361841214']
+    else:
+      tags = ['b/235861932']
     yield test_key.TestKey(
         test_name=name,
         type_url=_PRIVATE_TYPE_URL,
         serialized_value=proto_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=valid,
-        tags=['b/235861932'],
+        tags=tags,
     )
 
   yield test_key.TestKey(
@@ -173,13 +177,17 @@ def hpke_public_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HPKE."""
 
   for (name, valid, proto_key) in _nist_curve_proto_keys():
+    if name == 'basic_p256_key':
+      tags = ['b/361841214']
+    else:
+      tags = ['b/235861932']
     yield test_key.TestKey(
         test_name=name,
         type_url=_PUBLIC_TYPE_URL,
         serialized_value=proto_key.public_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         valid=valid,
-        tags=['b/235861932'],
+        tags=tags,
     )
 
   yield test_key.TestKey(

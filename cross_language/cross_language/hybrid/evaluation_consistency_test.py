@@ -52,15 +52,14 @@ class EvaluationConsistencyTest(absltest.TestCase):
     for key in hybrid_keys():
       for lang1 in tink_config.all_tested_languages():
         for lang2 in tink_config.all_tested_languages():
-          both_lang_supported = key.supported_in(lang1)
-          if not key.supported_in(lang2):
+          langs = {lang1, lang2}
+          both_lang_supported = all(key.supported_in(lang) for lang in langs)
+          if 'b/315928577' in key.tags() and {'java', 'go'} & langs:
             both_lang_supported = False
-          if lang1 in ['java', 'go'] or lang2 in ['java', 'go']:
-            if 'b/315928577' in key.tags():
-              both_lang_supported = False
-          if lang1 in ['python', 'cc', 'go'] or lang2 in ['python', 'cc', 'go']:
-            if 'b/235861932' in key.tags():
-              both_lang_supported = False
+          if 'b/235861932' in key.tags() and {'python', 'cc', 'go'} & langs:
+            both_lang_supported = False
+          if 'b/361841214' in key.tags() and {'go'} & langs:
+            both_lang_supported = False
 
           if both_lang_supported:
             with self.subTest(f'{lang1}->{lang2}: {key}'):

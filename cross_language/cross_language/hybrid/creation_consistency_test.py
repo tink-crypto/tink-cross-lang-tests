@@ -47,6 +47,17 @@ def hybrid_public_keys() -> Iterator[test_key.TestKey]:
     yield key
 
 
+def is_supported(key: test_key.TestKey, lang: str) -> bool:
+  supported = key.supported_in(lang)
+  if 'b/315928577' in key.tags() and lang in ['java', 'go']:
+    supported = False
+  if 'b/235861932' in key.tags() and lang in ['cc', 'go', 'python']:
+    supported = False
+  if 'b/361841214' in key.tags() and lang in ['go']:
+    supported = False
+  return supported
+
+
 class CreationConsistencyTest(absltest.TestCase):
   """Tests creation consistency of HybridDecrypt implementations.
 
@@ -57,11 +68,7 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of HybridDecrypt from private key."""
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
-        supported = key.supported_in(lang)
-        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
-          supported = False
-        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
-          supported = False
+        supported = is_supported(key, lang)
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -84,11 +91,7 @@ class CreationConsistencyTest(absltest.TestCase):
     """
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
-        supported = key.supported_in(lang)
-        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
-          supported = False
-        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
-          supported = False
+        supported = is_supported(key, lang)
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
@@ -107,11 +110,7 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of HybridEncrypt from public key."""
     for key in hybrid_public_keys():
       for lang in tink_config.all_tested_languages():
-        supported = key.supported_in(lang)
-        if lang in ['java', 'go'] and 'b/315928577' in key.tags():
-          supported = False
-        if lang in ['cc', 'go', 'python'] and 'b/235861932' in key.tags():
-          supported = False
+        supported = is_supported(key, lang)
         with self.subTest(f'{lang}, {key} ({supported})'):
           public_keyset = key.as_serialized_keyset()
           if supported:
