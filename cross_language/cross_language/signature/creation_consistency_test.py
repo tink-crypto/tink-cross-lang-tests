@@ -68,7 +68,7 @@ class CreationConsistencyTest(absltest.TestCase):
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
-          if lang in ['go', 'python']:
+          if lang in ['python']:
             supported = True
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
@@ -94,7 +94,7 @@ class CreationConsistencyTest(absltest.TestCase):
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
-          if lang in ['go', 'python']:
+          if lang in ['python']:
             supported = True
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
