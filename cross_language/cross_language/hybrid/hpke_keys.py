@@ -147,6 +147,25 @@ def _basic_x25519_key() -> hpke_pb2.HpkePrivateKey:
   )
 
 
+def _wrong_version_keys() -> (
+    Iterator[Tuple[str, hpke_pb2.HpkePrivateKey]]
+):
+  """Yields private keys where not both versions are 0."""
+
+  key = _basic_p256_key()
+  key.version = 1
+  yield ('PrivateKey Version 1', key)
+
+  key = _basic_p256_key()
+  key.public_key.version = 1
+  yield ('PublicKey Version 1', key)
+
+  key = _basic_p256_key()
+  key.version = 1
+  key.public_key.version = 1
+  yield ('PrivateKey And PublicKey Version 1', key)
+
+
 def hpke_private_keys() -> Iterator[test_key.TestKey]:
   """Returns test keys for HPKE."""
 
@@ -171,6 +190,15 @@ def hpke_private_keys() -> Iterator[test_key.TestKey]:
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       valid=True,
   )
+
+  for name, wrong_version_key in _wrong_version_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=wrong_version_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=False,
+    )
 
 
 def hpke_public_keys() -> Iterator[test_key.TestKey]:
