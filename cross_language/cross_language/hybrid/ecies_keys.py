@@ -159,6 +159,25 @@ def _basic_p521_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
   )
 
 
+def _wrong_version_keys() -> (
+    Iterator[Tuple[str, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
+):
+  """Yields private keys where not both versions are 0."""
+
+  key = _basic_p256_key()
+  key.version = 1
+  yield ('PrivateKey Version 1', key)
+
+  key = _basic_p256_key()
+  key.public_key.version = 1
+  yield ('PublicKey Version 1', key)
+
+  key = _basic_p256_key()
+  key.version = 1
+  key.public_key.version = 1
+  yield ('PrivateKey And PublicKey Version 1', key)
+
+
 def _varied_hash_function() -> (
     Iterator[Tuple[str, bool, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
 ):
@@ -312,6 +331,16 @@ def ecies_private_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         output_prefix_type=output_prefix_type,
         valid=valid,
+    )
+
+  for name, wrong_version_key in _wrong_version_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=wrong_version_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=False,
+        tags=['b/365925769'],
     )
 
   # Proto-Unparseable value
