@@ -68,8 +68,6 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of HybridDecrypt from private key."""
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
-        if lang == 'go' and 'b/365925769' in key.tags():
-          continue
         supported = is_supported(key, lang)
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
@@ -93,8 +91,6 @@ class CreationConsistencyTest(absltest.TestCase):
     """
     for key in hybrid_private_keys():
       for lang in tink_config.all_tested_languages():
-        if lang == 'go' and 'b/365925769' in key.tags():
-          continue
         supported = is_supported(key, lang)
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
