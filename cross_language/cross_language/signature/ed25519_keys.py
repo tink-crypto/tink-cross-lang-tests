@@ -15,7 +15,7 @@
 """Test keys for Ed25519."""
 
 import binascii
-from typing import Iterator
+from typing import Iterator, Tuple
 
 from tink.proto import ed25519_pb2
 from tink.proto import tink_pb2
@@ -39,6 +39,25 @@ def _basic_ed25519_key() -> ed25519_pb2.Ed25519PrivateKey:
           ),
       ),
   )
+
+
+def _wrong_version_keys() -> (
+    Iterator[Tuple[str, ed25519_pb2.Ed25519PrivateKey]]
+):
+  """Yields private keys where not both versions are 0."""
+
+  key = _basic_ed25519_key()
+  key.version = 1
+  yield ('PrivateKey Version 1', key)
+
+  key = _basic_ed25519_key()
+  key.public_key.version = 1
+  yield ('PublicKey Version 1', key)
+
+  key = _basic_ed25519_key()
+  key.version = 1
+  key.public_key.version = 1
+  yield ('PrivateKey And PublicKey Version 1', key)
 
 
 def ed25519_private_keys() -> Iterator[test_key.TestKey]:
@@ -87,6 +106,14 @@ def ed25519_private_keys() -> Iterator[test_key.TestKey]:
       valid=False,
       tags=['b/315954817'],
   )
+  for name, wrong_version_key in _wrong_version_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=wrong_version_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=False,
+    )
 
 
 def ed25519_public_keys() -> Iterator[test_key.TestKey]:
