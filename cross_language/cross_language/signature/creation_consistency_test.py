@@ -66,6 +66,8 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of PublicKeySign from private key."""
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
+        if (lang == 'go' or lang == 'java') and 'b/365925769' in key.tags():
+          continue
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
           if lang in ['python']:
@@ -92,6 +94,8 @@ class CreationConsistencyTest(absltest.TestCase):
     """
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
+        if (lang == 'go' or lang == 'java') and 'b/365925769' in key.tags():
+          continue
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
           if lang in ['python']:
