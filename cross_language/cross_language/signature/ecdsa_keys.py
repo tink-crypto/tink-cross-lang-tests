@@ -307,7 +307,6 @@ def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
         serialized_value=wrong_version_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=False,
-        tags=['b/365925769'],
     )
 
 
