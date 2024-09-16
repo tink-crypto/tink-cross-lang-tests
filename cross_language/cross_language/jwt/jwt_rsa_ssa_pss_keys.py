@@ -96,6 +96,25 @@ def _proto_keys() -> (
   yield ('basic PS256 key (2048 bit)', True, _basic_2048bit_key())
 
 
+def _wrong_version_keys() -> (
+    Iterator[Tuple[str, jwt_rsa_ssa_pss_pb2.JwtRsaSsaPssPrivateKey]]
+):
+  """Yields private keys where not both versions are 0."""
+
+  key = _basic_2048bit_key()
+  key.version = 1
+  yield ('PrivateKey Version 1', key)
+
+  key = _basic_2048bit_key()
+  key.public_key.version = 1
+  yield ('PublicKey Version 1', key)
+
+  key = _basic_2048bit_key()
+  key.version = 1
+  key.public_key.version = 1
+  yield ('PrivateKey And PublicKey Version 1', key)
+
+
 def jwt_rsa_ssa_pss_private_keys() -> Iterator[test_key.TestKey]:
   """Returns private test keys for JwtRsaSsaPssPrivateKey."""
 
@@ -106,6 +125,14 @@ def jwt_rsa_ssa_pss_private_keys() -> Iterator[test_key.TestKey]:
         serialized_value=key_proto.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=valid,
+    )
+  for name, wrong_version_key in _wrong_version_keys():
+    yield test_key.TestKey(
+        test_name=name,
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=wrong_version_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=False,
     )
 
 
