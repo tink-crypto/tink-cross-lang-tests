@@ -21,6 +21,7 @@
 #include <ostream>
 #include <string>
 
+// Placeholder for internal base library
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/strings/str_cat.h"
@@ -165,6 +166,7 @@ void RunServer() {
 }  // namespace tink_testing_api
 
 int main(int argc, char** argv) {
+  // Placeholder for internal initialization
   absl::ParseCommandLine(argc, argv);
   tink_testing_api::RunServer();
   return 0;
