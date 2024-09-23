@@ -389,6 +389,11 @@ class KmsEnvelopeAeadTest(parameterized.TestCase):
     with self.assertRaises(tink.TinkError):
       decrypt_primitive.decrypt(ciphertext, associated_data + b'2')
 
+    # the first four bytes of the ciphertext are the length of the encrypted
+    # DEK. If it is too large, it should fail with the proper message.
+    ciphertext = b'\x88\x88\x88\x88\x88\x88\x88\x88\x88\x88\x88\x88'
+    with self.assertRaises(tink.TinkError):
+      _ = decrypt_primitive.decrypt(ciphertext, b'')
 
 if __name__ == '__main__':
   absltest.main()
