@@ -13,17 +13,19 @@
 # limitations under the License.
 """Cross-language tests for reading and writing encrypted keysets."""
 
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Optional, Tuple
 
 from absl.testing import absltest
 from absl.testing import parameterized
 import tink
 from tink import aead
+from tink import mac
+
+from google.protobuf import json_format
+from google.protobuf import text_format
 from tink.proto import tink_pb2
 from cross_language.util import key_util
 from cross_language.util import testing_servers
-from google.protobuf import json_format
-from google.protobuf import text_format
 
 # Contains keys with different status and output_prefix_type
 SYMMETRIC_KEYSET = r"""
@@ -273,6 +275,30 @@ class KeysetReadWriteTest(parameterized.TestCase):
     key_util.assert_tink_proto_equal(
         self, tink_pb2.Keyset.FromString(keyset),
         tink_pb2.Keyset.FromString(decrypted_keyset))
+
+  @parameterized.parameters(testing_servers.LANGUAGES)
+  def test_read_encrypted_test_vector(self, lang):
+    # Same as in TinkProtoKeysetFormatTest.parseEncryptedKeysetFromTestVector.
+    serialized_keyset_encryption_keyset = bytes.fromhex(
+        '08cd9bdff30312540a480a30747970652e676f6f676c65617069732e636f6d2f676f6f676c652e63727970746f2e74696e6b2e41657347636d4b657912121a1082bbe6de4bf9a7655305615af46e594c1801100118cd9bdff3032001'
+    )
+    encrypted_serialized_keyset = bytes.fromhex(
+        '129101013e77cdcd28f57ffb418afa7f25d48a74efe720246e9aa538f33a702888bb7c48bce0e5a016a0c8e9085066d67c7c7fb40dceb176a3a10c7f7ab30c564dd8e2d918a2fc2d2e9a0245c537ff6d1fd756ff9d6de5cf4eb7f229de215e6e892f32fd703d0c9c3d2168813ad5bbc6ce108fcbfed0d9e3b14faae3e3789a891346d983b1ecca082f0546163351339aa142f574'
+    )
+    associated_data = b'associatedData'
+    tag = bytes.fromhex('018f2d72de5055e622591fcf0fb85a7b4158e96f68')
+    data = b'data'
+
+    keyset = testing_servers.keyset_read_encrypted(
+        lang,
+        encrypted_serialized_keyset,
+        serialized_keyset_encryption_keyset,
+        associated_data,
+        'KEYSET_READER_BINARY',
+    )
+    primitive = testing_servers.remote_primitive(lang, keyset, mac.Mac)
+    primitive.verify_mac(tag, data)
+
 
 if __name__ == '__main__':
   absltest.main()

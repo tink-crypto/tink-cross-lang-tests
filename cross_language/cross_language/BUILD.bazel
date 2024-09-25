@@ -295,6 +295,7 @@ py_test(
         "@com_google_protobuf//:protobuf_python",
         "@tink_py//tink:tink_python",
         "@tink_py//tink/aead",
+        "@tink_py//tink/mac",
         "@tink_py//tink/proto:tink_py_pb2",
     ],
 )
