@@ -125,14 +125,19 @@ def tearDownModule():
   testing_servers.stop()
 
 
+# TODO: b/370722619 - Re-enable Go tests once we have a better way to compare
+# keysets.
+_LANGUAGES = [l for l in testing_servers.LANGUAGES if l != 'go']
+
+
 def read_write_encrypted_test_cases(
 ) -> Iterable[Tuple[str, bytes, str, str, str, str, Optional[bytes]]]:
   """Yields (test_name, test_parameters...) tuples to test."""
   for keyset_name, keyset_text_proto in TEST_KEYSETS:
     keyset_proto = text_format.Parse(keyset_text_proto, tink_pb2.Keyset())
     keyset = keyset_proto.SerializeToString()
-    for write_lang in testing_servers.LANGUAGES:
-      for read_lang in testing_servers.LANGUAGES:
+    for write_lang in _LANGUAGES:
+      for read_lang in _LANGUAGES:
         for associated_data in [None, b'', b'associated_data']:
           yield ('_bin_%s, r in %s, w in %s, ad=%s' %
                  (keyset_name, read_lang, write_lang, associated_data), keyset,
@@ -150,9 +155,9 @@ class KeysetReadWriteTest(parameterized.TestCase):
   def test_to_from_json(self, keyset_text_proto):
     keyset_proto = text_format.Parse(keyset_text_proto, tink_pb2.Keyset())
     keyset = keyset_proto.SerializeToString()
-    for to_lang in testing_servers.LANGUAGES:
+    for to_lang in _LANGUAGES:
       json_keyset = testing_servers.keyset_to_json(to_lang, keyset)
-      for from_lang in testing_servers.LANGUAGES:
+      for from_lang in _LANGUAGES:
         keyset_from_json = testing_servers.keyset_from_json(
             from_lang, json_keyset)
         key_util.assert_tink_proto_equal(
@@ -188,7 +193,7 @@ class KeysetReadWriteTest(parameterized.TestCase):
                                             b'invalid_associated_data',
                                             reader_type)
 
-  @parameterized.parameters(testing_servers.LANGUAGES)
+  @parameterized.parameters(_LANGUAGES)
   def test_read_encrypted_ignores_keyset_info_binary(self, lang):
     # Use an arbitrary AEAD template that's supported in all languages,
     # and use an arbitrary language to generate the keyset_encryption_keyset.
@@ -228,7 +233,7 @@ class KeysetReadWriteTest(parameterized.TestCase):
         self, tink_pb2.Keyset.FromString(keyset),
         tink_pb2.Keyset.FromString(decrypted_keyset))
 
-  @parameterized.parameters(testing_servers.LANGUAGES)
+  @parameterized.parameters(_LANGUAGES)
   def test_read_encrypted_ignores_keyset_info_json(self, lang):
     # Use an arbitrary AEAD template that's supported in all languages,
     # and use an arbitrary language to generate the keyset_encryption_keyset.
