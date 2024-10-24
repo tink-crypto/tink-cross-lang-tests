@@ -24,6 +24,7 @@ from cross_language.aead import aes_eax_keys
 from cross_language.aead import aes_gcm_keys
 from cross_language.aead import aes_gcm_siv_keys
 from cross_language.aead import chacha20_poly1305_keys
+from cross_language.aead import x_aes_gcm_keys
 from cross_language.aead import xchacha20_poly1305_keys
 from cross_language.util import testing_servers
 
@@ -50,6 +51,8 @@ def aead_keys() -> Iterator[test_key.TestKey]:
     yield key
   for key in xchacha20_poly1305_keys.xchacha20_poly1305_keys():
     yield key
+  for key in x_aes_gcm_keys.x_aes_gcm_keys():
+    yield key
 
 
 class CreationConsistencyTest(absltest.TestCase):
@@ -71,6 +74,7 @@ class CreationConsistencyTest(absltest.TestCase):
           else:
             with self.assertRaises(tink.TinkError):
               testing_servers.remote_primitive(lang, keyset, tink.aead.Aead)
+
 
 if __name__ == '__main__':
   absltest.main()

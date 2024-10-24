@@ -11,12 +11,12 @@ py_library(
     name = "aes_ctr_hmac_aead_keys",
     srcs = ["aes_ctr_hmac_aead_keys.py"],
     deps = [
+        "//cross_language:test_key",
         "@tink_py//tink/proto:aes_ctr_hmac_aead_py_pb2",
         "@tink_py//tink/proto:aes_ctr_py_pb2",
         "@tink_py//tink/proto:common_py_pb2",
         "@tink_py//tink/proto:hmac_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
-        "//cross_language:test_key",
     ],
 )
 
@@ -41,6 +41,16 @@ py_library(
 )
 
 py_library(
+    name = "x_aes_gcm_keys",
+    srcs = ["x_aes_gcm_keys.py"],
+    deps = [
+        "//cross_language:test_key",
+        "@tink_py//tink/proto:tink_py_pb2",
+        "@tink_py//tink/proto:x_aes_gcm_py_pb2",
+    ],
+)
+
+py_library(
     name = "aes_gcm_siv_keys",
     srcs = ["aes_gcm_siv_keys.py"],
     deps = [
@@ -54,9 +64,9 @@ py_library(
     name = "xchacha20_poly1305_keys",
     srcs = ["xchacha20_poly1305_keys.py"],
     deps = [
+        "//cross_language:test_key",
         "@tink_py//tink/proto:tink_py_pb2",
         "@tink_py//tink/proto:xchacha20_poly1305_py_pb2",
-        "//cross_language:test_key",
     ],
 )
 
@@ -64,9 +74,9 @@ py_library(
     name = "chacha20_poly1305_keys",
     srcs = ["chacha20_poly1305_keys.py"],
     deps = [
+        "//cross_language:test_key",
         "@tink_py//tink/proto:chacha20_poly1305_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
-        "//cross_language:test_key",
     ],
 )
 
@@ -79,6 +89,7 @@ py_test(
         ":aes_gcm_keys",
         ":aes_gcm_siv_keys",
         ":chacha20_poly1305_keys",
+        ":x_aes_gcm_keys",
         ":xchacha20_poly1305_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
@@ -98,6 +109,7 @@ py_test(
         ":aes_gcm_keys",
         ":aes_gcm_siv_keys",
         ":chacha20_poly1305_keys",
+        ":x_aes_gcm_keys",
         ":xchacha20_poly1305_keys",
         requirement("absl-py"),
         "//cross_language:test_key",

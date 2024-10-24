@@ -56,6 +56,7 @@ UNDEFINED_TEMPLATES = [
     ('CHACHA20_POLY1305_RAW', 'go'),
     ('XCHACHA20_POLY1305_RAW', 'cc'),
     ('XCHACHA20_POLY1305_RAW', 'go'),
+    ('X_AES_GCM_8_BYTE_SALT_NO_PREFIX', 'python', 'go')
 ]
 
 

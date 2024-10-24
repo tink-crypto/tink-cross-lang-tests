@@ -75,6 +75,7 @@ from tink.proto import kms_aead_pb2
 from tink.proto import kms_envelope_pb2
 from tink.proto import rsa_ssa_pkcs1_pb2
 from tink.proto import rsa_ssa_pss_pb2
+from tink.proto import x_aes_gcm_pb2
 from tink.proto import xchacha20_poly1305_pb2
 
 
@@ -118,6 +119,7 @@ KeyProto.add_key_type(chacha20_poly1305_pb2.ChaCha20Poly1305Key,
                       chacha20_poly1305_pb2.ChaCha20Poly1305KeyFormat)
 KeyProto.add_key_type(xchacha20_poly1305_pb2.XChaCha20Poly1305Key,
                       xchacha20_poly1305_pb2.XChaCha20Poly1305KeyFormat)
+KeyProto.add_key_type(x_aes_gcm_pb2.XAesGcmKey, x_aes_gcm_pb2.XAesGcmKeyFormat)
 KeyProto.add_key_type(aes_siv_pb2.AesSivKey, aes_siv_pb2.AesSivKeyFormat)
 KeyProto.add_key_type(aes_ctr_hmac_streaming_pb2.AesCtrHmacStreamingKey,
                       aes_ctr_hmac_streaming_pb2.AesCtrHmacStreamingKeyFormat)

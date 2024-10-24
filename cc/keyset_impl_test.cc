@@ -21,6 +21,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -42,10 +43,11 @@ using ::crypto::tink::BinaryKeysetReader;
 using ::crypto::tink::BinaryKeysetWriter;
 using ::crypto::tink::CleartextKeysetHandle;
 using ::crypto::tink::HybridKeyTemplates;
+using ::crypto::tink::test::IsOk;
 using ::google::crypto::tink::KeyTemplate;
 using ::testing::Eq;
 using ::testing::IsEmpty;
-using ::crypto::tink::test::IsOk;
+using ::testing::TestWithParam;
 using ::tink_testing_api::KeysetFromJsonRequest;
 using ::tink_testing_api::KeysetFromJsonResponse;
 using ::tink_testing_api::KeysetGenerateRequest;
@@ -54,6 +56,8 @@ using ::tink_testing_api::KeysetPublicRequest;
 using ::tink_testing_api::KeysetPublicResponse;
 using ::tink_testing_api::KeysetReadEncryptedRequest;
 using ::tink_testing_api::KeysetReadEncryptedResponse;
+using ::tink_testing_api::KeysetTemplateRequest;
+using ::tink_testing_api::KeysetTemplateResponse;
 using ::tink_testing_api::KeysetToJsonRequest;
 using ::tink_testing_api::KeysetToJsonResponse;
 using ::tink_testing_api::KeysetWriteEncryptedRequest;
@@ -345,6 +349,107 @@ TEST_F(KeysetImplTest, ReadEncryptedKeysetFail) {
           .ok());
   EXPECT_THAT(read_response.err(), Not(IsEmpty()));
 }
+
+using GetTemplateTest = TestWithParam<std::string>;
+
+TEST_P(GetTemplateTest, GetTemplateSuccess) {
+  tink_testing_api::KeysetImpl keyset_impl;
+
+  KeysetTemplateRequest request;
+  request.set_template_name(GetParam());
+  KeysetTemplateResponse response;
+
+  ASSERT_TRUE(
+      keyset_impl.GetTemplate(/*context=*/nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), IsEmpty());
+  EXPECT_THAT(response.key_template(), Not(IsEmpty()));
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    GetTemplateTests, GetTemplateTest,
+    ::testing::ValuesIn(std::vector<std::string>{
+        "AES128_EAX",
+        "AES256_EAX",
+        "AES128_GCM",
+        "AES128_GCM_RAW",
+        "AES256_GCM",
+        "AES256_GCM_RAW",
+        "AES128_GCM_SIV",
+        "AES256_GCM_SIV",
+        "AES128_CTR_HMAC_SHA256",
+        "AES256_CTR_HMAC_SHA256",
+        "CHACHA20_POLY1305",
+        "XCHACHA20_POLY1305",
+        "AES256_SIV",
+        "X_AES_GCM_8_BYTE_SALT_NO_PREFIX",
+        "AES128_CTR_HMAC_SHA256_4KB",
+        "AES128_CTR_HMAC_SHA256_1MB",
+        "AES256_CTR_HMAC_SHA256_4KB",
+        "AES256_CTR_HMAC_SHA256_1MB",
+        "AES128_GCM_HKDF_4KB",
+        "AES256_GCM_HKDF_4KB",
+        "AES256_GCM_HKDF_1MB",
+        "ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM",
+        "ECIES_P256_COMPRESSED_HKDF_HMAC_SHA256_AES128_GCM",
+        "ECIES_P256_HKDF_HMAC_SHA256_AES128_CTR_HMAC_SHA256",
+        "ECIES_P256_COMPRESSED_HKDF_HMAC_SHA256_AES128_CTR_HMAC_SHA256",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_AES_128_GCM",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_AES_128_GCM_RAW",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_AES_256_GCM",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_AES_256_GCM_RAW",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_CHACHA20_POLY1305",
+        "DHKEM_X25519_HKDF_SHA256_HKDF_SHA256_CHACHA20_POLY1305_RAW",
+        "AES_CMAC",
+        "HMAC_SHA256_128BITTAG",
+        "HMAC_SHA256_256BITTAG",
+        "HMAC_SHA512_256BITTAG",
+        "HMAC_SHA512_512BITTAG",
+        "ECDSA_P256",
+        "ECDSA_P256_RAW",
+        "ECDSA_P384",
+        "ECDSA_P384_SHA384",
+        "ECDSA_P384_SHA512",
+        "ECDSA_P521",
+        "ECDSA_P256_IEEE_P1363",
+        "ECDSA_P384_IEEE_P1363",
+        "ECDSA_P521_IEEE_P1363",
+        "ED25519",
+        "RSA_SSA_PKCS1_3072_SHA256_F4",
+        "RSA_SSA_PKCS1_4096_SHA512_F4",
+        "RSA_SSA_PSS_3072_SHA256_SHA256_32_F4",
+        "RSA_SSA_PSS_4096_SHA512_SHA512_64_F4",
+        "AES_CMAC_PRF",
+        "HMAC_SHA256_PRF",
+        "HMAC_SHA512_PRF",
+        "HKDF_SHA256",
+        "JWT_HS256",
+        "JWT_HS256_RAW",
+        "JWT_HS384",
+        "JWT_HS384_RAW",
+        "JWT_HS512",
+        "JWT_HS512_RAW",
+        "JWT_ES256",
+        "JWT_ES256_RAW",
+        "JWT_ES384",
+        "JWT_ES384_RAW",
+        "JWT_ES512",
+        "JWT_ES512_RAW",
+        "JWT_RS256_2048_F4",
+        "JWT_RS256_2048_F4_RAW",
+        "JWT_RS256_3072_F4",
+        "JWT_RS256_3072_F4_RAW",
+        "JWT_RS384_3072_F4",
+        "JWT_RS384_3072_F4_RAW",
+        "JWT_RS512_4096_F4",
+        "JWT_RS512_4096_F4_RAW",
+        "JWT_PS256_2048_F4",
+        "JWT_PS256_2048_F4_RAW",
+        "JWT_PS256_3072_F4",
+        "JWT_PS256_3072_F4_RAW",
+        "JWT_PS384_3072_F4",
+        "JWT_PS384_3072_F4_RAW",
+        "JWT_PS512_4096_F4",
+        "JWT_PS512_4096_F4_RAW"}));
 
 }  // namespace
 }  // namespace tink

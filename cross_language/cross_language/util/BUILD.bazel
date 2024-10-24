@@ -128,6 +128,7 @@ py_library(
         "@tink_py//tink/proto:kms_envelope_py_pb2",
         "@tink_py//tink/proto:rsa_ssa_pkcs1_py_pb2",
         "@tink_py//tink/proto:rsa_ssa_pss_py_pb2",
+        "@tink_py//tink/proto:x_aes_gcm_py_pb2",
         "@tink_py//tink/proto:xchacha20_poly1305_py_pb2",
     ],
 )
@@ -158,6 +159,7 @@ py_library(
         "@tink_py//tink/prf",
         "@tink_py//tink/proto:common_py_pb2",
         "@tink_py//tink/proto:tink_py_pb2",
+        "@tink_py//tink/proto:x_aes_gcm_py_pb2",
         "@tink_py//tink/signature",
         "@tink_py//tink/streaming_aead",
     ],

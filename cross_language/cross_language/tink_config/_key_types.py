@@ -39,6 +39,7 @@ KEY_TYPES = {
         'KmsAeadKey',
         'KmsEnvelopeAeadKey',
         'XChaCha20Poly1305Key',
+        'XAesGcmKey',
     ),
     daead.DeterministicAead: ('AesSivKey',),
     streaming_aead.StreamingAead: (
@@ -111,6 +112,7 @@ SUPPORTED_LANGUAGES = {
     'AesCtrHmacAeadKey': ['cc', 'java', 'go', 'python'],
     'ChaCha20Poly1305Key': ['java', 'go'],
     'XChaCha20Poly1305Key': ['cc', 'java', 'go', 'python'],
+    'XAesGcmKey': ['cc', 'java'],
     'KmsAeadKey': ['cc', 'java', 'go', 'python'],  # go only supported in tests.
     'KmsEnvelopeAeadKey': ['cc', 'java', 'go', 'python'],
     'AesSivKey': ['cc', 'java', 'go', 'python'],
