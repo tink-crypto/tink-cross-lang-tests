@@ -64,7 +64,7 @@ KEY_TEMPLATE_NAMES = {
     ],
     'ChaCha20Poly1305Key': ['CHACHA20_POLY1305', 'CHACHA20_POLY1305_RAW'],
     'XChaCha20Poly1305Key': ['XCHACHA20_POLY1305', 'XCHACHA20_POLY1305_RAW'],
-    'XAesGcmKey': ['X_AES_GCM_8_BYTE_SALT_NO_PREFIX'],
+    'XAesGcmKey': ['XAES_256_GCM_160_BIT_NONCE_NO_PREFIX'],
     'KmsAeadKey': [],
     'KmsEnvelopeAeadKey': [],
     'AesSivKey': ['AES256_SIV'],
@@ -165,7 +165,7 @@ KEY_TEMPLATE_NAMES = {
 
 
 # TODO: b/369159421 - Remove this once exposed in the Python API.
-def _x_aes_gcm_8_byte_salt_no_prefix_key_template():
+def _xaes_256_gcm_160_bit_nonce_no_prefix_key_template():
   return tink_pb2.KeyTemplate(
       type_url='type.googleapis.com/google.crypto.tink.XAesGcmKey',
       output_prefix_type=tink_pb2.TINK,
@@ -214,8 +214,8 @@ KEY_TEMPLATE = {
     ),
     'XCHACHA20_POLY1305': aead.aead_key_templates.XCHACHA20_POLY1305,
     'XCHACHA20_POLY1305_RAW': aead.aead_key_templates.XCHACHA20_POLY1305_RAW,
-    'X_AES_GCM_8_BYTE_SALT_NO_PREFIX': (
-        _x_aes_gcm_8_byte_salt_no_prefix_key_template()
+    'XAES_256_GCM_160_BIT_NONCE_NO_PREFIX': (
+        _xaes_256_gcm_160_bit_nonce_no_prefix_key_template()
     ),
     'AES256_SIV': daead.deterministic_aead_key_templates.AES256_SIV,
     'AES128_CTR_HMAC_SHA256_4KB': (

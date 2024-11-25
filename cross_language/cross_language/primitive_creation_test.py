@@ -54,7 +54,7 @@ def tearDownModule():
   testing_servers.stop()
 
 
-UNDEFINED_PYTHON_TEMPLATES = ['X_AES_GCM_8_BYTE_SALT_NO_PREFIX']
+UNDEFINED_PYTHON_TEMPLATES = ['XAES_256_GCM_160_BIT_NONCE_NO_PREFIX']
 
 
 def single_key_keysets():
