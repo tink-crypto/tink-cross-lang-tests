@@ -75,6 +75,10 @@ KeysetImpl::KeysetImpl() {
       crypto::tink::AeadKeyTemplates::XChaCha20Poly1305();
   key_templates_["AES256_SIV"] =
       crypto::tink::DeterministicAeadKeyTemplates::Aes256Siv();
+  key_templates_["XAES_256_GCM_192_BIT_NONCE"] =
+      crypto::tink::AeadKeyTemplates::XAes256Gcm192BitNonce();
+  key_templates_["XAES_256_GCM_192_BIT_NONCE_NO_PREFIX"] =
+      crypto::tink::AeadKeyTemplates::XAes256Gcm192BitNonceNoPrefix();
   key_templates_["XAES_256_GCM_160_BIT_NONCE_NO_PREFIX"] =
       crypto::tink::AeadKeyTemplates::XAes256Gcm160BitNonceNoPrefix();
   key_templates_["AES128_CTR_HMAC_SHA256_4KB"] =

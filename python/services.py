@@ -71,6 +71,12 @@ _KEY_TEMPLATE = {
         aead.aead_key_templates.XCHACHA20_POLY1305,
     'XCHACHA20_POLY1305_RAW':
         aead.aead_key_templates.XCHACHA20_POLY1305_RAW,
+    'XAES_256_GCM_192_BIT_NONCE':
+        aead.aead_key_templates.XAES_256_GCM_192_BIT_NONCE,
+    'XAES_256_GCM_192_BIT_NONCE_NO_PREFIX':
+        aead.aead_key_templates.XAES_256_GCM_192_BIT_NONCE_NO_PREFIX,
+    'XAES_256_GCM_160_BIT_NONCE_NO_PREFIX':
+        aead.aead_key_templates.XAES_256_GCM_160_BIT_NONCE_NO_PREFIX,
     'AES256_SIV':
         daead.deterministic_aead_key_templates.AES256_SIV,
     'AES128_CTR_HMAC_SHA256_4KB':

@@ -54,9 +54,6 @@ def tearDownModule():
   testing_servers.stop()
 
 
-UNDEFINED_PYTHON_TEMPLATES = ['XAES_256_GCM_160_BIT_NONCE_NO_PREFIX']
-
-
 def single_key_keysets():
   """Produces single key keysets which can be produced from a template.
 
@@ -64,11 +61,8 @@ def single_key_keysets():
   Yields:
     valid keysets generated from templates
   """
-  for template_name, template in utilities.KEY_TEMPLATE.items():
-    # TODO: b/361542355 - Remove this check once the template is defined in
-    # Python.
-    if template_name not in UNDEFINED_PYTHON_TEMPLATES:
-      yield test_keys.new_or_stored_keyset(template)
+  for _, template in utilities.KEY_TEMPLATE.items():
+    yield test_keys.new_or_stored_keyset(template)
 
 
 def single_key_keysets_one_per_primitive():
