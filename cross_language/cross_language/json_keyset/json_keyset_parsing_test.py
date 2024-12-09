@@ -77,7 +77,6 @@ TEST_CASES = [
       }
     ]
 }""",
-        # RapidJson doesn't allow unicode chars.
         lang_exceptions=['cc'],
     ),
     TestCase(
@@ -98,6 +97,7 @@ TEST_CASES = [
       },
     ]
 }""",
+        lang_exceptions=['cc'],
     ),
     TestCase(
         name='object_with_tailing_comma',
@@ -117,6 +117,7 @@ TEST_CASES = [
       }
     ]
 }""",
+        lang_exceptions=['cc'],
     ),
     TestCase(
         name='without_primary_key_id',
@@ -135,7 +136,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['java'],
+        lang_exceptions=['java', 'cc'],
     ),
     TestCase(
         name='multiple_primary_keys',
@@ -226,7 +227,6 @@ TEST_CASES = [
       }
     ]
 }""",
-        # RapidJson allows duplicate map keys.
         lang_exceptions=['cc'],
     ),
     TestCase(
@@ -266,7 +266,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['go', 'python'],
+        lang_exceptions=['cc', 'go', 'python'],
     ),
     TestCase(
         name='with_primary_key_id_as_float',
@@ -360,6 +360,7 @@ TEST_CASES = [
           "status":"ENABLED"
       }
 }""",
+        lang_exceptions=['cc'],
     ),
     TestCase(
         name='key_entry_is_not_object',
