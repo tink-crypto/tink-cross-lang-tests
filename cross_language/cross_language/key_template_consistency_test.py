@@ -56,7 +56,10 @@ UNDEFINED_TEMPLATES = [
     ('CHACHA20_POLY1305_RAW', 'go'),
     ('XCHACHA20_POLY1305_RAW', 'cc'),
     ('XCHACHA20_POLY1305_RAW', 'go'),
-    ('XAES_256_GCM_160_BIT_NONCE_NO_PREFIX', 'go')
+    # TODO: b/381869039 - Remove once the templates are defined in Tink Go.
+    ('XAES_256_GCM_192_BIT_NONCE', 'go'),
+    ('XAES_256_GCM_192_BIT_NONCE_NO_PREFIX', 'go'),
+    ('XAES_256_GCM_160_BIT_NONCE_NO_PREFIX', 'go'),
 ]
 
 
