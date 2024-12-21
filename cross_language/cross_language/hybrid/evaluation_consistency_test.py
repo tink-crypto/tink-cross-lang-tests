@@ -56,9 +56,7 @@ class EvaluationConsistencyTest(absltest.TestCase):
           both_lang_supported = all(key.supported_in(lang) for lang in langs)
           if 'b/315928577' in key.tags() and {'java', 'go'} & langs:
             both_lang_supported = False
-          if 'b/235861932' in key.tags() and {'python', 'cc', 'go'} & langs:
-            both_lang_supported = False
-          if 'b/361841214' in key.tags() and {'go'} & langs:
+          if 'b/235861932' in key.tags() and {'python', 'cc'} & langs:
             both_lang_supported = False
 
           if both_lang_supported:

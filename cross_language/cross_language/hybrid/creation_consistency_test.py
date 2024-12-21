@@ -51,9 +51,7 @@ def is_supported(key: test_key.TestKey, lang: str) -> bool:
   supported = key.supported_in(lang)
   if 'b/315928577' in key.tags() and lang in ['java', 'go']:
     supported = False
-  if 'b/235861932' in key.tags() and lang in ['cc', 'go', 'python']:
-    supported = False
-  if 'b/361841214' in key.tags() and lang in ['go']:
+  if 'b/235861932' in key.tags() and lang in ['cc', 'python']:
     supported = False
   return supported
 
