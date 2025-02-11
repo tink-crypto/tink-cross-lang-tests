@@ -55,11 +55,6 @@ class KeyTypesTest(absltest.TestCase):
         public_key_type = _key_types.PRIVATE_TO_PUBLIC_KEY[private_key_type]
         self.assertIn(public_key_type, _key_types.KEY_TYPES[public_primitive])
 
-  def public_key_type_for(self):
-    self.assertEqual(
-        _key_types.public_key_type_for('EcdsaPublicKey'), 'EcdsaPrivateKey'
-    )
-
 
 if __name__ == '__main__':
   absltest.main()

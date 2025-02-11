@@ -181,3 +181,9 @@ def keyset_supported(keyset: bytes, p: Any, lang: str) -> bool:
     if lang not in supported_languages_for_key_type(key_type):
       return False
   return True
+
+
+def public_key_type_for(priv: str) -> str:
+  """Returns the public key type corresponding to the given private type."""
+  return _key_types.PRIVATE_TO_PUBLIC_KEY[priv]
+

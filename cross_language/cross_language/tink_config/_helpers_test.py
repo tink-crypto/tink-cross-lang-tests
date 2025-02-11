@@ -135,5 +135,10 @@ class HelpersTest(absltest.TestCase):
         _helpers.keyset_supported(parsed_keyset0.SerializeToString(), aead.Aead,
                                   'python'))
 
+  def public_key_type_for(self):
+    self.assertEqual(
+        _helpers.public_key_type_for('EcdsaPublicKey'), 'EcdsaPrivateKey'
+    )
+
 if __name__ == '__main__':
   absltest.main()

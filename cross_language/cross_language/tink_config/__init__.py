@@ -36,4 +36,4 @@ is_asymmetric_public_key_primitive = _helpers.is_asymmetric_public_key_primitive
 get_private_key_primitive = _helpers.get_private_key_primitive
 keyset_supported = _helpers.keyset_supported
 all_tested_languages = _helpers.all_tested_languages
-public_key_type_for = _key_types.public_key_type_for
+public_key_type_for = _helpers.public_key_type_for
