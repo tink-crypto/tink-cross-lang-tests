@@ -102,6 +102,12 @@ PRIVATE_TO_PUBLIC_KEY = {
     'JwtRsaSsaPssPrivateKey': 'JwtRsaSsaPssPublicKey',
 }
 
+
+def public_key_type_for(priv: str) -> str:
+  """Returns the public key type corresponding to the given private type."""
+  return PRIVATE_TO_PUBLIC_KEY[priv]
+
+
 ALL_LANGUAGES = ['cc', 'java', 'go', 'python']
 
 # All languages that are supported by a KeyType
