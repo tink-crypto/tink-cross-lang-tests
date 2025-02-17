@@ -68,7 +68,7 @@ std::string ValidKeyset() {
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   EXPECT_THAT(writer.status(), IsOk());
 
-  util::Status status = CleartextKeysetHandle::Write((*writer).get(), **handle);
+  absl::Status status = CleartextKeysetHandle::Write((*writer).get(), **handle);
   EXPECT_THAT(status, IsOk());
   return keyset.str();
 }
@@ -212,7 +212,7 @@ class JwtImplSignatureTest : public ::testing::Test {
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
     EXPECT_THAT(writer.status(), IsOk());
 
-    util::Status status =
+    absl::Status status =
         CleartextKeysetHandle::Write((*writer).get(), **handle);
     EXPECT_THAT(status, IsOk());
     private_keyset_ = keyset.str();
@@ -226,7 +226,7 @@ class JwtImplSignatureTest : public ::testing::Test {
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&pub_keyset));
     EXPECT_THAT(writer.status(), IsOk());
 
-    util::Status pub_status =
+    absl::Status pub_status =
         CleartextKeysetHandle::Write(pub_writer->get(), **pub_handle);
     EXPECT_THAT(pub_status, IsOk());
     public_keyset_ = pub_keyset.str();

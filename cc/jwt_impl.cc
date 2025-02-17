@@ -363,7 +363,7 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
     response->set_err(std::string(writer.status().message()));
     return ::grpc::Status::OK;
   }
-  crypto::tink::util::Status status =
+  absl::Status status =
       CleartextKeysetHandle::Write(writer->get(), **keyset_handle);
   if (!status.ok()) {
     response->set_err(std::string(status.message()));

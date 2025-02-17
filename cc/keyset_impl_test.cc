@@ -110,7 +110,7 @@ util::StatusOr<std::string> AeadKeyset() {
   if (!handle.ok()) {
     return handle.status();
   }
-  util::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
+  absl::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
   if (!status.ok()) {
     return status;
   }
@@ -131,7 +131,7 @@ util::StatusOr<std::string> ValidPrivateKeyset() {
   if (!writer.ok()) {
     return writer.status();
   }
-  util::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
+  absl::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
   if (!status.ok()) {
     return status;
   }

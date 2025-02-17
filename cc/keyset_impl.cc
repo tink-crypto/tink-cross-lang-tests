@@ -425,7 +425,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
   }
 
   if (request->has_associated_data()) {
-    crypto::tink::util::Status status =
+    absl::Status status =
         (*keyset_handle)
             ->WriteWithAssociatedData(keyset_writer.get(), **master_aead,
                                       request->associated_data().value());
@@ -434,7 +434,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
       return grpc::Status::OK;
     }
   } else {
-    crypto::tink::util::Status status =
+    absl::Status status =
         (*keyset_handle)->Write(keyset_writer.get(), **master_aead);
     if (!status.ok()) {
       response->set_err(std::string(status.message()));
@@ -520,7 +520,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
     response->set_err(std::string(keyset_writer.status().message()));
     return grpc::Status::OK;
   }
-  crypto::tink::util::Status status =
+  absl::Status status =
       CleartextKeysetHandle::Write(keyset_writer->get(), *keyset_handle);
   if (!status.ok()) {
     response->set_err(std::string(status.message()));

@@ -102,7 +102,7 @@ void RunServer() {
   }
   std::string gcp_credentials_path = absl::GetFlag(FLAGS_gcp_credentials_path);
   std::string gcp_key_uri = absl::GetFlag(FLAGS_gcp_key_uri);
-  crypto::tink::util::Status register_gcpkms_client_status =
+  absl::Status register_gcpkms_client_status =
       crypto::tink::integration::gcpkms::GcpKmsClient::RegisterNewClient(
           gcp_key_uri, gcp_credentials_path);
   if (!register_gcpkms_client_status.ok()) {
