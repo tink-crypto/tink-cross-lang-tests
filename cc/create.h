@@ -41,8 +41,8 @@ template <typename T>
 crypto::tink::util::StatusOr<std::unique_ptr<T>>
 PrimitiveFromSerializedBinaryProtoKeyset(
     const AnnotatedKeyset& annotated_keyset) {
-  crypto::tink::util::StatusOr<std::unique_ptr<crypto::tink::KeysetReader>>
-      reader = crypto::tink::BinaryKeysetReader::New(
+  absl::StatusOr<std::unique_ptr<crypto::tink::KeysetReader>> reader =
+      crypto::tink::BinaryKeysetReader::New(
           annotated_keyset.serialized_keyset());
   if (!reader.ok()) {
     return reader.status();
@@ -51,9 +51,9 @@ PrimitiveFromSerializedBinaryProtoKeyset(
   for (const auto& annotation : annotated_keyset.annotations()) {
     annotations[annotation.first] = annotation.second;
   }
-  crypto::tink::util::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>>
-      handle = crypto::tink::CleartextKeysetHandle::Read(*std::move(reader),
-                                                         annotations);
+  absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> handle =
+      crypto::tink::CleartextKeysetHandle::Read(*std::move(reader),
+                                                annotations);
   if (!handle.ok()) {
     return handle.status();
   }

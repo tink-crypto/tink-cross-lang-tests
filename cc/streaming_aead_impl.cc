@@ -48,9 +48,10 @@ using ::crypto::tink::util::StatusOr;
     grpc::ServerContext* context,
     const StreamingAeadEncryptRequest* request,
     StreamingAeadEncryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::StreamingAead>> streaming_aead_result =
-      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
-          request->annotated_keyset());
+  absl::StatusOr<std::unique_ptr<crypto::tink::StreamingAead>>
+      streaming_aead_result =
+          PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
+              request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
     response->set_err(std::string(streaming_aead_result.status().message()));
     return ::grpc::Status::OK;
@@ -106,9 +107,10 @@ using ::crypto::tink::util::StatusOr;
     grpc::ServerContext* context,
     const StreamingAeadDecryptRequest* request,
     StreamingAeadDecryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::StreamingAead>> streaming_aead_result =
-      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
-          request->annotated_keyset());
+  absl::StatusOr<std::unique_ptr<crypto::tink::StreamingAead>>
+      streaming_aead_result =
+          PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
+              request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
     response->set_err(std::string(streaming_aead_result.status().message()));
     return ::grpc::Status::OK;

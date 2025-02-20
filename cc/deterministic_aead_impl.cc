@@ -39,7 +39,7 @@ grpc::Status DeterministicAeadImpl::EncryptDeterministically(
     grpc::ServerContext* context,
     const DeterministicAeadEncryptRequest* request,
     DeterministicAeadEncryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::DeterministicAead>> daead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::DeterministicAead>> daead =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::DeterministicAead>(
           request->annotated_keyset());
   if (!daead.ok()) {
@@ -48,7 +48,7 @@ grpc::Status DeterministicAeadImpl::EncryptDeterministically(
         absl::StrCat("Creating primitive failed: ", daead.status().message()));
   }
 
-  StatusOr<std::string> ciphertext = (*daead)->EncryptDeterministically(
+  absl::StatusOr<std::string> ciphertext = (*daead)->EncryptDeterministically(
       request->plaintext(), request->associated_data());
   if (!ciphertext.ok()) {
     response->set_err(std::string(ciphertext.status().message()));
@@ -62,7 +62,7 @@ grpc::Status DeterministicAeadImpl::DecryptDeterministically(
     grpc::ServerContext* context,
     const DeterministicAeadDecryptRequest* request,
     DeterministicAeadDecryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::DeterministicAead>> daead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::DeterministicAead>> daead =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::DeterministicAead>(
           request->annotated_keyset());
   if (!daead.ok()) {
@@ -70,7 +70,7 @@ grpc::Status DeterministicAeadImpl::DecryptDeterministically(
         grpc::StatusCode::FAILED_PRECONDITION,
         absl::StrCat("Creating primitive failed: ", daead.status().message()));
   }
-  StatusOr<std::string> plaintext = (*daead)->DecryptDeterministically(
+  absl::StatusOr<std::string> plaintext = (*daead)->DecryptDeterministically(
       request->ciphertext(), request->associated_data());
   if (!plaintext.ok()) {
     response->set_err(std::string(plaintext.status().message()));

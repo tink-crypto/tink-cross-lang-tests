@@ -69,9 +69,8 @@ TEST_F(HybridImplTest, CreateHybridDecryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle =
-          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
 
@@ -99,15 +98,13 @@ TEST_F(HybridImplTest, CreateHybridEncryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
   const KeyTemplate& key_template =
       HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle =
-          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      public_keyset_handle =
-          (*private_keyset_handle)
-              ->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_keyset_handle =
+      (*private_keyset_handle)
+          ->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(public_keyset_handle.status().ok())
       << public_keyset_handle.status();
 

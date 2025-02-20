@@ -47,19 +47,19 @@ using ::grpc::ServerContext;
 grpc::Status KeysetDeriverImpl::DeriveKeyset(
     ServerContext* context, const DeriveKeysetRequest* request,
     DeriveKeysetResponse* response) {
-  StatusOr<std::unique_ptr<KeysetReader>> reader =
+  absl::StatusOr<std::unique_ptr<KeysetReader>> reader =
       BinaryKeysetReader::New(request->annotated_keyset().serialized_keyset());
   if (!reader.ok()) {
     response->set_err(std::string(reader.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<KeysetHandle>> keyset_handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> keyset_handle =
       CleartextKeysetHandle::Read(std::move(*reader));
   if (!keyset_handle.ok()) {
     response->set_err(std::string(keyset_handle.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<crypto::tink::KeysetDeriver>> deriver =
+  absl::StatusOr<std::unique_ptr<crypto::tink::KeysetDeriver>> deriver =
       (*keyset_handle)
           ->GetPrimitive<crypto::tink::KeysetDeriver>(
               crypto::tink::ConfigGlobalRegistry());
@@ -67,14 +67,14 @@ grpc::Status KeysetDeriverImpl::DeriveKeyset(
     response->set_err(std::string(deriver.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<KeysetHandle>> derived_keyset_handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> derived_keyset_handle =
       (*deriver)->DeriveKeyset(request->salt());
   if (!derived_keyset_handle.ok()) {
     response->set_err(std::string(derived_keyset_handle.status().message()));
     return grpc::Status::OK;
   }
   std::stringbuf derived_keyset;
-  StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(std::make_unique<std::ostream>(&derived_keyset));
   if (!writer.ok()) {
     response->set_err(std::string(writer.status().message()));

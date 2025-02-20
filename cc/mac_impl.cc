@@ -39,7 +39,7 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status MacImpl::ComputeMac(grpc::ServerContext* context,
                                    const ComputeMacRequest* request,
                                    ComputeMacResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::Mac>> mac_result =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Mac>> mac_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Mac>(
           request->annotated_keyset());
   if (!mac_result.ok()) {
@@ -59,7 +59,7 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status MacImpl::VerifyMac(grpc::ServerContext* context,
                                   const VerifyMacRequest* request,
                                   VerifyMacResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::Mac>> mac_result =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Mac>> mac_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Mac>(
           request->annotated_keyset());
   if (!mac_result.ok()) {

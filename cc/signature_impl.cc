@@ -47,7 +47,7 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status SignatureImpl::Sign(grpc::ServerContext* context,
                                    const SignatureSignRequest* request,
                                    SignatureSignResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::PublicKeySign>> signer_result =
+  absl::StatusOr<std::unique_ptr<crypto::tink::PublicKeySign>> signer_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PublicKeySign>(
           request->private_annotated_keyset());
   if (!signer_result.ok()) {
@@ -67,9 +67,9 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status SignatureImpl::Verify(grpc::ServerContext* context,
                                      const SignatureVerifyRequest* request,
                                      SignatureVerifyResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::PublicKeyVerify>> verifier_result =
-      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PublicKeyVerify>(
-          request->public_annotated_keyset());
+  absl::StatusOr<std::unique_ptr<crypto::tink::PublicKeyVerify>>
+      verifier_result = PrimitiveFromSerializedBinaryProtoKeyset<
+          crypto::tink::PublicKeyVerify>(request->public_annotated_keyset());
   if (!verifier_result.ok()) {
     response->set_err(std::string(verifier_result.status().message()));
     return ::grpc::Status::OK;

@@ -37,7 +37,7 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status AeadImpl::Encrypt(grpc::ServerContext* context,
                                  const AeadEncryptRequest* request,
                                  AeadEncryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::Aead>> aead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> aead =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Aead>(
           request->annotated_keyset());
   if (!aead.ok()) {
@@ -46,7 +46,7 @@ using ::crypto::tink::util::StatusOr;
         absl::StrCat("Creating primitive failed: ", aead.status().message()));
   }
 
-  StatusOr<std::string> ciphertext =
+  absl::StatusOr<std::string> ciphertext =
       (*aead)->Encrypt(request->plaintext(), request->associated_data());
   if (!ciphertext.ok()) {
     response->set_err(std::string(ciphertext.status().message()));
@@ -59,7 +59,7 @@ using ::crypto::tink::util::StatusOr;
 grpc::Status AeadImpl::Decrypt(grpc::ServerContext* context,
                                  const AeadDecryptRequest* request,
                                  AeadDecryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::Aead>> aead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> aead =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Aead>(
           request->annotated_keyset());
   if (!aead.ok()) {
@@ -68,7 +68,7 @@ grpc::Status AeadImpl::Decrypt(grpc::ServerContext* context,
         absl::StrCat("Creating primitive failed: ", aead.status().message()));
   }
 
-  StatusOr<std::string> plaintext =
+  absl::StatusOr<std::string> plaintext =
       (*aead)->Decrypt(request->ciphertext(), request->associated_data());
   if (!plaintext.ok()) {
     response->set_err(std::string(plaintext.status().message()));

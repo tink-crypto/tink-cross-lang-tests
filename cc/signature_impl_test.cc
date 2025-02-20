@@ -68,9 +68,8 @@ class SignatureImplTest : public ::testing::Test {
 TEST_F(SignatureImplTest, CreatePublicKeySignSuccess) {
   tink_testing_api::SignatureImpl signature;
   const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle =
-          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
 
@@ -97,15 +96,13 @@ TEST_F(SignatureImplTest, CreatePublicKeySignFailure) {
 TEST_F(SignatureImplTest, CreatePublicKeyVerifySuccess) {
   tink_testing_api::SignatureImpl signature;
   const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      private_keyset_handle =
-          KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(private_keyset_handle.status().ok())
       << private_keyset_handle.status();
-  ::crypto::tink::util::StatusOr<std::unique_ptr<KeysetHandle>>
-      public_keyset_handle =
-          (*private_keyset_handle)
-              ->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_keyset_handle =
+      (*private_keyset_handle)
+          ->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
   ASSERT_TRUE(public_keyset_handle.status().ok())
       << public_keyset_handle.status();
 

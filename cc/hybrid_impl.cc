@@ -46,9 +46,10 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status HybridImpl::Encrypt(grpc::ServerContext* context,
                                    const HybridEncryptRequest* request,
                                    HybridEncryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::HybridEncrypt>> hybrid_encrypt_result =
-      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridEncrypt>(
-          request->public_annotated_keyset());
+  absl::StatusOr<std::unique_ptr<crypto::tink::HybridEncrypt>>
+      hybrid_encrypt_result =
+          PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridEncrypt>(
+              request->public_annotated_keyset());
   if (!hybrid_encrypt_result.ok()) {
     response->set_err(std::string(hybrid_encrypt_result.status().message()));
     return ::grpc::Status::OK;
@@ -67,9 +68,10 @@ using ::crypto::tink::util::StatusOr;
 ::grpc::Status HybridImpl::Decrypt(grpc::ServerContext* context,
                                    const HybridDecryptRequest* request,
                                    HybridDecryptResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::HybridDecrypt>> hybrid_decrypt_result =
-      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridDecrypt>(
-          request->private_annotated_keyset());
+  absl::StatusOr<std::unique_ptr<crypto::tink::HybridDecrypt>>
+      hybrid_decrypt_result =
+          PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridDecrypt>(
+              request->private_annotated_keyset());
   if (!hybrid_decrypt_result.ok()) {
     response->set_err(std::string(hybrid_decrypt_result.status().message()));
     return ::grpc::Status::OK;

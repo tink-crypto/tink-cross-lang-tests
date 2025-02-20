@@ -40,7 +40,7 @@ using ::grpc::ServerContext;
 ::grpc::Status PrfSetImpl::KeyIds(ServerContext* context,
                                   const PrfSetKeyIdsRequest* request,
                                   PrfSetKeyIdsResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
+  absl::StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
@@ -59,7 +59,7 @@ using ::grpc::ServerContext;
 ::grpc::Status PrfSetImpl::Compute(ServerContext* context,
                                    const PrfSetComputeRequest* request,
                                    PrfSetComputeResponse* response) {
-  StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
+  absl::StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
