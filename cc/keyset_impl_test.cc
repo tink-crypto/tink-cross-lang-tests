@@ -97,15 +97,15 @@ TEST_F(KeysetImplTest, GenerateFail) {
   EXPECT_THAT(response.err(), Not(IsEmpty()));
 }
 
-util::StatusOr<std::string> AeadKeyset() {
-  util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+absl::StatusOr<std::string> AeadKeyset() {
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm(),
                                 KeyGenConfigGlobalRegistry());
   if (!handle.ok()) {
     return handle.status();
   }
   std::stringbuf keyset;
-  util::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   if (!handle.ok()) {
     return handle.status();
@@ -117,8 +117,8 @@ util::StatusOr<std::string> AeadKeyset() {
   return keyset.str();
 }
 
-util::StatusOr<std::string> ValidPrivateKeyset() {
-  util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+absl::StatusOr<std::string> ValidPrivateKeyset() {
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(
           HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
           KeyGenConfigGlobalRegistry());
@@ -126,7 +126,7 @@ util::StatusOr<std::string> ValidPrivateKeyset() {
     return handle.status();
   }
   std::stringbuf keyset;
-  util::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
     return writer.status();
@@ -141,7 +141,7 @@ util::StatusOr<std::string> ValidPrivateKeyset() {
 TEST_F(KeysetImplTest, PublicSuccess) {
   tink_testing_api::KeysetImpl keyset;
 
-  util::StatusOr<std::string> private_keyset = ValidPrivateKeyset();
+  absl::StatusOr<std::string> private_keyset = ValidPrivateKeyset();
   ASSERT_THAT(private_keyset.status(), IsOk());
 
   KeysetPublicRequest request;
@@ -202,7 +202,7 @@ TEST_F(KeysetImplTest, FromJsonSuccess) {
 
 TEST_F(KeysetImplTest, ToFromJsonSuccess) {
   tink_testing_api::KeysetImpl keyset;
-  util::StatusOr<std::string> private_keyset = ValidPrivateKeyset();
+  absl::StatusOr<std::string> private_keyset = ValidPrivateKeyset();
   EXPECT_THAT(private_keyset.status(), IsOk());
 
   KeysetToJsonRequest to_request;
@@ -244,9 +244,9 @@ TEST_F(KeysetImplTest, FromJsonFail) {
 TEST_F(KeysetImplTest, ReadWriteEncryptedKeysetSuccess) {
   tink_testing_api::KeysetImpl keyset_impl;
 
-  util::StatusOr<std::string> master_keyset = AeadKeyset();
+  absl::StatusOr<std::string> master_keyset = AeadKeyset();
   ASSERT_THAT(master_keyset.status(), IsOk());
-  util::StatusOr<std::string> keyset = AeadKeyset();
+  absl::StatusOr<std::string> keyset = AeadKeyset();
   ASSERT_THAT(master_keyset.status(), IsOk());
 
   KeysetWriteEncryptedRequest write_request;
@@ -278,9 +278,9 @@ TEST_F(KeysetImplTest, ReadWriteEncryptedKeysetSuccess) {
 TEST_F(KeysetImplTest, ReadWriteEncryptedWithAssociatedDataKeysetSuccess) {
   tink_testing_api::KeysetImpl keyset_impl;
 
-  util::StatusOr<std::string> master_keyset = AeadKeyset();
+  absl::StatusOr<std::string> master_keyset = AeadKeyset();
   ASSERT_THAT(master_keyset.status(), IsOk());
-  util::StatusOr<std::string> keyset = AeadKeyset();
+  absl::StatusOr<std::string> keyset = AeadKeyset();
   ASSERT_THAT(keyset.status(), IsOk());
   std::string associated_data = "associated_data";
 
@@ -315,7 +315,7 @@ TEST_F(KeysetImplTest, ReadWriteEncryptedWithAssociatedDataKeysetSuccess) {
 TEST_F(KeysetImplTest, WriteEncryptedKeysetFail) {
   tink_testing_api::KeysetImpl keyset_impl;
 
-  util::StatusOr<std::string> master_keyset = AeadKeyset();
+  absl::StatusOr<std::string> master_keyset = AeadKeyset();
   ASSERT_THAT(master_keyset.status(), IsOk());
 
   KeysetWriteEncryptedRequest write_request;
@@ -334,7 +334,7 @@ TEST_F(KeysetImplTest, WriteEncryptedKeysetFail) {
 TEST_F(KeysetImplTest, ReadEncryptedKeysetFail) {
   tink_testing_api::KeysetImpl keyset_impl;
 
-  util::StatusOr<std::string> master_keyset = AeadKeyset();
+  absl::StatusOr<std::string> master_keyset = AeadKeyset();
   ASSERT_THAT(master_keyset.status(), IsOk());
 
   KeysetReadEncryptedRequest read_request;

@@ -364,19 +364,19 @@ grpc::Status KeysetImpl::FromJson(grpc::ServerContext* context,
 grpc::Status KeysetImpl::WriteEncrypted(
     grpc::ServerContext* context, const KeysetWriteEncryptedRequest* request,
     KeysetWriteEncryptedResponse* response) {
-  StatusOr<std::unique_ptr<KeysetReader>>
-      master_keyset_reader = BinaryKeysetReader::New(request->master_keyset());
+  absl::StatusOr<std::unique_ptr<KeysetReader>> master_keyset_reader =
+      BinaryKeysetReader::New(request->master_keyset());
   if (!master_keyset_reader.ok()) {
     response->set_err(std::string(master_keyset_reader.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<KeysetHandle>> master_keyset_handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> master_keyset_handle =
       CleartextKeysetHandle::Read(*std::move(master_keyset_reader));
   if (!master_keyset_handle.ok()) {
     response->set_err(std::string(master_keyset_handle.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
       (*master_keyset_handle)
           ->GetPrimitive<crypto::tink::Aead>(
               crypto::tink::ConfigGlobalRegistry());
@@ -385,13 +385,13 @@ grpc::Status KeysetImpl::WriteEncrypted(
     return grpc::Status::OK;
   }
 
-  StatusOr<std::unique_ptr<KeysetReader>> keyset_reader =
+  absl::StatusOr<std::unique_ptr<KeysetReader>> keyset_reader =
       BinaryKeysetReader::New(request->keyset());
   if (!keyset_reader.ok()) {
     response->set_err(std::string(keyset_reader.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<KeysetHandle>> keyset_handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> keyset_handle =
       CleartextKeysetHandle::Read(*std::move(keyset_reader));
   if (!keyset_handle.ok()) {
     response->set_err(std::string(keyset_handle.status().message()));
@@ -402,7 +402,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
   std::unique_ptr<KeysetWriter> keyset_writer;
 
   if (request->keyset_writer_type() == KEYSET_WRITER_BINARY) {
-    StatusOr<std::unique_ptr<BinaryKeysetWriter>> binary_keyset_writer =
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> binary_keyset_writer =
         BinaryKeysetWriter::New(
             absl::make_unique<std::ostream>(&encrypted_keyset));
     if (!binary_keyset_writer.ok()) {
@@ -411,7 +411,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
     }
     keyset_writer = *std::move(binary_keyset_writer);
   } else if (request->keyset_writer_type() == KEYSET_WRITER_JSON) {
-    StatusOr<std::unique_ptr<JsonKeysetWriter>> json_keyset_writer =
+    absl::StatusOr<std::unique_ptr<JsonKeysetWriter>> json_keyset_writer =
         JsonKeysetWriter::New(
             absl::make_unique<std::ostream>(&encrypted_keyset));
     if (!json_keyset_writer.ok()) {
@@ -448,19 +448,19 @@ grpc::Status KeysetImpl::WriteEncrypted(
 grpc::Status KeysetImpl::ReadEncrypted(
     grpc::ServerContext* context, const KeysetReadEncryptedRequest* request,
     KeysetReadEncryptedResponse* response) {
-  StatusOr<std::unique_ptr<KeysetReader>> master_keyset_reader =
+  absl::StatusOr<std::unique_ptr<KeysetReader>> master_keyset_reader =
       BinaryKeysetReader::New(request->master_keyset());
   if (!master_keyset_reader.ok()) {
     response->set_err(std::string(master_keyset_reader.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<KeysetHandle>> master_keyset_handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> master_keyset_handle =
       CleartextKeysetHandle::Read(*std::move(master_keyset_reader));
   if (!master_keyset_handle.ok()) {
     response->set_err(std::string(master_keyset_handle.status().message()));
     return grpc::Status::OK;
   }
-  StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
+  absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
       (*master_keyset_handle)
           ->GetPrimitive<crypto::tink::Aead>(
               crypto::tink::ConfigGlobalRegistry());
@@ -471,7 +471,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
 
   std::unique_ptr<KeysetReader> keyset_reader;
   if (request->keyset_reader_type() == KEYSET_READER_BINARY) {
-    StatusOr<std::unique_ptr<KeysetReader>> binary_keyset_reader =
+    absl::StatusOr<std::unique_ptr<KeysetReader>> binary_keyset_reader =
         BinaryKeysetReader::New(request->encrypted_keyset());
     if (!binary_keyset_reader.ok()) {
       response->set_err(std::string(binary_keyset_reader.status().message()));
@@ -479,7 +479,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
     }
     keyset_reader = *std::move(binary_keyset_reader);
   } else if (request->keyset_reader_type() == KEYSET_READER_JSON) {
-    StatusOr<std::unique_ptr<KeysetReader>> json_keyset_reader =
+    absl::StatusOr<std::unique_ptr<KeysetReader>> json_keyset_reader =
         JsonKeysetReader::New(request->encrypted_keyset());
     if (!json_keyset_reader.ok()) {
       response->set_err(std::string(json_keyset_reader.status().message()));
@@ -493,7 +493,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
 
   std::unique_ptr<KeysetHandle> keyset_handle;
   if (request->has_associated_data()) {
-    StatusOr<std::unique_ptr<KeysetHandle>> read_result =
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> read_result =
         ::crypto::tink::KeysetHandle::ReadWithAssociatedData(
             std::move(keyset_reader), **master_aead,
             request->associated_data().value());
@@ -503,7 +503,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
     }
     keyset_handle = *std::move(read_result);
   } else {
-    StatusOr<std::unique_ptr<KeysetHandle>> read_result =
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> read_result =
         ::crypto::tink::KeysetHandle::Read(std::move(keyset_reader),
                                            **master_aead);
     if (!read_result.ok()) {
@@ -514,7 +514,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
   }
 
   std::stringbuf keyset;
-  StatusOr<std::unique_ptr<BinaryKeysetWriter>> keyset_writer =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> keyset_writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   if (!keyset_writer.ok()) {
     response->set_err(std::string(keyset_writer.status().message()));

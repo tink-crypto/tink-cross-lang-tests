@@ -59,12 +59,12 @@ using ::tink_testing_api::JwtVerifyResponse;
 
 std::string ValidKeyset() {
   const KeyTemplate& key_template = ::crypto::tink::JwtHs256Template();
-  util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
   EXPECT_THAT(handle.status(), IsOk());
 
   std::stringbuf keyset;
-  util::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   EXPECT_THAT(writer.status(), IsOk());
 
@@ -203,12 +203,12 @@ class JwtImplSignatureTest : public ::testing::Test {
   static void SetUpTestSuite() { ASSERT_THAT(JwtSignatureRegister(), IsOk()); }
   void SetUp() override {
     const KeyTemplate& key_template = ::crypto::tink::JwtEs256Template();
-    util::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
         KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
     EXPECT_THAT(handle.status(), IsOk());
 
     std::stringbuf keyset;
-    util::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
     EXPECT_THAT(writer.status(), IsOk());
 
@@ -217,12 +217,12 @@ class JwtImplSignatureTest : public ::testing::Test {
     EXPECT_THAT(status, IsOk());
     private_keyset_ = keyset.str();
 
-    util::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> pub_handle =
+    absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> pub_handle =
         (*handle)->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
     EXPECT_THAT(pub_handle.status(), IsOk());
 
     std::stringbuf pub_keyset;
-    util::StatusOr<std::unique_ptr<BinaryKeysetWriter>> pub_writer =
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> pub_writer =
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&pub_keyset));
     EXPECT_THAT(writer.status(), IsOk());
 
