@@ -73,13 +73,7 @@ TEST_OPTIONS=(
   --experimental_ui_max_stdouterr_bytes=-1
 )
 
-# TODO(b/276277854) It is not clear why this is needed.
-pip3 install protobuf==4.24.3 --user
-
 if [[ "${RUN_KMS_TESTS}" == "true" ]]; then
-  pip3 install google-cloud-kms==2.15.0 --user
-  pip3 install hvac==2.1.0 --user
-
   # Setup a local HashCorp Vault server.
   mkdir /tmp/vault-tls
 
