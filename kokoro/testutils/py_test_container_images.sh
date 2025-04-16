@@ -28,9 +28,4 @@ readonly TINK_PY_BASE_IMAGE_NAME="linux-tink-py-base"
 readonly TINK_PY_BASE_IMAGE_HASH="32c19ce721994942c2f8a6bfa99bd193d6bbd8a3edbb466b8a965501e4ae8b04"
 readonly TINK_PY_BASE_IMAGE="$(_image_prefix)/${TINK_PY_BASE_IMAGE_NAME}@sha256:${TINK_PY_BASE_IMAGE_HASH}"
 
-# Linux arm64 container image.
-readonly TINK_PY_BASE_ARM64_IMAGE_NAME="linux-tink-py-base-arm64"
-readonly TINK_PY_BASE_ARM64_IMAGE_HASH="760df76aed0bc189b9d2e3b2e4f5926244ca021263d7375485f705c96840023b"
-readonly TINK_PY_BASE_ARM64_IMAGE="$(_image_prefix)/${TINK_PY_BASE_ARM64_IMAGE_NAME}@sha256:${TINK_PY_BASE_ARM64_IMAGE_HASH}"
-
 unset -f _image_prefix
