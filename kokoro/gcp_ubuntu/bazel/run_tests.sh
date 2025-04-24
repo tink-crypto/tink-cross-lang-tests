@@ -117,13 +117,17 @@ if [[ "${IS_KOKORO}" == "true" ]] ; then
   cp "${TINK_REMOTE_BAZEL_CACHE_SERVICE_KEY}" cache_key
 fi
 
+echo "== BUILDING C++ SERVER =================================================="
 run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh -o "${OUTPUT_USER_ROOT}"
+echo "== BUILDING GO SERVER ==================================================="
 run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh -o "${OUTPUT_USER_ROOT}"
+echo "== BUILDING JAVA SERVER ================================================="
 run "${JAVA_CONTAINER_IMAGE:-}" bash java_src/build_server.sh \
   -o "${OUTPUT_USER_ROOT}"
+echo "== BUILDING PYTHON SERVER ==============================================="
 run "${PY_CONTAINER_IMAGE:-}" bash python/build_server.sh \
   -o "${OUTPUT_USER_ROOT}"
 
-# Run cross language tests.
+echo "== RUNNING CROSS LANGUAGE TESTS ========================================="
 run "${CROSS_LANG_CONTAINER_IMAGE:-}" bash cross_language/run_tests.sh \
   -o "${OUTPUT_USER_ROOT}"
