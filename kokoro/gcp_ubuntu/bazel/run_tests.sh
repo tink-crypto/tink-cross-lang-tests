@@ -106,7 +106,7 @@ run() {
     run_command_args+=( -c "${container_img}" )
   fi
   readonly run_command_args
-  ./kokoro/testutils/run_command.sh "${run_command_args[@]}" "${command[@]}"
+  ./kokoro/testutils/docker_execute.sh "${run_command_args[@]}" "${command[@]}"
 }
 
 readonly OUTPUT_USER_ROOT="bazel"
