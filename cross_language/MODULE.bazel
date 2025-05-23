@@ -1,0 +1,42 @@
+module(name = "cross_language_test")
+
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "grpc", version = "1.72.0", repo_name = "com_github_grpc_grpc")
+bazel_dep(name = "rules_python", version = "1.4.1")
+bazel_dep(name = "tink_cc")
+bazel_dep(name = "tink_py")
+bazel_dep(name = "protobuf", version = "30.2", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_proto_grpc", version = "5.1.0")
+bazel_dep(name = "rules_proto_grpc_python", version = "5.1.0")
+
+local_path_override(
+    module_name = "tink_cc",
+    path = "../../tink_cc",
+)
+
+local_path_override(
+    module_name = "tink_py",
+    path = "../../tink_py",
+)
+
+portpicker_extension = use_extension("//:extensions.bzl", "portpicker_extension")
+use_repo(portpicker_extension, "org_python_pypi_portpicker")
+
+envoy_api_extension = use_extension("//:extensions.bzl", "envoy_api_extension")
+use_repo(envoy_api_extension, "envoy_api")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    is_default = True,
+    python_version = "3.12",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+use_repo(pip, "tink_py_pip_deps")
+
+pip.parse(
+    hub_name = "pip_deps",
+    python_version = "3.12",
+    requirements_lock = "@cross_language_test//:requirements.txt",
+)
+use_repo(pip, "pip_deps")

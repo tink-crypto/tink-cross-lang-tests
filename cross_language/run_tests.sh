@@ -118,6 +118,6 @@ readonly CACHE_OPTS
 
   cd "${TESTING_SERVER_DIR}"
   # Run tests.
-  time bazelisk "${BAZEL_STARTUP_OPTS}" test "${CACHE_OPTS[@]}" \
+  time bazelisk "${BAZEL_STARTUP_OPTS[@]}" test "${CACHE_OPTS[@]}" \
     "${TEST_OPTIONS[@]}" -- "${TEST_TARGETS}"
 )

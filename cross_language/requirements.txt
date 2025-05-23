@@ -8,3 +8,6 @@ absl-py==2.1.0 \
     --hash=sha256:526a04eadab8b4ee719ce68f204172ead1027549089702d99b9059f129ff1308 \
     --hash=sha256:7820790efbb316739cde8b4e19357243fc3608a152024288513dd968d7d959ff
     # via -r cross_language/requirements.in
+bazel-runfiles==1.4.1 \
+    --hash=sha256:90e9561ad31708b1f7590af817cfc1251153e981ee103a6be8e632845d696f74
+    # via -r cross_language/requirements.in

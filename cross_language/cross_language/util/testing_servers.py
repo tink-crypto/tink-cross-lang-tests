@@ -16,13 +16,14 @@
 import os
 import subprocess
 import time
-
 from typing import List, Optional, Type, TypeVar
+
 from absl import logging
 import grpc
 import portpicker
 import tink
 
+from runfiles import Runfiles
 from tink.proto import tink_pb2
 from cross_language.util import _primitives
 from protos import testing_api_pb2
@@ -73,18 +74,18 @@ GCP_KEY_URI_PREFIX = (
 AWS_KEY_URI_PREFIX = 'aws-kms://arn:aws:kms:us-east-2:235739564943:'
 HCVAULT_KEY_URI_PREFIX = 'hcvault://127.0.0.1:8200/'
 
-GCP_CREDENTIALS_PATH = os.path.join(
-    os.environ['TEST_SRCDIR'] if 'TEST_SRCDIR' in os.environ else '',
-    'cross_language_test/testdata/gcp/credential.json')
-AWS_CREDENTIALS_INI_PATH = os.path.join(
-    os.environ['TEST_SRCDIR'] if 'TEST_SRCDIR' in os.environ else '',
-    'cross_language_test/testdata/aws/credentials.ini')
-AWS_CREDENTIALS_CRED_PATH = os.path.join(
-    os.environ['TEST_SRCDIR'] if 'TEST_SRCDIR' in os.environ else '',
-    'cross_language_test/testdata/aws/credentials.cred')
+GCP_CREDENTIALS_PATH = 'gcp/credential.json'
+AWS_CREDENTIALS_INI_PATH = 'aws/credentials.ini'
+AWS_CREDENTIALS_CRED_PATH = 'aws/credentials.cred'
+
 HCVAULT_TOKEN = os.environ['VAULT_TOKEN'] if 'VAULT_TOKEN' in os.environ else ''
 
-_RELATIVE_ROOT_PATH = 'tink_base/testing'
+_TESTDATA_ROOT_PATH = 'cross_language_test/testdata'
+_TESTING_SERVERS_ROOT = 'tink_base/testing'
+
+
+def _get_resource_path(path: str) -> str:
+  return Runfiles.Create().Rlocation(path)
 
 
 def _root_path() -> str:
@@ -112,9 +113,7 @@ def _root_path() -> str:
     return _check_path_exists_or_fail(os.environ['TINK_CROSS_LANG_ROOT_PATH'],
                                       'TINK_CROSS_LANG_ROOT_PATH')
   if 'TEST_SRCDIR' in os.environ:
-    return _check_path_exists_or_fail(
-        os.path.join(os.environ['TEST_SRCDIR'], _RELATIVE_ROOT_PATH),
-        'TEST_SRCDIR')
+    return _TESTING_SERVERS_ROOT
 
   raise ValueError('No root path environment variable set')
 
@@ -123,9 +122,11 @@ def _server_path(lang: str) -> str:
   """Returns the path where the server binary is located."""
   root_dir = _root_path()
   for relative_server_path in _SERVER_PATHS[lang]:
-    server_path = os.path.join(root_dir, relative_server_path)
+    server_path = _get_resource_path(
+        os.path.join(root_dir, relative_server_path)
+    )
     logging.info('try path: %s', server_path)
-    if os.path.exists(server_path):
+    if server_path and os.path.exists(server_path):
       return server_path
   raise RuntimeError('Executable for lang %s not found' % lang)
 
@@ -134,16 +135,31 @@ def _server_cmd(lang: str, port: int) -> List[str]:
   """Returns the server command."""
   if lang == 'java':
     # Java expects a .cred file. Others a .ini file.
-    aws_credentials_path = AWS_CREDENTIALS_CRED_PATH
+    aws_credentials_path = _get_resource_path(
+        os.path.join(_TESTDATA_ROOT_PATH, AWS_CREDENTIALS_CRED_PATH)
+    )
   else:
-    aws_credentials_path = AWS_CREDENTIALS_INI_PATH
+    aws_credentials_path = _get_resource_path(
+        os.path.join(_TESTDATA_ROOT_PATH, AWS_CREDENTIALS_INI_PATH)
+    )
+  if aws_credentials_path is None or not os.path.exists(aws_credentials_path):
+    raise RuntimeError(f'AWS credentials {aws_credentials_path} not found')
+
+  gcp_credentials_path = _get_resource_path(
+      os.path.join(_TESTDATA_ROOT_PATH, GCP_CREDENTIALS_PATH)
+  )
+  if gcp_credentials_path is None or not os.path.exists(gcp_credentials_path):
+    raise RuntimeError(f'GCP credentials {gcp_credentials_path} not found')
 
   server_path = _server_path(lang)
   # TODO(b/249015767): Refactor KMS integration to pass credentials via gRPC.
   server_args = [
       '--port',
-      '%d' % port, '--gcp_credentials_path', GCP_CREDENTIALS_PATH,
-      '--aws_credentials_path', aws_credentials_path
+      '%d' % port,
+      '--gcp_credentials_path',
+      gcp_credentials_path,
+      '--aws_credentials_path',
+      aws_credentials_path,
   ]
   if lang == 'go':
     # in all languages except go, the key URI parameters are optional.

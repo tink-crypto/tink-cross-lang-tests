@@ -1,5 +1,5 @@
 load("@pip_deps//:requirements.bzl", "requirement")
-load("@rules_proto_grpc//python:defs.bzl", "python_grpc_library")
+load("@rules_proto_grpc_python//:defs.bzl", "python_grpc_library")
 load("@rules_python//python:defs.bzl", "py_library")
 
 package(
@@ -63,6 +63,7 @@ py_library(
         "@tink_py//tink:tink_python",
         "@tink_py//tink/proto:tink_py_pb2",
         requirement("absl-py"),
+        requirement("bazel-runfiles"),
         "@org_python_pypi_portpicker//:portpicker",
     ],
 )
@@ -70,14 +71,12 @@ py_library(
 py_test(
     name = "testing_servers_test",
     srcs = ["testing_servers_test.py"],
-    data = [
-        ":testing_servers",
-    ],
     python_version = "PY3",
     srcs_version = "PY3",
     tags = ["notsan"],
     deps = [
         ":testing_api_python_library",
+        ":testing_servers",
         requirement("absl-py"),
         "//cross_language/util/test_keys",
         "@org_python_pypi_portpicker//:portpicker",

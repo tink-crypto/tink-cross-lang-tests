@@ -37,14 +37,6 @@ if [[ -n "${KOKORO_ROOT:-}" ]] ; then
 fi
 readonly IS_KOKORO
 
-readonly CROSS_LANG_TESTS_WORKSPACES=(
-  "cc"
-  "go"
-  "java_src"
-  "python"
-  "cross_language"
-)
-
 if [[ "${IS_KOKORO}" == "true" ]] ; then
   TINK_BASE_DIR="$(echo "${KOKORO_ARTIFACTS_DIR}"/git*)"
   cd "${TINK_BASE_DIR}/tink_cross_lang_tests"
@@ -87,13 +79,17 @@ readonly DEPS=(
 ./kokoro/testutils/fetch_git_repo_if_not_present.sh "${TINK_BASE_DIR}" \
   "${DEPS[@]}"
 
-# Run cleanup on EXIT.
-trap cleanup EXIT
+# A shared directory used to store build outputs produced by each Bazel project.
+readonly OUTPUT_DIR="$(mktemp -d -t tink-cross-lang-tests-bazel.XXXXXX)"
 
-cleanup() {
-  # Give ownership of the Bazel root folder to the current user.
-  sudo chown -R "$(id -un):$(id -gn)" bazel/
-}
+# When using containers, this is the destination of the bind mount of
+# OUTPUT_DIR.
+readonly BIND_DIR="/output"
+
+# The directory to place Bazel outputs into. When using containers, this has to
+# be a subdirectory of BIND_DIR to satisfy permission constraints.
+# TODO: b/418670044 - Handle local invocation properly.
+readonly OUTPUT_USER_ROOT="${BIND_DIR}/bazel"
 
 run() {
   local -r container_img="${1:-}"
@@ -103,31 +99,42 @@ run() {
     run_command_args+=( -k "${TINK_GCR_SERVICE_KEY}" )
   fi
   if [[ -n "${container_img:-}" ]]; then
-    run_command_args+=( -c "${container_img}" )
+    run_command_args+=(
+      -c "${container_img}"
+      -m "type=bind,src=${OUTPUT_DIR},dst=${BIND_DIR}"
+    )
   fi
   readonly run_command_args
   ./kokoro/testutils/docker_execute.sh "${run_command_args[@]}" "${command[@]}"
 }
 
-readonly OUTPUT_USER_ROOT="bazel"
-
 # Build test servers.
 if [[ "${IS_KOKORO}" == "true" ]] ; then
   # Make the key available to the build scripts running in the containers.
   cp "${TINK_REMOTE_BAZEL_CACHE_SERVICE_KEY}" cache_key
+
+  # Modify owner/permissions to facilitate bind mount.
+  chgrp kokoro "${OUTPUT_DIR}"
+  chmod 2755 "${OUTPUT_DIR}"
 fi
 
 echo "== BUILDING C++ SERVER =================================================="
-run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${CC_CONTAINER_IMAGE:-}" bash cc/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
+
 echo "== BUILDING GO SERVER ==================================================="
-run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh -o "${OUTPUT_USER_ROOT}"
+run "${GO_CONTAINER_IMAGE:-}" bash go/build_server.sh \
+  -o "${OUTPUT_USER_ROOT}"
+
 echo "== BUILDING JAVA SERVER ================================================="
 run "${JAVA_CONTAINER_IMAGE:-}" bash java_src/build_server.sh \
   -o "${OUTPUT_USER_ROOT}"
+
 echo "== BUILDING PYTHON SERVER ==============================================="
 run "${PY_CONTAINER_IMAGE:-}" bash python/build_server.sh \
   -o "${OUTPUT_USER_ROOT}"
 
+# Run tests.
 echo "== RUNNING CROSS LANGUAGE TESTS ========================================="
 run "${CROSS_LANG_CONTAINER_IMAGE:-}" bash cross_language/run_tests.sh \
   -o "${OUTPUT_USER_ROOT}"
