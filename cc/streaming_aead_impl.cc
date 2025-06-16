@@ -53,7 +53,7 @@ using ::crypto::tink::util::StatusOr;
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
               request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
-    response->set_err(std::string(streaming_aead_result.status().message()));
+    response->set_err(streaming_aead_result.status().message());
     return ::grpc::Status::OK;
   }
 
@@ -66,7 +66,7 @@ using ::crypto::tink::util::StatusOr;
       streaming_aead_result.value()->NewEncryptingStream(
           std::move(ciphertext_destination), request->associated_data());
   if (!encrypting_stream_result.ok()) {
-    response->set_err(std::string(encrypting_stream_result.status().message()));
+    response->set_err(encrypting_stream_result.status().message());
     return ::grpc::Status::OK;
   }
   auto encrypting_stream = std::move(encrypting_stream_result.value());
@@ -80,7 +80,7 @@ using ::crypto::tink::util::StatusOr;
   while (remaining > 0) {
     auto next_result = encrypting_stream->Next(&buffer);
     if (!next_result.ok()) {
-      response->set_err(std::string(next_result.status().message()));
+      response->set_err(next_result.status().message());
       return ::grpc::Status::OK;
     }
     available_space = next_result.value();
@@ -94,7 +94,7 @@ using ::crypto::tink::util::StatusOr;
   }
   auto close_status = encrypting_stream->Close();
   if (!close_status.ok()) {
-    response->set_err(std::string(close_status.message()));
+    response->set_err(close_status.message());
     return ::grpc::Status::OK;
   }
 
@@ -112,7 +112,7 @@ using ::crypto::tink::util::StatusOr;
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::StreamingAead>(
               request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
-    response->set_err(std::string(streaming_aead_result.status().message()));
+    response->set_err(streaming_aead_result.status().message());
     return ::grpc::Status::OK;
   }
 
@@ -125,7 +125,7 @@ using ::crypto::tink::util::StatusOr;
       streaming_aead_result.value()->NewDecryptingStream(
           std::move(ciphertext_source), request->associated_data());
   if (!decrypting_stream_result.ok()) {
-    response->set_err(std::string(decrypting_stream_result.status().message()));
+    response->set_err(decrypting_stream_result.status().message());
     return ::grpc::Status::OK;
   }
   auto decrypting_stream = std::move(decrypting_stream_result.value());
@@ -139,7 +139,7 @@ using ::crypto::tink::util::StatusOr;
       break;
     }
     if (!next_result.ok()) {
-      response->set_err(std::string(next_result.status().message()));
+      response->set_err(next_result.status().message());
       return ::grpc::Status::OK;
     }
     auto read_bytes = next_result.value();
