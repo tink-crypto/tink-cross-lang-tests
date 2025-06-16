@@ -43,12 +43,12 @@ using ::crypto::tink::util::StatusOr;
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Mac>(
           request->annotated_keyset());
   if (!mac_result.ok()) {
-    response->set_err(std::string(mac_result.status().message()));
+    response->set_err(mac_result.status().message());
     return ::grpc::Status::OK;
   }
   auto compute_result = mac_result.value()->ComputeMac(request->data());
   if (!compute_result.ok()) {
-    response->set_err(std::string(compute_result.status().message()));
+    response->set_err(compute_result.status().message());
     return ::grpc::Status::OK;
   }
   response->set_mac_value(compute_result.value());
@@ -63,13 +63,13 @@ using ::crypto::tink::util::StatusOr;
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Mac>(
           request->annotated_keyset());
   if (!mac_result.ok()) {
-    response->set_err(std::string(mac_result.status().message()));
+    response->set_err(mac_result.status().message());
     return ::grpc::Status::OK;
   }
   auto status =
       mac_result.value()->VerifyMac(request->mac_value(), request->data());
   if (!status.ok()) {
-    response->set_err(std::string(status.message()));
+    response->set_err(status.message());
     return ::grpc::Status::OK;
   }
   return ::grpc::Status::OK;

@@ -51,12 +51,12 @@ using ::crypto::tink::util::StatusOr;
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PublicKeySign>(
           request->private_annotated_keyset());
   if (!signer_result.ok()) {
-    response->set_err(std::string(signer_result.status().message()));
+    response->set_err(signer_result.status().message());
     return ::grpc::Status::OK;
   }
   auto sign_result = signer_result.value()->Sign(request->data());
   if (!sign_result.ok()) {
-    response->set_err(std::string(sign_result.status().message()));
+    response->set_err(sign_result.status().message());
     return ::grpc::Status::OK;
   }
   response->set_signature(sign_result.value());
@@ -71,13 +71,13 @@ using ::crypto::tink::util::StatusOr;
       verifier_result = PrimitiveFromSerializedBinaryProtoKeyset<
           crypto::tink::PublicKeyVerify>(request->public_annotated_keyset());
   if (!verifier_result.ok()) {
-    response->set_err(std::string(verifier_result.status().message()));
+    response->set_err(verifier_result.status().message());
     return ::grpc::Status::OK;
   }
   auto status =
       verifier_result.value()->Verify(request->signature(), request->data());
   if (!status.ok()) {
-    response->set_err(std::string(status.message()));
+    response->set_err(status.message());
     return ::grpc::Status::OK;
   }
   return ::grpc::Status::OK;

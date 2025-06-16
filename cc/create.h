@@ -69,7 +69,7 @@ grpc::Status CreatePrimitiveForRpc(const CreationRequest* request,
   crypto::tink::util::StatusOr<std::unique_ptr<T>> primitive =
       PrimitiveFromSerializedBinaryProtoKeyset<T>(request->annotated_keyset());
   if (!primitive.ok()) {
-    response->set_err(std::string(primitive.status().message()));
+    response->set_err(primitive.status().message());
   }
   return grpc::Status::OK;
 }

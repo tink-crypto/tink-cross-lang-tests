@@ -51,7 +51,7 @@ grpc::Status DeterministicAeadImpl::EncryptDeterministically(
   absl::StatusOr<std::string> ciphertext = (*daead)->EncryptDeterministically(
       request->plaintext(), request->associated_data());
   if (!ciphertext.ok()) {
-    response->set_err(std::string(ciphertext.status().message()));
+    response->set_err(ciphertext.status().message());
     return grpc::Status::OK;
   }
   response->set_ciphertext(*ciphertext);
@@ -73,7 +73,7 @@ grpc::Status DeterministicAeadImpl::DecryptDeterministically(
   absl::StatusOr<std::string> plaintext = (*daead)->DecryptDeterministically(
       request->ciphertext(), request->associated_data());
   if (!plaintext.ok()) {
-    response->set_err(std::string(plaintext.status().message()));
+    response->set_err(plaintext.status().message());
     return grpc::Status::OK;
   }
   response->set_plaintext(*plaintext);

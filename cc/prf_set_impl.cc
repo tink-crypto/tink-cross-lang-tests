@@ -44,7 +44,7 @@ using ::grpc::ServerContext;
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
-    response->set_err(std::string(prf_set_result.status().message()));
+    response->set_err(prf_set_result.status().message());
     return ::grpc::Status::OK;
   }
   auto* output = response->mutable_output();
@@ -63,7 +63,7 @@ using ::grpc::ServerContext;
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
-    response->set_err(std::string(prf_set_result.status().message()));
+    response->set_err(prf_set_result.status().message());
     return ::grpc::Status::OK;
   }
   auto prfs = prf_set_result.value()->GetPrfs();
@@ -75,7 +75,7 @@ using ::grpc::ServerContext;
   auto compute_result =
       prf_it->second->Compute(request->input_data(), request->output_length());
   if (!compute_result.ok()) {
-    response->set_err(std::string(compute_result.status().message()));
+    response->set_err(compute_result.status().message());
     return ::grpc::Status::OK;
   }
   response->set_output(compute_result.value());

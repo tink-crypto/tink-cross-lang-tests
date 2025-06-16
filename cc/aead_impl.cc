@@ -49,7 +49,7 @@ using ::crypto::tink::util::StatusOr;
   absl::StatusOr<std::string> ciphertext =
       (*aead)->Encrypt(request->plaintext(), request->associated_data());
   if (!ciphertext.ok()) {
-    response->set_err(std::string(ciphertext.status().message()));
+    response->set_err(ciphertext.status().message());
     return grpc::Status::OK;
   }
   response->set_ciphertext(*ciphertext);
@@ -71,7 +71,7 @@ grpc::Status AeadImpl::Decrypt(grpc::ServerContext* context,
   absl::StatusOr<std::string> plaintext =
       (*aead)->Decrypt(request->ciphertext(), request->associated_data());
   if (!plaintext.ok()) {
-    response->set_err(std::string(plaintext.status().message()));
+    response->set_err(plaintext.status().message());
     return grpc::Status::OK;
   }
   response->set_plaintext(*plaintext);

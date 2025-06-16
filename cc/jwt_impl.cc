@@ -236,18 +236,18 @@ grpc::Status JwtImpl::ComputeMacAndEncode(grpc::ServerContext* context,
       PrimitiveFromSerializedBinaryProtoKeyset<JwtMac>(
           request->annotated_keyset());
   if (!jwt_mac.ok()) {
-    response->set_err(std::string(jwt_mac.status().message()));
+    response->set_err(jwt_mac.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<RawJwt> raw_jwt = RawJwtFromProto(request->raw_jwt());
   if (!raw_jwt.ok()) {
-    response->set_err(std::string(raw_jwt.status().message()));
+    response->set_err(raw_jwt.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<std::string> compact =
       (*jwt_mac)->ComputeMacAndEncode(*raw_jwt);
   if (!compact.ok()) {
-    response->set_err(std::string(compact.status().message()));
+    response->set_err(compact.status().message());
     return grpc::Status::OK;
   }
   response->set_signed_compact_jwt(*compact);
@@ -262,7 +262,7 @@ grpc::Status JwtImpl::VerifyMacAndDecode(grpc::ServerContext* context,
       PrimitiveFromSerializedBinaryProtoKeyset<JwtMac>(
           request->annotated_keyset());
   if (!jwt_mac.ok()) {
-    response->set_err(std::string(jwt_mac.status().message()));
+    response->set_err(jwt_mac.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<crypto::tink::JwtValidator> validator =
@@ -270,7 +270,7 @@ grpc::Status JwtImpl::VerifyMacAndDecode(grpc::ServerContext* context,
   absl::StatusOr<VerifiedJwt> verified_jwt =
       (*jwt_mac)->VerifyMacAndDecode(request->signed_compact_jwt(), *validator);
   if (!verified_jwt.ok()) {
-    response->set_err(std::string(verified_jwt.status().message()));
+    response->set_err(verified_jwt.status().message());
     return grpc::Status::OK;
   }
   *response->mutable_verified_jwt() = VerifiedJwtToProto(*verified_jwt);
@@ -284,17 +284,17 @@ grpc::Status JwtImpl::PublicKeySignAndEncode(grpc::ServerContext* context,
       PrimitiveFromSerializedBinaryProtoKeyset<JwtPublicKeySign>(
           request->annotated_keyset());
   if (!jwt_sign.ok()) {
-    response->set_err(std::string(jwt_sign.status().message()));
+    response->set_err(jwt_sign.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<RawJwt> raw_jwt = RawJwtFromProto(request->raw_jwt());
   if (!raw_jwt.ok()) {
-    response->set_err(std::string(raw_jwt.status().message()));
+    response->set_err(raw_jwt.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<std::string> compact = (*jwt_sign)->SignAndEncode(*raw_jwt);
   if (!compact.ok()) {
-    response->set_err(std::string(compact.status().message()));
+    response->set_err(compact.status().message());
     return grpc::Status::OK;
   }
   response->set_signed_compact_jwt(*compact);
@@ -308,7 +308,7 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
       PrimitiveFromSerializedBinaryProtoKeyset<JwtPublicKeyVerify>(
           request->annotated_keyset());
   if (!jwt_verify.ok()) {
-    response->set_err(std::string(jwt_verify.status().message()));
+    response->set_err(jwt_verify.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<crypto::tink::JwtValidator> validator =
@@ -316,7 +316,7 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
   absl::StatusOr<VerifiedJwt> verified_jwt =
       (*jwt_verify)->VerifyAndDecode(request->signed_compact_jwt(), *validator);
   if (!verified_jwt.ok()) {
-    response->set_err(std::string(verified_jwt.status().message()));
+    response->set_err(verified_jwt.status().message());
     return grpc::Status::OK;
   }
   *response->mutable_verified_jwt() = VerifiedJwtToProto(*verified_jwt);
@@ -329,18 +329,18 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
   absl::StatusOr<std::unique_ptr<KeysetReader>> reader =
       BinaryKeysetReader::New(request->keyset());
   if (!reader.ok()) {
-    response->set_err(std::string(reader.status().message()));
+    response->set_err(reader.status().message());
     return ::grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<::crypto::tink::KeysetHandle>> handle =
       CleartextKeysetHandle::Read(*std::move(reader));
   if (!handle.ok()) {
-    response->set_err(std::string(handle.status().message()));
+    response->set_err(handle.status().message());
     return ::grpc::Status::OK;
   }
   absl::StatusOr<std::string> jwk_set = JwkSetFromPublicKeysetHandle(**handle);
   if (!jwk_set.ok()) {
-    response->set_err(std::string(jwk_set.status().message()));
+    response->set_err(jwk_set.status().message());
     return ::grpc::Status::OK;
   }
   response->set_jwk_set(*jwk_set);
@@ -353,20 +353,20 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
   absl::StatusOr<std::unique_ptr<::crypto::tink::KeysetHandle>> keyset_handle =
       JwkSetToPublicKeysetHandle(request->jwk_set());
   if (!keyset_handle.ok()) {
-    response->set_err(std::string(keyset_handle.status().message()));
+    response->set_err(keyset_handle.status().message());
     return ::grpc::Status::OK;
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<crypto::tink::BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
-    response->set_err(std::string(writer.status().message()));
+    response->set_err(writer.status().message());
     return ::grpc::Status::OK;
   }
   absl::Status status =
       CleartextKeysetHandle::Write(writer->get(), **keyset_handle);
   if (!status.ok()) {
-    response->set_err(std::string(status.message()));
+    response->set_err(status.message());
     return ::grpc::Status::OK;
   }
   response->set_keyset(keyset.str());

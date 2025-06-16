@@ -50,13 +50,13 @@ grpc::Status KeysetDeriverImpl::DeriveKeyset(
   absl::StatusOr<std::unique_ptr<KeysetReader>> reader =
       BinaryKeysetReader::New(request->annotated_keyset().serialized_keyset());
   if (!reader.ok()) {
-    response->set_err(std::string(reader.status().message()));
+    response->set_err(reader.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<KeysetHandle>> keyset_handle =
       CleartextKeysetHandle::Read(std::move(*reader));
   if (!keyset_handle.ok()) {
-    response->set_err(std::string(keyset_handle.status().message()));
+    response->set_err(keyset_handle.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<crypto::tink::KeysetDeriver>> deriver =
@@ -64,26 +64,26 @@ grpc::Status KeysetDeriverImpl::DeriveKeyset(
           ->GetPrimitive<crypto::tink::KeysetDeriver>(
               crypto::tink::ConfigGlobalRegistry());
   if (!deriver.ok()) {
-    response->set_err(std::string(deriver.status().message()));
+    response->set_err(deriver.status().message());
     return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<KeysetHandle>> derived_keyset_handle =
       (*deriver)->DeriveKeyset(request->salt());
   if (!derived_keyset_handle.ok()) {
-    response->set_err(std::string(derived_keyset_handle.status().message()));
+    response->set_err(derived_keyset_handle.status().message());
     return grpc::Status::OK;
   }
   std::stringbuf derived_keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(std::make_unique<std::ostream>(&derived_keyset));
   if (!writer.ok()) {
-    response->set_err(std::string(writer.status().message()));
+    response->set_err(writer.status().message());
     return grpc::Status::OK;
   }
   Status status =
       CleartextKeysetHandle::Write((*writer).get(), **derived_keyset_handle);
   if (!status.ok()) {
-    response->set_err(std::string(status.message()));
+    response->set_err(status.message());
     return grpc::Status::OK;
   }
   response->set_derived_keyset(derived_keyset.str());

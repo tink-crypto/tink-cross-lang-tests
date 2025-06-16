@@ -51,13 +51,13 @@ using ::crypto::tink::util::StatusOr;
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridEncrypt>(
               request->public_annotated_keyset());
   if (!hybrid_encrypt_result.ok()) {
-    response->set_err(std::string(hybrid_encrypt_result.status().message()));
+    response->set_err(hybrid_encrypt_result.status().message());
     return ::grpc::Status::OK;
   }
   auto enc_result = hybrid_encrypt_result.value()->Encrypt(
       request->plaintext(), request->context_info());
   if (!enc_result.ok()) {
-    response->set_err(std::string(enc_result.status().message()));
+    response->set_err(enc_result.status().message());
     return ::grpc::Status::OK;
   }
   response->set_ciphertext(enc_result.value());
@@ -73,13 +73,13 @@ using ::crypto::tink::util::StatusOr;
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridDecrypt>(
               request->private_annotated_keyset());
   if (!hybrid_decrypt_result.ok()) {
-    response->set_err(std::string(hybrid_decrypt_result.status().message()));
+    response->set_err(hybrid_decrypt_result.status().message());
     return ::grpc::Status::OK;
   }
   auto dec_result = hybrid_decrypt_result.value()->Decrypt(
       request->ciphertext(), request->context_info());
   if (!dec_result.ok()) {
-    response->set_err(std::string(dec_result.status().message()));
+    response->set_err(dec_result.status().message());
     return ::grpc::Status::OK;
   }
   response->set_plaintext(dec_result.value());
