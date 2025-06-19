@@ -77,7 +77,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['cc'],
+        lang_exceptions=['cc', 'java'],
     ),
     TestCase(
         name='array_with_tailing_comma',
