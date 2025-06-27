@@ -1,4 +1,4 @@
-"""Tink testing_python Bazel module extensions."""
+"""Tink cross_language_test Bazel module extensions."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
