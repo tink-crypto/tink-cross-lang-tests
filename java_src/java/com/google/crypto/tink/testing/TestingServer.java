@@ -17,6 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.aead.AeadConfig;
+import com.google.crypto.tink.config.GlobalTinkFlags;
 import com.google.crypto.tink.daead.DeterministicAeadConfig;
 import com.google.crypto.tink.hybrid.HybridConfig;
 import com.google.crypto.tink.jwt.JwtMacConfig;
@@ -64,6 +65,8 @@ public final class TestingServer {
   private String hcvaultToken;
 
   public void run() throws InterruptedException, GeneralSecurityException, IOException {
+    // This should be removed once validateKeysetsOnParsing = true is the default.
+    GlobalTinkFlags.validateKeysetsOnParsing.setValue(true);
     installConscrypt();
     AeadConfig.register();
     DeterministicAeadConfig.register();

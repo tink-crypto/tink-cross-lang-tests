@@ -113,6 +113,7 @@ java_binary(
         "@maven//:io_grpc_grpc_api",
         "@maven//:org_conscrypt_conscrypt_openjdk_uber",
         "@tink_java//src/main/java/com/google/crypto/tink/aead:aead_config",
+        "@tink_java//src/main/java/com/google/crypto/tink/config:global_tink_flags",
         "@tink_java//src/main/java/com/google/crypto/tink/daead:deterministic_aead_config",
         "@tink_java//src/main/java/com/google/crypto/tink/hybrid:hybrid_config",
         "@tink_java//src/main/java/com/google/crypto/tink/jwt:jwt_mac_config",

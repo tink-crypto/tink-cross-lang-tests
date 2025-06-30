@@ -136,7 +136,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['java', 'cc'],
+        lang_exceptions=['cc'],
     ),
     TestCase(
         name='multiple_primary_keys',
@@ -166,7 +166,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['java', 'cc'],
+        lang_exceptions=['cc'],
     ),
     TestCase(
         name='keys_with_the_same_id',
@@ -206,7 +206,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['go', 'java', 'cc', 'python'],
+        lang_exceptions=['go', 'cc', 'python'],
     ),
     TestCase(
         name='with_duplicate_map_key',
