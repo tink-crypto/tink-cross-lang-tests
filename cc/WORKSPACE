@@ -2,22 +2,12 @@ workspace(name = "testing_cc")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Needed by com_github_grpc_grpc; Matches
-# https://github.com/grpc/grpc/blob/v1.65.5/bazel/grpc_deps.bzl#L58
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "387478260190c540388839a3449c635a69708d92fc38ea6e2364b1196db90ea5",
-    strip_prefix = "protobuf-2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5",
-    urls = [
-        # https://github.com/protocolbuffers/protobuf/commits/v26.1
-        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/protocolbuffers/protobuf/archive/2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/archive/2434ef2adf0c74149b9d547ac5fb545a1ff8b6b5.tar.gz",
-    ],
-    patches = [
-        "@com_github_grpc_grpc//third_party:protobuf.patch",
-        "@com_github_grpc_grpc//third_party:protobuf.10007.patch",
-    ],
-    patch_args = ["-p1"],
+    repo_mapping = {"@abseil-cpp": "@com_google_absl"},
+    sha256 = "6544e5ceec7f29d00397193360435ca8b3c4e843de3cf5698a99d36b72d65342",
+    strip_prefix = "protobuf-30.2",
+    urls = ["https://github.com/protocolbuffers/protobuf/releases/download/v30.2/protobuf-30.2.zip"],
 )
 
 local_repository(
@@ -28,11 +18,6 @@ local_repository(
 local_repository(
     name = "tink_cc_gcpkms",
     path = "../../tink_cc_gcpkms",
-)
-
-local_repository(
-    name = "tink_cc_awskms",
-    path = "../../tink_cc_awskms",
 )
 
 load("@tink_cc_gcpkms//:tink_cc_gcpkms_deps.bzl", "tink_cc_gcpkms_deps")
@@ -46,10 +31,6 @@ tink_cc_deps()
 load("@tink_cc_gcpkms//:tink_cc_gcpkms_deps_init.bzl", "tink_cc_gcpkms_deps_init")
 
 tink_cc_gcpkms_deps_init()
-
-load("@tink_cc_awskms//:tink_cc_awskms_deps.bzl", "tink_cc_awskms_deps")
-
-tink_cc_awskms_deps()
 
 # Release from 2023-09-12.
 http_archive(
