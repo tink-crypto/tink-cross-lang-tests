@@ -73,6 +73,16 @@ def x_aes_gcm_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
         valid=valid,
     )
+
+  yield test_key.TestKey(
+      test_name='TINK key with 0 key_id',
+      type_url='type.googleapis.com/google.crypto.tink.XAesGcmKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.TINK,
+      key_id=0,
+      valid=True,
+  )
   yield test_key.TestKey(
       test_name='RAW key',
       type_url='type.googleapis.com/google.crypto.tink.XAesGcmKey',

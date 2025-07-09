@@ -66,6 +66,17 @@ def xchacha20_poly1305_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
   yield test_key.TestKey(
+      test_name='TINK key with 0 key_id',
+      type_url=_TYPE_URL,
+      serialized_value=xchacha20_poly1305_pb2.XChaCha20Poly1305Key(
+          key_value=os.urandom(32)
+      ).SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.TINK,
+      key_id=0,
+      valid=True,
+  )
+  yield test_key.TestKey(
       test_name='RAW key',
       type_url=_TYPE_URL,
       serialized_value=xchacha20_poly1305_pb2.XChaCha20Poly1305Key(

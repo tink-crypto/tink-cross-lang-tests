@@ -63,6 +63,15 @@ def aes_gcm_keys() -> Iterator[test_key.TestKey]:
     )
 
   yield test_key.TestKey(
+      test_name='TINK key with 0 key_id',
+      type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
+      serialized_value=_basic_key().SerializeToString(),
+      key_material_type=tink_pb2.KeyData.KeyMaterialType.SYMMETRIC,
+      output_prefix_type=tink_pb2.OutputPrefixType.TINK,
+      key_id=0,
+      valid=True,
+  )
+  yield test_key.TestKey(
       test_name='CRUNCHY key',
       type_url='type.googleapis.com/google.crypto.tink.AesGcmKey',
       serialized_value=_basic_key().SerializeToString(),
