@@ -22,6 +22,10 @@ readonly TESTING_SERVER_DIR="$(dirname "${0}")"
 
 (
   cd "${TESTING_SERVER_DIR}"
+  # We run go mod tidy in diff mode here to output the required changes to
+  # go.mod and go.sum. In case of a testing error "updates to go.mod needed"
+  # the diff output can be used to update the files.
+  go mod tidy -diff
   go build -o testing_server testing_server.go
 
   # Run all tests.
