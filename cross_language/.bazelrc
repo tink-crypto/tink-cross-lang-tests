@@ -9,3 +9,6 @@ build --cxxopt='-std=c++17' --host_cxxopt='-std=c++17'
 # in project code.
 build --per_file_copt=external/.*@-w
 build --host_per_file_copt=external/.*@-w
+
+# https://github.com/bazel-contrib/rules_python/issues/2947
+common --incompatible_default_to_explicit_init_py

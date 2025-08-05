@@ -51,10 +51,6 @@ LANGUAGES = list(_SERVER_PATHS.keys())
 KEYSET_READER_WRITER_TYPES = [('KEYSET_READER_BINARY', 'KEYSET_WRITER_BINARY'),
                               ('KEYSET_READER_JSON', 'KEYSET_WRITER_JSON')]
 
-# location of the testing_server java binary, relative to the root folder where
-# all the server are located.
-_JAVA_PATH = ('java_src/bazel-bin/testing_server.runfiles/local_jdk/bin/java')
-
 SUPPORTED_LANGUAGES_BY_PRIMITIVE = {
     'aead': ['cc', 'go', 'java', 'python'],
     'daead': ['cc', 'go', 'java', 'python'],
@@ -173,8 +169,7 @@ def _server_cmd(lang: str, port: int) -> List[str]:
     server_args.extend(['--hcvault_token', HCVAULT_TOKEN])
 
   if lang == 'java' and server_path.endswith('.jar'):
-    java_path = os.path.join(_root_path(), _JAVA_PATH)
-    return [java_path, '-jar', server_path] + server_args
+    return ['java', '-jar', server_path] + server_args
   else:
     return [server_path] + server_args
 

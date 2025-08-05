@@ -70,7 +70,6 @@ readonly TEST_OPTIONS=( --test_output=errors )
   cd "${TESTING_SERVER_DIR}"
   time bazelisk "${BAZEL_STARTUP_OPTS[@]}" build "${CACHE_OPTS[@]}" -- ... \
     //:testing_server_deploy.jar
-  # Run tests.
   time bazelisk "${BAZEL_STARTUP_OPTS[@]}" test "${CACHE_OPTS[@]}" \
     "${TEST_OPTIONS[@]}" -- ...
 )
