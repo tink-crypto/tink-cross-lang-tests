@@ -135,11 +135,10 @@ def _proto_keys() -> (
   yield ('basic ES512 key', True, _basic_es512_key())
 
 
-def _create_b316869725_keys() -> (
+def _create_mismatched_keys() -> (
     Iterator[Tuple[str, bool, jwt_ecdsa_pb2.JwtEcdsaPrivateKey]]
 ):
-  """Returns triples (name, validity, proto) affected by b/316869725."""
-
+  """Returns triples (name, validity, proto) with mismatched key values."""
   key = _basic_es512_key()
   key.public_key.algorithm = jwt_ecdsa_pb2.JwtEcdsaAlgorithm.ES256
   yield ('ES256 key with P521 point (invalid)', False, key)
@@ -165,14 +164,13 @@ def jwt_ecdsa_private_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
 
-  for (name, valid, key_proto) in _create_b316869725_keys():
+  for (name, valid, key_proto) in _create_mismatched_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PRIVATE_TYPE_URL,
         serialized_value=key_proto.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=valid,
-        tags=['b/316869725'],
     )
 
 
@@ -188,8 +186,7 @@ def jwt_ecdsa_public_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
 
-  # Public keys are not affected by b/316869725 so we don't even tag them.
-  for (name, valid, key_proto) in _create_b316869725_keys():
+  for (name, valid, key_proto) in _create_mismatched_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PUBLIC_TYPE_URL,

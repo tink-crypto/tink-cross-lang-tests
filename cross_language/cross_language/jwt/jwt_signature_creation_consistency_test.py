@@ -52,7 +52,7 @@ def signature_public_keys() -> Iterator[test_key.TestKey]:
 
 
 class CreationConsistencyTest(absltest.TestCase):
-  """Tests creation consistency of Mac implementations in different languages.
+  """Tests creation consistency of JWT signature implementations across implementations.
 
   See https://developers.google.com/tink/design/consistency.
   """
@@ -62,8 +62,6 @@ class CreationConsistencyTest(absltest.TestCase):
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
         supported = key.supported_in(lang)
-        if lang == 'go' and 'b/316869725' in key.tags():
-          supported = True
         with self.subTest(f'{lang}, {key} ({supported})'):
           keyset = key.as_serialized_keyset()
           if supported:
