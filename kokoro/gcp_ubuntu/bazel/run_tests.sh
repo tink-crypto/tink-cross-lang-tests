@@ -29,6 +29,12 @@
 # The user may specify TINK_BASE_DIR as the folder where to look for
 # tink-cross-lang-tests and its dependencies, which are fetched from GitHub if
 # not found.
+
+# Generated with openssl rand -hex 10
+echo "==========================================================================="
+echo "Tink Script ID: 43aa44d054277223f502 (to quickly find the script from logs)"
+echo "==========================================================================="
+
 set -eEuo pipefail
 
 IS_KOKORO="false"

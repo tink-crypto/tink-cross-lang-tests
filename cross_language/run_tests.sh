@@ -16,6 +16,11 @@
 
 # Run the cross language tests.
 
+# Generated with openssl rand -hex 10
+echo "==========================================================================="
+echo "Tink Script ID: 9a3cd47b24cc6b576ca9 (to quickly find the script from logs)"
+echo "==========================================================================="
+
 set -euo pipefail
 
 readonly GCS_URL="https://storage.googleapis.com"
