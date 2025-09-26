@@ -66,7 +66,7 @@ readonly TEST_OPTIONS=( --test_output=errors )
 
 (
   set -x
-
+  export ANDROID_HOME=/android-sdk-30
   cd "${TESTING_SERVER_DIR}"
   time bazelisk "${BAZEL_STARTUP_OPTS[@]}" build "${CACHE_OPTS[@]}" -- ... \
     //:testing_server_deploy.jar
