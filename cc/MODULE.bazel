@@ -1,0 +1,53 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module(name = "tink_testing_cc")
+
+bazel_dep(
+    name = "rules_cc",
+    version = "0.2.9",
+)
+bazel_dep(
+    name = "abseil-cpp",
+    version = "20250814.1",
+)
+bazel_dep(name = "tink_cc")
+bazel_dep(name = "tink_cc_gcpkms")
+bazel_dep(
+    name = "protobuf",
+    version = "30.1",
+    repo_name = "com_google_protobuf",
+)
+bazel_dep(
+    name = "rules_proto_grpc",
+    version = "5.7.1",
+)
+bazel_dep(
+    name = "rules_proto_grpc_cpp",
+    version = "5.7.1",
+)
+bazel_dep(
+    name = "googletest",
+    version = "1.17.0",
+)
+
+local_path_override(
+    module_name = "tink_cc",
+    path = "../../tink_cc",
+)
+
+local_path_override(
+    module_name = "tink_cc_gcpkms",
+    path = "../../tink_cc_gcpkms",
+)

@@ -1,8 +1,8 @@
-load("@rules_proto_grpc//cpp:defs.bzl", "cpp_grpc_library")
+load("@rules_proto_grpc_cpp//:defs.bzl", "cpp_grpc_library")
 
 package(
     default_testonly = 1,
-    default_visibility = ["//visibility:public"],
+    default_visibility = ["//visibility:private"],
 )
 
 licenses(["notice"])
@@ -19,7 +19,7 @@ cc_library(
     hdrs = ["metadata_impl.h"],
     deps = [
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:version",
     ],
 )
@@ -30,7 +30,7 @@ cc_test(
     deps = [
         ":metadata_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
     ],
 )
 
@@ -40,8 +40,8 @@ cc_library(
     hdrs = ["keyset_impl.h"],
     deps = [
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
-        "@com_google_absl//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/base:core_headers",
+        "@abseil-cpp//absl/container:flat_hash_map",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
@@ -65,7 +65,7 @@ cc_test(
     deps = [
         ":keyset_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:json_keyset_reader",
@@ -84,7 +84,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
     ],
@@ -96,7 +96,7 @@ cc_test(
     deps = [
         ":aead_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink/aead:aead_config",
         "@tink_cc//tink/aead:aead_key_templates",
@@ -110,7 +110,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -123,7 +123,7 @@ cc_test(
     deps = [
         ":deterministic_aead_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/daead:deterministic_aead_config",
@@ -138,8 +138,8 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
-        "@com_google_absl//absl/status",
+        "@abseil-cpp//absl/base:core_headers",
+        "@abseil-cpp//absl/status",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -155,7 +155,7 @@ cc_test(
     deps = [
         ":streaming_aead_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink/streamingaead:streaming_aead_config",
         "@tink_cc//tink/streamingaead:streaming_aead_key_templates",
@@ -169,7 +169,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -182,7 +182,7 @@ cc_test(
     deps = [
         ":mac_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/mac:mac_config",
@@ -197,7 +197,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -211,7 +211,7 @@ cc_test(
     deps = [
         ":hybrid_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink/hybrid:hybrid_config",
         "@tink_cc//tink/hybrid:hybrid_key_templates",
@@ -225,7 +225,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -238,7 +238,7 @@ cc_test(
     deps = [
         ":signature_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink/signature:signature_config",
         "@tink_cc//tink/signature:signature_key_templates",
@@ -252,7 +252,7 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
+        "@abseil-cpp//absl/base:core_headers",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:tink_cc",
@@ -265,7 +265,7 @@ cc_test(
     deps = [
         ":prf_set_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/prf:prf_config",
@@ -280,8 +280,8 @@ cc_library(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
-        "@com_google_absl//absl/time",
+        "@abseil-cpp//absl/base:core_headers",
+        "@abseil-cpp//absl/time",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
@@ -301,7 +301,7 @@ cc_test(
     deps = [
         ":jwt_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink/jwt:jwt_key_templates",
@@ -333,7 +333,7 @@ cc_test(
     deps = [
         ":keyset_deriver_impl",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink/config:tink_config",
         "@tink_cc//tink/keyderivation:key_derivation_config",
         "@tink_cc//tink/util:test_matchers",
@@ -345,7 +345,7 @@ cc_library(
     hdrs = ["create.h"],
     deps = [
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/container:flat_hash_map",
         "@tink_cc//tink:binary_keyset_reader",
         "@tink_cc//tink:cleartext_keyset_handle",
         "@tink_cc//tink:keyset_handle",
@@ -359,7 +359,7 @@ cc_test(
     deps = [
         ":create",
         ":testing_api_cpp_library",
-        "@com_google_googletest//:gtest_main",
+        "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:keyset_handle",
         "@tink_cc//tink:mac",
@@ -384,10 +384,10 @@ cc_binary(
         ":signature_impl",
         ":streaming_aead_impl",
         ":testing_api_cpp_library",
-        "@com_google_absl//absl/base:core_headers",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/base:core_headers",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
+        "@abseil-cpp//absl/strings",
         "@tink_cc//tink/config:tink_config",
         "@tink_cc//tink/hybrid:hpke_config",
         "@tink_cc//tink/jwt:jwt_mac_config",
