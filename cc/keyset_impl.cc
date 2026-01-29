@@ -133,7 +133,7 @@ KeysetImpl::KeysetImpl() {
   key_templates_["ECDSA_P256_RAW"] =
       crypto::tink::SignatureKeyTemplates::EcdsaP256Raw();
   key_templates_["ECDSA_P384"] =
-      crypto::tink::SignatureKeyTemplates::EcdsaP384();
+      crypto::tink::SignatureKeyTemplates::EcdsaP384Sha512();
   key_templates_["ECDSA_P384_SHA384"] =
       crypto::tink::SignatureKeyTemplates::EcdsaP384Sha384();
   key_templates_["ECDSA_P384_SHA512"] =
