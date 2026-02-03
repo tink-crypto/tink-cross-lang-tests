@@ -42,6 +42,15 @@ bazel_dep(
     version = "1.17.0",
 )
 
+# We explicitly declare grpc so we can patch it. Note: once grpc has
+# https://github.com/grpc/grpc/commit/d54219b508423f0a2ff6a0b98c16fb6dafd44b84 we can remove the
+#dependency on grpc here (since it's indirect)
+bazel_dep(
+    name = "grpc",
+    version = "1.74.1",
+    repo_name = "com_github_grpc_grpc",
+)
+
 local_path_override(
     module_name = "tink_cc",
     path = "../../tink_cc",
@@ -50,4 +59,11 @@ local_path_override(
 local_path_override(
     module_name = "tink_cc_gcpkms",
     path = "../../tink_cc_gcpkms",
+)
+
+single_version_override(
+    module_name = "grpc",
+    patch_strip = 1,
+    patches = ["//:grpc.patch"],
+    version = "1.74.1",
 )
