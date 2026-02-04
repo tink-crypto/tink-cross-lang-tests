@@ -8,7 +8,7 @@
 **Test**                        | **GCP Ubuntu**
 ------------------------------- | --------------
 Cross Language Tests (no KMS)   | [![Bazel_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
-Cross Language Tests (KMS-only) | [![Bazel_Kms_GcpUbuntu][tink_cross_lang_tests_bazel_badge_gcp_ubuntu]](#)
+Cross Language Tests (KMS-only) | [![Bazel_Kms_GcpUbuntu][tink_cross_lang_tests_bazel_kms_badge_gcp_ubuntu]](#)
 
 Cross language tests between the Tink implementations in each language.
 
