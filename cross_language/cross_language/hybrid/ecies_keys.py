@@ -113,6 +113,29 @@ def _basic_p256_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
   )
 
 
+def _invalid_long_p256_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
+  return ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey(
+      version=0,
+      public_key=ecies_aead_hkdf_pb2.EciesAeadHkdfPublicKey(
+          version=0,
+          params=ecies_aead_hkdf_pb2.EciesAeadHkdfParams(
+              kem_params=ecies_aead_hkdf_pb2.EciesHkdfKemParams(
+                  curve_type=common_pb2.EllipticCurveType.NIST_P256,
+                  hkdf_hash_type=common_pb2.HashType.SHA1,
+                  hkdf_salt=b'',
+              ),
+              dem_params=ecies_aead_hkdf_pb2.EciesAeadDemParams(
+                  aead_dem=utilities.KEY_TEMPLATE['AES128_GCM']
+              ),
+              ec_point_format=common_pb2.EcPointFormat.COMPRESSED,
+          ),
+          x=_p256_point_x(),
+          y=_p256_point_y(),
+      ),
+      key_value=b'\x11' + _p256_private_value(),
+  )
+
+
 def _basic_p384_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
   return ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey(
       version=0,
@@ -340,6 +363,16 @@ def ecies_private_keys() -> Iterator[test_key.TestKey]:
         serialized_value=wrong_version_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=False,
+    )
+
+    # Invalid key
+    yield test_key.TestKey(
+        test_name='Invalid key with too long private key',
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=_invalid_long_p256_key().SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        valid=False,
+        tags=['b/480094023'],
     )
 
   # Proto-Unparseable value
