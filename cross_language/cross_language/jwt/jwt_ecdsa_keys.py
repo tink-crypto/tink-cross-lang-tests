@@ -47,6 +47,25 @@ def _p256_private_value() -> bytes:
   )
 
 
+def _p256_values_short_private_key() -> Tuple[bytes, bytes, bytes]:
+  """Returns a private/public keys pair, where the private key is 31 bytes long.
+
+  These values come from the C++ unit test named
+  EcdsaPrivateKeyTest.CreatePrivateKeyWithOneTooFewBytes.
+  """
+  x = binascii.unhexlify(
+      '9031a2a43467ed31a8de8e2b28861c0ca5605ff4443c3dbea0bd47ebb65a02ae'
+  )
+  y = binascii.unhexlify(
+      '8d094fc9fa9b328ca3060802045d5c5f6b0a51a432a844a7f0f3dbf9de039f43'
+  )
+
+  private_key = binascii.unhexlify(
+      '0a11c3c4ed77aa0d6fc34ee0f91d5970ff22619cc2583cf51bc5654ec9400d'
+  )
+  return (x, y, private_key)
+
+
 def _p384_point_x() -> bytes:
   """All points are obtained from Java (see EciesAeadHkdfTestUtil.java)."""
   return binascii.unhexlify(
@@ -101,6 +120,32 @@ def _basic_es256_key() -> jwt_ecdsa_pb2.JwtEcdsaPrivateKey:
   )
 
 
+def _short_es256_key() -> jwt_ecdsa_pb2.JwtEcdsaPrivateKey:
+  x, y, private_key = _p256_values_short_private_key()
+  return jwt_ecdsa_pb2.JwtEcdsaPrivateKey(
+      version=0,
+      public_key=jwt_ecdsa_pb2.JwtEcdsaPublicKey(
+          algorithm=jwt_ecdsa_pb2.JwtEcdsaAlgorithm.ES256,
+          x=x,
+          y=y,
+      ),
+      key_value=private_key,
+  )
+
+
+def _padded_es256_key() -> jwt_ecdsa_pb2.JwtEcdsaPrivateKey:
+  x, y, private_key = _p256_values_short_private_key()
+  return jwt_ecdsa_pb2.JwtEcdsaPrivateKey(
+      version=0,
+      public_key=jwt_ecdsa_pb2.JwtEcdsaPublicKey(
+          algorithm=jwt_ecdsa_pb2.JwtEcdsaAlgorithm.ES256,
+          x=x,
+          y=y,
+      ),
+      key_value=b'\x00' * 3 + private_key,
+  )
+
+
 def _basic_es384_key() -> jwt_ecdsa_pb2.JwtEcdsaPrivateKey:
   return jwt_ecdsa_pb2.JwtEcdsaPrivateKey(
       version=0,
@@ -131,6 +176,8 @@ def _proto_keys() -> (
   """Returns triples (name, validity, proto) for JwtEcdsaPrivateKey."""
 
   yield ('basic ES256 key', True, _basic_es256_key())
+  yield ('short ES256 key', True, _short_es256_key())
+  yield ('padded ES256 key', True, _padded_es256_key())
   yield ('basic ES384 key', True, _basic_es384_key())
   yield ('basic ES512 key', True, _basic_es512_key())
 
@@ -155,7 +202,7 @@ def _create_mismatched_keys() -> (
 def jwt_ecdsa_private_keys() -> Iterator[test_key.TestKey]:
   """Returns private test keys for Ecdsa."""
 
-  for (name, valid, key_proto) in _proto_keys():
+  for name, valid, key_proto in _proto_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PRIVATE_TYPE_URL,
@@ -164,7 +211,7 @@ def jwt_ecdsa_private_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
 
-  for (name, valid, key_proto) in _create_mismatched_keys():
+  for name, valid, key_proto in _create_mismatched_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PRIVATE_TYPE_URL,
@@ -177,7 +224,7 @@ def jwt_ecdsa_private_keys() -> Iterator[test_key.TestKey]:
 def jwt_ecdsa_public_keys() -> Iterator[test_key.TestKey]:
   """Returns public test keys for Ecdsa."""
 
-  for (name, valid, key_proto) in _proto_keys():
+  for name, valid, key_proto in _proto_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PUBLIC_TYPE_URL,
@@ -186,7 +233,7 @@ def jwt_ecdsa_public_keys() -> Iterator[test_key.TestKey]:
         valid=valid,
     )
 
-  for (name, valid, key_proto) in _create_mismatched_keys():
+  for name, valid, key_proto in _create_mismatched_keys():
     yield test_key.TestKey(
         test_name=name,
         type_url=_PUBLIC_TYPE_URL,
