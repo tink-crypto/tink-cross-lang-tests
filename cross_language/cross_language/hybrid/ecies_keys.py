@@ -48,6 +48,24 @@ def _p256_private_value() -> bytes:
   )
 
 
+def _p256_short_key_values() -> Tuple[bytes, bytes, bytes]:
+  """Returns a private/public key pair where the private value has 31 bytes.
+
+  The values are obtained from the C++ unit test named
+  EciesProtoSerializationTest.ParsePrivateKeyWithShorterKey.
+  """
+  x = binascii.unhexlify(
+      '9031a2a43467ed31a8de8e2b28861c0ca5605ff4443c3dbea0bd47ebb65a02ae'
+  )
+  y = binascii.unhexlify(
+      '8d094fc9fa9b328ca3060802045d5c5f6b0a51a432a844a7f0f3dbf9de039f43'
+  )
+  private_key = binascii.unhexlify(
+      '0a11c3c4ed77aa0d6fc34ee0f91d5970ff22619cc2583cf51bc5654ec9400d'
+  )
+  return (x, y, private_key)
+
+
 def _p384_point_x() -> bytes:
   """All test values are obtained from Java (see EciesAeadHkdfTestUtil.java)."""
   return binascii.unhexlify(
@@ -110,6 +128,54 @@ def _basic_p256_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
           y=_p256_point_y(),
       ),
       key_value=_p256_private_value(),
+  )
+
+
+def _short_p256_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
+  x, y, private_key = _p256_short_key_values()
+  return ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey(
+      version=0,
+      public_key=ecies_aead_hkdf_pb2.EciesAeadHkdfPublicKey(
+          version=0,
+          params=ecies_aead_hkdf_pb2.EciesAeadHkdfParams(
+              kem_params=ecies_aead_hkdf_pb2.EciesHkdfKemParams(
+                  curve_type=common_pb2.EllipticCurveType.NIST_P256,
+                  hkdf_hash_type=common_pb2.HashType.SHA1,
+                  hkdf_salt=b'',
+              ),
+              dem_params=ecies_aead_hkdf_pb2.EciesAeadDemParams(
+                  aead_dem=utilities.KEY_TEMPLATE['AES128_GCM']
+              ),
+              ec_point_format=common_pb2.EcPointFormat.COMPRESSED,
+          ),
+          x=x,
+          y=y,
+      ),
+      key_value=private_key,
+  )
+
+
+def _padded_p256_key() -> ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey:
+  x, y, private_key = _p256_short_key_values()
+  return ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey(
+      version=0,
+      public_key=ecies_aead_hkdf_pb2.EciesAeadHkdfPublicKey(
+          version=0,
+          params=ecies_aead_hkdf_pb2.EciesAeadHkdfParams(
+              kem_params=ecies_aead_hkdf_pb2.EciesHkdfKemParams(
+                  curve_type=common_pb2.EllipticCurveType.NIST_P256,
+                  hkdf_hash_type=common_pb2.HashType.SHA1,
+                  hkdf_salt=b'',
+              ),
+              dem_params=ecies_aead_hkdf_pb2.EciesAeadDemParams(
+                  aead_dem=utilities.KEY_TEMPLATE['AES128_GCM']
+              ),
+              ec_point_format=common_pb2.EcPointFormat.COMPRESSED,
+          ),
+          x=x,
+          y=y,
+      ),
+      key_value=b'\x00' * 3 + private_key,
   )
 
 
@@ -294,7 +360,10 @@ def _varied_aead_dem_key_template_output_prefix() -> (
 def _proto_private_keys() -> (
     Iterator[Tuple[str, bool, ecies_aead_hkdf_pb2.EciesAeadHkdfPrivateKey]]
 ):
+  """Yields triples of (name, validity, proto) for various private keys."""
   yield ('Basic P256 Key', True, _basic_p256_key())
+  yield ('Short P256 Key', True, _short_p256_key())
+  yield ('Padded P256 Key', True, _padded_p256_key())
   yield ('Basic P384 Key', True, _basic_p384_key())
   yield ('Basic P521 Key', True, _basic_p521_key())
   for triple in _varied_hash_function():
