@@ -48,6 +48,26 @@ def _p256_private_value() -> bytes:
   )
 
 
+def _p256_short_key() -> Tuple[bytes, bytes, bytes]:
+  """Return values for a private/public key pair, where the private key is 31 bytes long.
+
+  The values are obtained from the C++ unit test named
+  EcdsaProtoSerializationTest.ParsePrivateKeyWithShorterKey.
+  """
+
+  x = binascii.unhexlify(
+      '9031a2a43467ed31a8de8e2b28861c0ca5605ff4443c3dbea0bd47ebb65a02ae'
+  )
+  y = binascii.unhexlify(
+      '8d094fc9fa9b328ca3060802045d5c5f6b0a51a432a844a7f0f3dbf9de039f43'
+  )
+  private_key = binascii.unhexlify(
+      '0a11c3c4ed77aa0d6fc34ee0f91d5970ff22619cc2583cf51bc5654ec9400d'
+  )
+
+  return (x, y, private_key)
+
+
 def _p384_point_x() -> bytes:
   """All points are obtained from Java (see EciesAeadHkdfTestUtil.java)."""
   return binascii.unhexlify(
@@ -104,6 +124,42 @@ def _basic_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
           y=_p256_point_y(),
       ),
       key_value=_p256_private_value(),
+  )
+
+
+def _short_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
+  x, y, private_key = _p256_short_key()
+  return ecdsa_pb2.EcdsaPrivateKey(
+      version=0,
+      public_key=ecdsa_pb2.EcdsaPublicKey(
+          version=0,
+          params=ecdsa_pb2.EcdsaParams(
+              hash_type=common_pb2.HashType.SHA256,
+              curve=common_pb2.EllipticCurveType.NIST_P256,
+              encoding=ecdsa_pb2.EcdsaSignatureEncoding.IEEE_P1363,
+          ),
+          x=x,
+          y=y,
+      ),
+      key_value=private_key,
+  )
+
+
+def _padded_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
+  x, y, private_key = _p256_short_key()
+  return ecdsa_pb2.EcdsaPrivateKey(
+      version=0,
+      public_key=ecdsa_pb2.EcdsaPublicKey(
+          version=0,
+          params=ecdsa_pb2.EcdsaParams(
+              hash_type=common_pb2.HashType.SHA256,
+              curve=common_pb2.EllipticCurveType.NIST_P256,
+              encoding=ecdsa_pb2.EcdsaSignatureEncoding.IEEE_P1363,
+          ),
+          x=x,
+          y=y,
+      ),
+      key_value=b'\x00' * 3 + private_key,
   )
 
 
@@ -242,6 +298,12 @@ def _proto_keys() -> (
   """Returns triples (name, validity, proto) for EcdsaPrivateKey."""
   key_proto = _basic_p256_key()
   yield ('Basic P256Key', True, key_proto)
+
+  key_proto = _short_p256_key()
+  yield ('Short P256Key', True, key_proto)
+
+  key_proto = _padded_p256_key()
+  yield ('Padded P256Key', True, key_proto)
 
   key_proto = _basic_p384_key()
   yield ('Basic P384Key', True, key_proto)
