@@ -37,7 +37,8 @@ final class Util {
         TinkProtoKeysetFormat.parseKeyset(
             annotatedKeyset.getSerializedKeyset().toByteArray(), InsecureSecretKeyAccess.get());
     return KeysetHandle.newBuilder(handle)
-        .setMonitoringAnnotations(
+        .addAnnotations(
+            MonitoringAnnotations.class,
             MonitoringAnnotations.newBuilder().addAll(annotatedKeyset.getAnnotationsMap()).build())
         .build();
   }
