@@ -28,6 +28,8 @@
 #include "absl/container/flat_hash_map.h"
 #include "tink/binary_keyset_reader.h"
 #include "tink/cleartext_keyset_handle.h"
+#include "tink/config/global_registry.h"
+#include "tink/configuration.h"
 #include "tink/keyset_handle.h"
 #include "tink/keyset_reader.h"
 #include "protos/testing_api.grpc.pb.h"
@@ -40,7 +42,8 @@ namespace tink_testing_api {
 template <typename T>
 crypto::tink::util::StatusOr<std::unique_ptr<T>>
 PrimitiveFromSerializedBinaryProtoKeyset(
-    const AnnotatedKeyset& annotated_keyset) {
+    const AnnotatedKeyset& annotated_keyset,
+    const crypto::tink::Configuration& config) {
   absl::StatusOr<std::unique_ptr<crypto::tink::KeysetReader>> reader =
       crypto::tink::BinaryKeysetReader::New(
           annotated_keyset.serialized_keyset());
@@ -57,7 +60,15 @@ PrimitiveFromSerializedBinaryProtoKeyset(
   if (!handle.ok()) {
     return handle.status();
   }
-  return (*handle)->GetPrimitive<T>();
+  return (*handle)->GetPrimitive<T>(config);
+}
+
+template <typename T>
+crypto::tink::util::StatusOr<std::unique_ptr<T>>
+PrimitiveFromSerializedBinaryProtoKeyset(
+    const AnnotatedKeyset& annotated_keyset) {
+  return PrimitiveFromSerializedBinaryProtoKeyset<T>(
+      annotated_keyset, crypto::tink::ConfigGlobalRegistry());
 }
 
 // Tries to create a primitive of type T from the creation request and
@@ -65,13 +76,22 @@ PrimitiveFromSerializedBinaryProtoKeyset(
 // of the "Create" RPC calls in the Tink Services.
 template <typename T>
 grpc::Status CreatePrimitiveForRpc(const CreationRequest* request,
-                                   CreationResponse* response) {
+                                   CreationResponse* response,
+                                   const crypto::tink::Configuration& config) {
   crypto::tink::util::StatusOr<std::unique_ptr<T>> primitive =
-      PrimitiveFromSerializedBinaryProtoKeyset<T>(request->annotated_keyset());
+      PrimitiveFromSerializedBinaryProtoKeyset<T>(request->annotated_keyset(),
+                                                  config);
   if (!primitive.ok()) {
     response->set_err(primitive.status().message());
   }
   return grpc::Status::OK;
+}
+
+template <typename T>
+grpc::Status CreatePrimitiveForRpc(const CreationRequest* request,
+                                   CreationResponse* response) {
+  return CreatePrimitiveForRpc<T>(request, response,
+                                  crypto::tink::ConfigGlobalRegistry());
 }
 
 }  // namespace tink_testing_api
