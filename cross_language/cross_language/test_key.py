@@ -21,11 +21,6 @@ from tink.proto import tink_pb2
 from cross_language import tink_config
 
 
-def _languages_for(type_url: str) -> List[str]:
-  key_type = tink_config.key_type_from_type_url(type_url)
-  return tink_config.supported_languages_for_key_type(key_type)
-
-
 class TestKey:
   """Stores a key for a test.
 
@@ -65,7 +60,6 @@ class TestKey:
       tags (optional): A list of strings which will be available via tags()
     """
     key_id = random.randint(0, 2**32) if key_id is None else key_id
-    self._supported_languages = _languages_for(type_url) if valid else []
 
     self._name = test_name
     self._key = tink_pb2.Keyset.Key(
@@ -78,18 +72,26 @@ class TestKey:
         key_id=key_id,
         output_prefix_type=output_prefix_type,
     )
+    self._valid = valid
     self._tags = tags if tags else []
 
+  def _key_type(self) -> str:
+    return tink_config.key_type_from_type_url(self._key.key_data.type_url)
+
+  def _configured_languages(self) -> List[str]:
+    return tink_config.supported_languages_for_key_type(self._key_type())
+
   def supported_in(self, lang: str) -> bool:
-    return lang in self._supported_languages
+    if not self._valid:
+      return False
+    return lang in self._configured_languages()
 
   def tags(self) -> List[str]:
     return self._tags
 
   def __str__(self) -> str:
     """Returns the key type and name of this key."""
-    key_type = tink_config.key_type_from_type_url(self._key.key_data.type_url)
-    return key_type + ":" + self._name
+    return f'{self._key_type()}:{self._name}'
 
   def as_serialized_keyset(self) -> bytes:
     """Embeds this key in a Keyset and returns the serialization of it."""
