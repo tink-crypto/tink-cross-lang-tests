@@ -27,7 +27,7 @@ import (
 	"flag"
 	"google.golang.org/api/option"
 	"github.com/tink-crypto/tink-go/v2/core/registry"
-	"github.com/tink-crypto/tink-go-awskms/v2/integration/awskms"
+	"github.com/tink-crypto/tink-go-awskms/v3/integration/awskms"
 	"github.com/tink-crypto/tink-go-gcpkms/v2/integration/gcpkms"
 	"github.com/tink-crypto/tink-go-hcvault/v2/integration/hcvault"
 	"github.com/tink-crypto/tink-go/v2/testing/fakekms"
@@ -56,7 +56,7 @@ func RegisterAll() {
 	}
 	registry.RegisterKMSClient(gcpClient)
 
-	awsClient, err := awskms.NewClientWithOptions(*awsKeyURI, awskms.WithCredentialPath(*awsCredFilePath))
+	awsClient, err := awskms.NewClientWithOptions(context.Background(), *awsKeyURI, awskms.WithCredentialPath(*awsCredFilePath))
 	if err != nil {
 		log.Fatalf("awskms.NewClientWithOptions failed: %v", err)
 	}
