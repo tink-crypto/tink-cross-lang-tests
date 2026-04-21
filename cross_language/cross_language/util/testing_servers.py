@@ -71,8 +71,7 @@ AWS_KEY_URI_PREFIX = 'aws-kms://arn:aws:kms:us-east-2:235739564943:'
 HCVAULT_KEY_URI_PREFIX = 'hcvault://127.0.0.1:8200/'
 
 GCP_CREDENTIALS_PATH = 'gcp/credential.json'
-AWS_CREDENTIALS_INI_PATH = 'aws/credentials.ini'
-AWS_CREDENTIALS_CRED_PATH = 'aws/credentials.cred'
+AWS_CREDENTIALS_PATH = 'aws/credentials.ini'
 
 HCVAULT_TOKEN = os.environ['VAULT_TOKEN'] if 'VAULT_TOKEN' in os.environ else ''
 
@@ -129,15 +128,9 @@ def _server_path(lang: str) -> str:
 
 def _server_cmd(lang: str, port: int) -> List[str]:
   """Returns the server command."""
-  if lang == 'java':
-    # Java expects a .cred file. Others a .ini file.
-    aws_credentials_path = _get_resource_path(
-        os.path.join(_TESTDATA_ROOT_PATH, AWS_CREDENTIALS_CRED_PATH)
-    )
-  else:
-    aws_credentials_path = _get_resource_path(
-        os.path.join(_TESTDATA_ROOT_PATH, AWS_CREDENTIALS_INI_PATH)
-    )
+  aws_credentials_path = _get_resource_path(
+      os.path.join(_TESTDATA_ROOT_PATH, AWS_CREDENTIALS_PATH)
+  )
   if aws_credentials_path is None or not os.path.exists(aws_credentials_path):
     raise RuntimeError(f'AWS credentials {aws_credentials_path} not found')
 
