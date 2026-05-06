@@ -18,7 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.PublicKeySign;
 import com.google.crypto.tink.PublicKeyVerify;
-import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.signature.SignatureConfig2026;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.SignatureGrpc.SignatureImplBase;
@@ -39,20 +39,30 @@ public final class SignatureServiceImpl extends SignatureImplBase {
   @Override
   public void createPublicKeySign(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, PublicKeySign.class);
+    try {
+      Util.createPrimitiveForRpc(request, responseObserver, PublicKeySign.class, SignatureConfig2026.get());
+    } catch (GeneralSecurityException e) {
+      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
+      responseObserver.onCompleted();
+    }
   }
 
   @Override
   public void createPublicKeyVerify(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, PublicKeyVerify.class);
+    try {
+      Util.createPrimitiveForRpc(request, responseObserver, PublicKeyVerify.class, SignatureConfig2026.get());
+    } catch (GeneralSecurityException e) {
+      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
+      responseObserver.onCompleted();
+    }
   }
 
   private SignatureSignResponse sign(SignatureSignRequest request) throws GeneralSecurityException {
     try {
       PublicKeySign signer =
           Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), PublicKeySign.class);
+              .getPrimitive(SignatureConfig2026.get(), PublicKeySign.class);
       byte[] signatureValue = signer.sign(request.getData().toByteArray());
       return SignatureSignResponse.newBuilder().setSignature(ByteString.copyFrom(signatureValue)).build();
     } catch (GeneralSecurityException e)  {
@@ -76,7 +86,7 @@ public final class SignatureServiceImpl extends SignatureImplBase {
     try {
       PublicKeyVerify verifier =
           Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), PublicKeyVerify.class);
+              .getPrimitive(SignatureConfig2026.get(), PublicKeyVerify.class);
       verifier.verify(request.getSignature().toByteArray(), request.getData().toByteArray());
       return SignatureVerifyResponse.getDefaultInstance();
     } catch (GeneralSecurityException e) {

@@ -45,6 +45,7 @@ java_library(
         "@maven//:io_grpc_grpc_protobuf",
         "@maven//:io_grpc_grpc_stub",
         "@tink_java//src/main/java/com/google/crypto/tink:aead",
+        "@tink_java//src/main/java/com/google/crypto/tink:configuration",
         "@tink_java//src/main/java/com/google/crypto/tink:deterministic_aead",
         "@tink_java//src/main/java/com/google/crypto/tink:hybrid_decrypt",
         "@tink_java//src/main/java/com/google/crypto/tink:hybrid_encrypt",
@@ -75,6 +76,7 @@ java_library(
         "@tink_java//src/main/java/com/google/crypto/tink/jwt:verified_jwt",
         "@tink_java//src/main/java/com/google/crypto/tink/keyderivation:keyset_deriver",
         "@tink_java//src/main/java/com/google/crypto/tink/prf:prf_set",
+        "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config_2026",
         "@tink_java//src/main/java/com/google/crypto/tink/tinkkey:secret_key_access",
     ],
 )
@@ -122,6 +124,7 @@ java_binary(
         "@tink_java//src/main/java/com/google/crypto/tink/mac:mac_config",
         "@tink_java//src/main/java/com/google/crypto/tink/prf:prf_config",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config",
+        "@tink_java//src/main/java/com/google/crypto/tink/signature:ml_dsa_sign_key_manager",
         "@tink_java//src/main/java/com/google/crypto/tink/streamingaead:streaming_aead_config",
     ],
 )

@@ -16,6 +16,7 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.Configuration;
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.RegistryConfiguration;
@@ -43,15 +44,32 @@ final class Util {
         .build();
   }
 
-  /** Responds to a "create" request for a specific class */
+  /**
+   * Responds to a "create" request for a specific class. This method should be avoided, in favor of
+   * the function below.
+   */
   static void createPrimitiveForRpc(
       CreationRequest request,
       StreamObserver<CreationResponse> responseObserver,
       Class<?> primitiveClass) {
     try {
+      createPrimitiveForRpc(request, responseObserver, primitiveClass, RegistryConfiguration.get());
+    } catch (GeneralSecurityException e) {
+      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
+      responseObserver.onCompleted();
+    }
+  }
+
+  /** Responds to a "create" request for a specific class using a custom configuration */
+  static void createPrimitiveForRpc(
+      CreationRequest request,
+      StreamObserver<CreationResponse> responseObserver,
+      Class<?> primitiveClass,
+      Configuration configuration) {
+    try {
       KeysetHandle keysetHandle = parseBinaryProtoKeyset(request.getAnnotatedKeyset());
       // We create to check if there is an exception thrown.
-      Object unused = keysetHandle.getPrimitive(RegistryConfiguration.get(), primitiveClass);
+      Object unused = keysetHandle.getPrimitive(configuration, primitiveClass);
     } catch (GeneralSecurityException e) {
       responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
       responseObserver.onCompleted();
