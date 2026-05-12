@@ -32,7 +32,6 @@
 #include "tink/config/tink_config.h"
 #include "tink/hybrid/hybrid_key_templates.h"
 #include "tink/util/test_matchers.h"
-#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {
@@ -418,6 +417,10 @@ INSTANTIATE_TEST_SUITE_P(
         "RSA_SSA_PKCS1_4096_SHA512_F4",
         "RSA_SSA_PSS_3072_SHA256_SHA256_32_F4",
         "RSA_SSA_PSS_4096_SHA512_SHA512_64_F4",
+        "ML_DSA_65",
+        "ML_DSA_65_RAW",
+        "ML_DSA_87",
+        "ML_DSA_87_RAW",
         "AES_CMAC_PRF",
         "HMAC_SHA256_PRF",
         "HMAC_SHA512_PRF",

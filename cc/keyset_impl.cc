@@ -23,6 +23,7 @@
 #include <string>
 #include <utility>
 
+#include "absl/log/check.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
@@ -35,6 +36,8 @@
 #include "tink/keyset_handle.h"
 #include "tink/mac/mac_key_templates.h"
 #include "tink/prf/prf_key_templates.h"
+#include "tink/proto_parameters_format.h"
+#include "tink/signature/ml_dsa_parameters.h"
 #include "tink/signature/signature_key_templates.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
 #include "proto/tink.pb.h"
@@ -51,6 +54,24 @@ using ::crypto::tink::KeysetReader;
 using ::crypto::tink::KeysetWriter;
 using ::crypto::tink::util::StatusOr;
 using ::google::crypto::tink::KeyTemplate;
+
+absl::StatusOr<KeyTemplate> CreateMlDsaTemplate(
+    crypto::tink::MlDsaParameters::Instance instance,
+    crypto::tink::MlDsaParameters::Variant variant) {
+  absl::StatusOr<crypto::tink::MlDsaParameters> parameters =
+      crypto::tink::MlDsaParameters::Create(instance, variant);
+  if (!parameters.ok()) return parameters.status();
+
+  absl::StatusOr<std::string> serialized =
+      crypto::tink::SerializeParametersToProtoFormat(*parameters);
+  if (!serialized.ok()) return serialized.status();
+
+  KeyTemplate key_template;
+  if (!key_template.ParseFromString(*serialized)) {
+    return absl::InternalError("Failed to parse serialized parameters");
+  }
+  return key_template;
+}
 
 KeysetImpl::KeysetImpl() {
   key_templates_["AES128_EAX"] = crypto::tink::AeadKeyTemplates::Aes128Eax();
@@ -205,6 +226,32 @@ KeysetImpl::KeysetImpl() {
       crypto::tink::JwtPs512_4096_F4_Template();
   key_templates_["JWT_PS512_4096_F4_RAW"] =
       crypto::tink::RawJwtPs512_4096_F4_Template();
+
+  // ML-DSA-65
+  absl::StatusOr<KeyTemplate> mldsa65_tink = CreateMlDsaTemplate(
+      crypto::tink::MlDsaParameters::Instance::kMlDsa65,
+      crypto::tink::MlDsaParameters::Variant::kTink);
+  CHECK_OK(mldsa65_tink.status());
+  key_templates_["ML_DSA_65"] = *mldsa65_tink;
+
+  absl::StatusOr<KeyTemplate> mldsa65_raw = CreateMlDsaTemplate(
+      crypto::tink::MlDsaParameters::Instance::kMlDsa65,
+      crypto::tink::MlDsaParameters::Variant::kNoPrefix);
+  CHECK_OK(mldsa65_raw.status());
+  key_templates_["ML_DSA_65_RAW"] = *mldsa65_raw;
+
+  // ML-DSA-87
+  absl::StatusOr<KeyTemplate> mldsa87_tink = CreateMlDsaTemplate(
+      crypto::tink::MlDsaParameters::Instance::kMlDsa87,
+      crypto::tink::MlDsaParameters::Variant::kTink);
+  CHECK_OK(mldsa87_tink.status());
+  key_templates_["ML_DSA_87"] = *mldsa87_tink;
+
+  absl::StatusOr<KeyTemplate> mldsa87_raw = CreateMlDsaTemplate(
+      crypto::tink::MlDsaParameters::Instance::kMlDsa87,
+      crypto::tink::MlDsaParameters::Variant::kNoPrefix);
+  CHECK_OK(mldsa87_raw.status());
+  key_templates_["ML_DSA_87_RAW"] = *mldsa87_raw;
 }
 
 // Returns the key template for the given template name.
