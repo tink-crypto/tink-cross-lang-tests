@@ -19,15 +19,18 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/daead"
 	"github.com/tink-crypto/tink-go/v2/hybrid"
 	"github.com/tink-crypto/tink-go/v2/insecurecleartextkeyset"
+	mldsapb "github.com/tink-crypto/tink-go/v2/proto/ml_dsa_go_proto"
 	"github.com/tink-crypto/tink-go/v2/jwt"
 	"github.com/tink-crypto/tink-go/v2/keyset"
 	"github.com/tink-crypto/tink-go/v2/mac"
 	"github.com/tink-crypto/tink-go/v2/prf"
+	"github.com/tink-crypto/tink-go/v2/signature/mldsa"
 	"github.com/tink-crypto/tink-go/v2/signature"
 	"github.com/tink-crypto/tink-go/v2/streamingaead"
 	tinkpb "github.com/tink-crypto/tink-go/v2/proto/tink_go_proto"
@@ -40,6 +43,45 @@ import (
 type KeysetService struct {
 	Templates map[string]*tinkpb.KeyTemplate
 	pb.KeysetServer
+}
+
+func createMlDsaTemplate(instance mldsa.Instance, variant mldsa.Variant) (*tinkpb.KeyTemplate, error) {
+	var protoInstance mldsapb.MlDsaInstance
+	switch instance {
+	case mldsa.MLDSA65:
+		protoInstance = mldsapb.MlDsaInstance_ML_DSA_65
+	case mldsa.MLDSA87:
+		protoInstance = mldsapb.MlDsaInstance_ML_DSA_87
+	default:
+		return nil, fmt.Errorf("unknown instance: %v", instance)
+	}
+
+	var prefixType tinkpb.OutputPrefixType
+	switch variant {
+	case mldsa.VariantTink:
+		prefixType = tinkpb.OutputPrefixType_TINK
+	case mldsa.VariantNoPrefix:
+		prefixType = tinkpb.OutputPrefixType_RAW
+	default:
+		return nil, fmt.Errorf("unknown variant: %v", variant)
+	}
+
+	keyFormat := &mldsapb.MlDsaKeyFormat{
+		Version: 0,
+		Params: &mldsapb.MlDsaParams{
+			MlDsaInstance: protoInstance,
+		},
+	}
+	serializedFormat, err := proto.Marshal(keyFormat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tinkpb.KeyTemplate{
+		TypeUrl:          "type.googleapis.com/google.crypto.tink.MlDsaPrivateKey",
+        Value:            serializedFormat,
+		OutputPrefixType: prefixType,
+	}, nil
 }
 
 func (s *KeysetService) GetTemplate(ctx context.Context, req *pb.KeysetTemplateRequest) (*pb.KeysetTemplateResponse, error) {
@@ -123,19 +165,43 @@ func (s *KeysetService) GetTemplate(ctx context.Context, req *pb.KeysetTemplateR
 			"JWT_PS512_4096_F4":                    jwt.PS512_4096_F4_Key_Template(),
 			"JWT_PS512_4096_F4_RAW":                jwt.RawPS512_4096_F4_Key_Template(),
 		}
+		// Add ML-DSA templates
+		mldsa65Tink, err := createMlDsaTemplate(mldsa.MLDSA65, mldsa.VariantTink)
+		if err != nil {
+			return nil, fmt.Errorf("create ML_DSA_65 template: %w", err)
+		}
+		s.Templates["ML_DSA_65"] = mldsa65Tink
+
+		mldsa65Raw, err := createMlDsaTemplate(mldsa.MLDSA65, mldsa.VariantNoPrefix)
+		if err != nil {
+			return nil, fmt.Errorf("create ML_DSA_65_RAW template: %w", err)
+		}
+		s.Templates["ML_DSA_65_RAW"] = mldsa65Raw
+
+		mldsa87Tink, err := createMlDsaTemplate(mldsa.MLDSA87, mldsa.VariantTink)
+		if err != nil {
+			return nil, fmt.Errorf("create ML_DSA_87 template: %w", err)
+		}
+		s.Templates["ML_DSA_87"] = mldsa87Tink
+
+		mldsa87Raw, err := createMlDsaTemplate(mldsa.MLDSA87, mldsa.VariantNoPrefix)
+		if err != nil {
+			return nil, fmt.Errorf("create ML_DSA_87_RAW template: %w", err)
+		}
+		s.Templates["ML_DSA_87_RAW"] = mldsa87Raw
 	}
 	template, success := s.Templates[req.GetTemplateName()]
 	if success && template != nil {
 		d, err := proto.Marshal(template)
 		if err != nil {
 			return &pb.KeysetTemplateResponse{
-				Result: &pb.KeysetTemplateResponse_Err{err.Error()}}, nil
+				Result: &pb.KeysetTemplateResponse_Err{Err: err.Error()}}, nil
 		}
 		return &pb.KeysetTemplateResponse{
-			Result: &pb.KeysetTemplateResponse_KeyTemplate{d}}, nil
+			Result: &pb.KeysetTemplateResponse_KeyTemplate{KeyTemplate: d}}, nil
 	}
 	return &pb.KeysetTemplateResponse{
-		Result: &pb.KeysetTemplateResponse_Err{"key template not found"}}, nil
+		Result: &pb.KeysetTemplateResponse_Err{Err: "key template not found"}}, nil
 }
 
 func (s *KeysetService) Generate(ctx context.Context, req *pb.KeysetGenerateRequest) (*pb.KeysetGenerateResponse, error) {
