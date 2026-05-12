@@ -25,6 +25,7 @@ import com.google.crypto.tink.jwt.JwtSignatureConfig;
 import com.google.crypto.tink.keyderivation.KeyDerivationConfig;
 import com.google.crypto.tink.mac.MacConfig;
 import com.google.crypto.tink.prf.PrfConfig;
+import com.google.crypto.tink.signature.MlDsaSignKeyManager;
 import com.google.crypto.tink.signature.SignatureConfig;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 import io.grpc.ServerBuilder;
@@ -77,6 +78,7 @@ public final class TestingServer {
     MacConfig.register();
     PrfConfig.register();
     SignatureConfig.register();
+    MlDsaSignKeyManager.registerPair();
     StreamingAeadConfig.register();
     Kms.register(gcpKeyUri, gcpCredentialsPath, awsKeyUri, awsCredentialsPath, hcvaultToken);
 

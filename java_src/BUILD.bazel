@@ -123,8 +123,8 @@ java_binary(
         "@tink_java//src/main/java/com/google/crypto/tink/keyderivation:key_derivation_config",
         "@tink_java//src/main/java/com/google/crypto/tink/mac:mac_config",
         "@tink_java//src/main/java/com/google/crypto/tink/prf:prf_config",
-        "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:ml_dsa_sign_key_manager",
+        "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config",
         "@tink_java//src/main/java/com/google/crypto/tink/streamingaead:streaming_aead_config",
     ],
 )
