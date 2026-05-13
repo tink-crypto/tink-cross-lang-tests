@@ -549,7 +549,7 @@ class JwtTest(parameterized.TestCase):
     # num_recursions has been chosen such that parsing of this token fails
     # in all languages. We want to make sure that the algorithm does not
     # hang or crash in this case, but only returns a parsing error.
-    num_recursions = 11000
+    num_recursions = 110000
     payload = ('{"a":' * num_recursions) + '""' + ('}' * num_recursions)
     token = generate_token('{"alg":"HS256"}', payload)
     jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
