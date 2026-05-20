@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Various utility functions for the cross language tests.
-"""
+"""Various utility functions for the cross language tests."""
 
+import importlib.util
 from typing import Any, Iterable, List
 
 from tink import aead
@@ -163,6 +163,10 @@ KEY_TEMPLATE_NAMES = {
         'JWT_PS384_3072_F4_RAW',
         'JWT_PS512_4096_F4',
         'JWT_PS512_4096_F4_RAW',
+    ],
+    'MlDsaPrivateKey': [
+        'ML_DSA_65',
+        'ML_DSA_87',
     ],
 }
 
@@ -335,6 +339,8 @@ KEY_TEMPLATE = {
     'JWT_PS384_3072_F4_RAW': jwt.raw_jwt_ps384_3072_f4_template(),
     'JWT_PS512_4096_F4': jwt.jwt_ps512_4096_f4_template(),
     'JWT_PS512_4096_F4_RAW': jwt.raw_jwt_ps512_4096_f4_template(),
+    'ML_DSA_65': signature.signature_key_templates.ML_DSA_65,
+    'ML_DSA_87': signature.signature_key_templates.ML_DSA_87,
 }
 
 
@@ -346,7 +352,8 @@ _CUSTOM_SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME = {
 
 
 def _supported_languages_by_template(
-    template_name: str, key_type: str) -> List[str]:
+    template_name: str, key_type: str
+) -> List[str]:
   if template_name in _CUSTOM_SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME:
     return _CUSTOM_SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME[template_name]
   return tink_config.supported_languages_for_key_type(key_type)
@@ -376,3 +383,11 @@ def key_types_in_keyset(keyset: bytes) -> List[str]:
   parsed_keyset = tink_pb2.Keyset.FromString(keyset)
   type_urls = [k.key_data.type_url for k in parsed_keyset.key]
   return [tink_config.key_type_from_type_url(t) for t in type_urls]
+
+
+def is_google3() -> bool:
+  try:
+
+    return importlib.util.find_spec('google3') is not None
+  except (ImportError, AttributeError, ValueError):
+    return False

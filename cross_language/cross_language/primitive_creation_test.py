@@ -153,6 +153,12 @@ class SupportedKeyTypesTest(parameterized.TestCase):
     """
     keytypes = utilities.key_types_in_keyset(keyset)
     keytype = keytypes[0]
+    if (
+        not utilities.is_google3()
+        and lang == 'java'
+        and keytype in ['MlDsaPrivateKey', 'MlDsaPublicKey']
+    ):
+      self.skipTest('ML-DSA is not supported in Java (b/365925769)')
 
     if (lang in tink_config.supported_languages_for_key_type(keytype) and
         primitive == tink_config.primitive_for_keytype(keytype)):
@@ -174,6 +180,14 @@ class SupportedKeyTypesTest(parameterized.TestCase):
       keyset: the serialized keyset, must be valid
       primitive: the primitive to test
     """
+    keytypes = utilities.key_types_in_keyset(keyset)
+    keytype = keytypes[0]
+    if (
+        not utilities.is_google3()
+        and lang == 'java'
+        and keytype in ['MlDsaPrivateKey', 'MlDsaPublicKey']
+    ):
+      self.skipTest('ML-DSA is not supported in Java (b/365925769)')
     try:
       public_keyset = testing_servers.public_keyset(lang, keyset)
     except tink.TinkError:
@@ -208,6 +222,12 @@ class SupportedKeyTypesTest(parameterized.TestCase):
 
     keytypes = utilities.key_types_in_keyset(keyset)
     keytype = keytypes[0]
+    if (
+        not utilities.is_google3()
+        and lang == 'java'
+        and keytype in ['MlDsaPrivateKey', 'MlDsaPublicKey']
+    ):
+      self.skipTest('ML-DSA is not supported in Java (b/365925769)')
 
     if (lang in tink_config.supported_languages_for_key_type(keytype) and
         primitive == tink_config.primitive_for_keytype(keytype)):

@@ -27,6 +27,7 @@ from tink import prf
 from tink import signature
 from tink import streaming_aead
 
+
 # Map from the primitives to the KeyTypes (without the prefix
 # 'type.googleapis.com/google.crypto.tink.')
 KEY_TYPES = {
@@ -71,12 +72,14 @@ KEY_TYPES = {
     signature.PublicKeySign: (
         'EcdsaPrivateKey',
         'Ed25519PrivateKey',
+        'MlDsaPrivateKey',
         'RsaSsaPkcs1PrivateKey',
         'RsaSsaPssPrivateKey',
     ),
     signature.PublicKeyVerify: (
         'EcdsaPublicKey',
         'Ed25519PublicKey',
+        'MlDsaPublicKey',
         'RsaSsaPkcs1PublicKey',
         'RsaSsaPssPublicKey',
     ),
@@ -95,6 +98,7 @@ PRIVATE_TO_PUBLIC_KEY = {
     'HpkePrivateKey': 'HpkePublicKey',
     'EcdsaPrivateKey': 'EcdsaPublicKey',
     'Ed25519PrivateKey': 'Ed25519PublicKey',
+    'MlDsaPrivateKey': 'MlDsaPublicKey',
     'RsaSsaPkcs1PrivateKey': 'RsaSsaPkcs1PublicKey',
     'RsaSsaPssPrivateKey': 'RsaSsaPssPublicKey',
     'JwtEcdsaPrivateKey': 'JwtEcdsaPublicKey',
@@ -129,6 +133,8 @@ SUPPORTED_LANGUAGES = {
     'EcdsaPublicKey': ['cc', 'java', 'go', 'python'],
     'Ed25519PrivateKey': ['cc', 'java', 'go', 'python'],
     'Ed25519PublicKey': ['cc', 'java', 'go', 'python'],
+    'MlDsaPrivateKey': ['cc', 'java', 'go', 'python'],
+    'MlDsaPublicKey': ['cc', 'java', 'go', 'python'],
     'RsaSsaPkcs1PrivateKey': ['cc', 'java', 'go', 'python'],
     'RsaSsaPkcs1PublicKey': ['cc', 'java', 'go', 'python'],
     'RsaSsaPssPrivateKey': ['cc', 'java', 'go', 'python'],

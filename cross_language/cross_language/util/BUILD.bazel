@@ -125,6 +125,7 @@ py_library(
         "@tink_py//tink/proto:jwt_rsa_ssa_pss_py_pb2",
         "@tink_py//tink/proto:kms_aead_py_pb2",
         "@tink_py//tink/proto:kms_envelope_py_pb2",
+        "@tink_py//tink/proto:ml_dsa_py_pb2",
         "@tink_py//tink/proto:rsa_ssa_pkcs1_py_pb2",
         "@tink_py//tink/proto:rsa_ssa_pss_py_pb2",
         "@tink_py//tink/proto:x_aes_gcm_py_pb2",
