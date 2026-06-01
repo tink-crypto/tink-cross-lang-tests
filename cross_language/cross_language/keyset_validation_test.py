@@ -102,12 +102,6 @@ class KeysetValidationTest(parameterized.TestCase):
   @parameterized.parameters(test_cases(signature.PublicKeySign))
   def test_signature_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to sign and verify signatures."""
-    if (
-        not utilities.is_google3()
-        and lang == 'java'
-        and key_template_name in ['ML_DSA_65', 'ML_DSA_87']
-    ):
-      self.skipTest('ML-DSA is not supported in Java (b/365925769)')
     template = utilities.KEY_TEMPLATE[key_template_name]
     private_keyset = testing_servers.new_keyset(lang, template)
     public_keyset = testing_servers.public_keyset(lang, private_keyset)

@@ -27,7 +27,6 @@ from cross_language.signature import mldsa_keys
 from cross_language.signature import rsa_ssa_pkcs1_keys
 from cross_language.signature import rsa_ssa_pss_keys
 from cross_language.util import testing_servers
-from cross_language.util import utilities
 
 
 def setUpModule():
@@ -61,12 +60,6 @@ class EvaluationConsistencyTest(absltest.TestCase):
     for key in signature_keys():
       for lang1 in tink_config.all_tested_languages():
         for lang2 in tink_config.all_tested_languages():
-          if (
-              not utilities.is_google3()
-              and (lang1 == 'java' or lang2 == 'java')
-              and 'b/365925769' in key.tags()
-          ):
-            continue
           if key.supported_in(lang1) and key.supported_in(lang2):
             with self.subTest(f'{lang1}->{lang2}: {key}'):
               keyset = key.as_serialized_keyset()

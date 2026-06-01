@@ -221,7 +221,6 @@ def mldsa_private_keys() -> Iterator[test_key.TestKey]:
         serialized_value=key_proto.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         valid=valid,
-        tags=['b/365925769'],
     )
 
   for output_prefix_type, valid in _output_prefix_types():
@@ -233,7 +232,6 @@ def mldsa_private_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         output_prefix_type=output_prefix_type,
         valid=valid,
-        tags=['b/365925769'],
     )
 
 
@@ -246,7 +244,6 @@ def mldsa_public_keys() -> Iterator[test_key.TestKey]:
         serialized_value=key_proto.public_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         valid=valid,
-        tags=['b/365925769'],
     )
 
   for output_prefix_type, valid in _output_prefix_types():
@@ -258,5 +255,4 @@ def mldsa_public_keys() -> Iterator[test_key.TestKey]:
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         output_prefix_type=output_prefix_type,
         valid=valid,
-        tags=['b/365925769'],
     )

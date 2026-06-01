@@ -25,7 +25,6 @@ from cross_language.signature import mldsa_keys
 from cross_language.signature import rsa_ssa_pkcs1_keys
 from cross_language.signature import rsa_ssa_pss_keys
 from cross_language.util import testing_servers
-from cross_language.util import utilities
 
 
 def setUpModule():
@@ -72,12 +71,6 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of PublicKeySign from private key."""
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
-        if (
-            not utilities.is_google3()
-            and lang == 'java'
-            and 'b/365925769' in key.tags()
-        ):
-          continue
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
           if lang in ['python']:
@@ -104,12 +97,6 @@ class CreationConsistencyTest(absltest.TestCase):
     """
     for key in signature_private_keys():
       for lang in tink_config.all_tested_languages():
-        if (
-            not utilities.is_google3()
-            and lang == 'java'
-            and 'b/365925769' in key.tags()
-        ):
-          continue
         supported = key.supported_in(lang)
         if 'b/315954817' in key.tags():
           if lang in ['python']:
@@ -132,12 +119,6 @@ class CreationConsistencyTest(absltest.TestCase):
     """Tests: Creation of PublicKeyVerify from public key."""
     for public_key in signature_public_keys():
       for lang in tink_config.all_tested_languages():
-        if (
-            not utilities.is_google3()
-            and lang == 'java'
-            and 'b/365925769' in public_key.tags()
-        ):
-          continue
         supported = public_key.supported_in(lang)
         with self.subTest(f'{lang}, {public_key} ({supported})'):
           public_keyset = public_key.as_serialized_keyset()
