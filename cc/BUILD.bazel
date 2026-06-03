@@ -344,6 +344,68 @@ cc_test(
 )
 
 cc_library(
+    name = "testing_server_config",
+    srcs = ["testing_server_config.cc"],
+    hdrs = ["testing_server_config.h"],
+    deps = [
+        "@abseil-cpp//absl/log:absl_check",
+        "@tink_cc//tink:configuration",
+        "@tink_cc//tink:key_gen_configuration",
+        "@tink_cc//tink/aead:x_aes_gcm_proto_serialization",
+        "@tink_cc//tink/aead/internal:config_2026",
+        "@tink_cc//tink/aead/internal:key_gen_config_2026",
+        "@tink_cc//tink/aead/internal:kms_aead_config_2026",
+        "@tink_cc//tink/aead/internal:kms_aead_key_gen_config_2026",
+        "@tink_cc//tink/daead/internal:config_2026",
+        "@tink_cc//tink/daead/internal:key_gen_config_2026",
+        "@tink_cc//tink/hybrid/internal:config_2026",
+        "@tink_cc//tink/hybrid/internal:key_gen_config_2026",
+        "@tink_cc//tink/jwt/internal:jwt_mac_config_2026",
+        "@tink_cc//tink/jwt/internal:jwt_mac_key_gen_config_2026",
+        "@tink_cc//tink/jwt/internal:jwt_signature_config_2026",
+        "@tink_cc//tink/jwt/internal:jwt_signature_key_gen_config_2026",
+        "@tink_cc//tink/keyderivation/internal:config_2026",
+        "@tink_cc//tink/keyderivation/internal:key_gen_config_2026",
+        "@tink_cc//tink/mac/internal:config_2026",
+        "@tink_cc//tink/mac/internal:key_gen_config_2026",
+        "@tink_cc//tink/prf/internal:config_2026",
+        "@tink_cc//tink/prf/internal:key_gen_config_2026",
+        "@tink_cc//tink/signature/internal:config_2026",
+        "@tink_cc//tink/signature/internal:key_gen_config_2026",
+        "@tink_cc//tink/streamingaead/internal:config_2026",
+        "@tink_cc//tink/streamingaead/internal:key_gen_config_2026",
+    ],
+)
+
+cc_test(
+    name = "testing_server_config_test",
+    srcs = ["testing_server_config_test.cc"],
+    deps = [
+        ":testing_server_config",
+        "@abseil-cpp//absl/status:status_matchers",
+        "@abseil-cpp//absl/status:statusor",
+        "@googletest//:gtest_main",
+        "@tink_cc//tink:aead",
+        "@tink_cc//tink:configuration",
+        "@tink_cc//tink:deterministic_aead",
+        "@tink_cc//tink:hybrid_decrypt",
+        "@tink_cc//tink:hybrid_encrypt",
+        "@tink_cc//tink:mac",
+        "@tink_cc//tink:public_key_sign",
+        "@tink_cc//tink:public_key_verify",
+        "@tink_cc//tink:streaming_aead",
+        "@tink_cc//tink/internal:configuration_impl",
+        "@tink_cc//tink/internal:key_type_info_store",
+        "@tink_cc//tink/internal:keyset_wrapper_store",
+        "@tink_cc//tink/jwt:jwt_mac",
+        "@tink_cc//tink/jwt:jwt_public_key_sign",
+        "@tink_cc//tink/jwt:jwt_public_key_verify",
+        "@tink_cc//tink/keyderivation:keyset_deriver",
+        "@tink_cc//tink/prf:prf_set",
+    ],
+)
+
+cc_library(
     name = "create",
     hdrs = ["create.h"],
     deps = [
