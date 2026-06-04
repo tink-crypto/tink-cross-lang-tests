@@ -181,6 +181,21 @@ class JwtTest(parameterized.TestCase):
     jwt_mac.verify_mac_and_decode(token, validator_with_wrong_type_header)
 
   @parameterized.parameters(SUPPORTED_LANGUAGES)
+  def test_non_string_typ_header_is_rejected(self, lang):
+    token = generate_token('{"typ":123, "alg":"HS256"}', '{"jti":"123"}')
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
+
+    validator = jwt.new_validator(allow_missing_expiration=True)
+    with self.assertRaises(tink.TinkError):
+      jwt_mac.verify_mac_and_decode(token, validator)
+
+    validator_ignore = jwt.new_validator(
+        allow_missing_expiration=True, ignore_type_header=True
+    )
+    with self.assertRaises(tink.TinkError):
+      jwt_mac.verify_mac_and_decode(token, validator_ignore)
+
+  @parameterized.parameters(SUPPORTED_LANGUAGES)
   def test_verify_expiration(self, lang):
     token = generate_token('{"alg":"HS256"}', '{"jti":"123", "exp":1234}')
     jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
