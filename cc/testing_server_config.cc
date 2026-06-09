@@ -17,31 +17,41 @@
 #include "testing_server_config.h"
 
 #include "absl/log/check.h"
+#include "tink/aead/aead_config.h"
 #include "tink/aead/internal/config_2026.h"
 #include "tink/aead/internal/key_gen_config_2026.h"
 #include "tink/aead/internal/kms_aead_config_2026.h"
 #include "tink/aead/internal/kms_aead_key_gen_config_2026.h"
 #include "tink/aead/x_aes_gcm_proto_serialization.h"
 #include "tink/configuration.h"
+#include "tink/daead/deterministic_aead_config.h"
 #include "tink/daead/internal/config_2026.h"
 #include "tink/daead/internal/key_gen_config_2026.h"
+#include "tink/hybrid/hpke_config.h"
+#include "tink/hybrid/hybrid_config.h"
 #include "tink/hybrid/internal/config_2026.h"
 #include "tink/hybrid/internal/key_gen_config_2026.h"
 #include "tink/jwt/internal/jwt_mac_config_2026.h"
 #include "tink/jwt/internal/jwt_mac_key_gen_config_2026.h"
 #include "tink/jwt/internal/jwt_signature_config_2026.h"
 #include "tink/jwt/internal/jwt_signature_key_gen_config_2026.h"
+#include "tink/jwt/jwt_mac_config.h"
+#include "tink/jwt/jwt_signature_config.h"
 #include "tink/key_gen_configuration.h"
 #include "tink/keyderivation/internal/config_2026.h"
 #include "tink/keyderivation/internal/key_gen_config_2026.h"
+#include "tink/keyderivation/key_derivation_config.h"
 #include "tink/mac/internal/config_2026.h"
 #include "tink/mac/internal/key_gen_config_2026.h"
 #include "tink/prf/internal/config_2026.h"
 #include "tink/prf/internal/key_gen_config_2026.h"
+#include "tink/prf/prf_config.h"
 #include "tink/signature/internal/config_2026.h"
 #include "tink/signature/internal/key_gen_config_2026.h"
+#include "tink/signature/signature_config.h"
 #include "tink/streamingaead/internal/config_2026.h"
 #include "tink/streamingaead/internal/key_gen_config_2026.h"
+#include "tink/streamingaead/streaming_aead_config.h"
 
 namespace tink_testing_api {
 
@@ -57,6 +67,23 @@ const crypto::tink::Configuration& TestingServerConfig() {
     // supported), preventing inconsistent key creation behavior compared to
     // other languages that use the new serialization format.
     CHECK_OK(crypto::tink::RegisterXAesGcmProtoSerialization());
+
+    // Legacy global registrations workaround.
+    // Tink's serialization registry is currently global. To allow the modern
+    // configuration path (which parses KeyTemplates to Parameters) to work
+    // without falling back to legacy KeyTemplate-based generation, we must
+    // register the proto serializations globally for all legacy key types
+    // supported by the testing server.
+    CHECK_OK(crypto::tink::AeadConfig::Register());
+    CHECK_OK(crypto::tink::DeterministicAeadConfig::Register());
+    CHECK_OK(crypto::tink::StreamingAeadConfig::Register());
+    CHECK_OK(crypto::tink::HybridConfig::Register());
+    CHECK_OK(crypto::tink::RegisterHpke());
+    CHECK_OK(crypto::tink::SignatureConfig::Register());
+    CHECK_OK(crypto::tink::KeyDerivationConfig::Register());
+    CHECK_OK(crypto::tink::PrfConfig::Register());
+    CHECK_OK(crypto::tink::JwtMacRegister());
+    CHECK_OK(crypto::tink::JwtSignatureRegister());
 
     CHECK_OK(crypto::tink::internal::AddMac2026(*config));
     CHECK_OK(crypto::tink::internal::AddAead2026(*config));
