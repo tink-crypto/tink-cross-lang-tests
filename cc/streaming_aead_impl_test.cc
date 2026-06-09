@@ -22,11 +22,13 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/memory/memory.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
+#include "tink/keyset_handle.h"
+#include "tink/streamingaead/key_gen_config_2026.h"
 #include "tink/streamingaead/streaming_aead_config.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
-#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {
@@ -51,8 +53,8 @@ using google::crypto::tink::KeyTemplate;
 std::string ValidKeyset() {
   const KeyTemplate& key_template =
       StreamingAeadKeyTemplates::Aes128GcmHkdf4KB();
-  auto handle_result =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+  auto handle_result = KeysetHandle::GenerateNew(
+      key_template, crypto::tink::KeyGenConfigStreamingAead2026());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result =

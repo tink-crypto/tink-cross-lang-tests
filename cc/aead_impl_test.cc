@@ -16,15 +16,19 @@
 
 #include "aead_impl.h"
 
+#include <ostream>
+#include <sstream>
 #include <string>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/memory/memory.h"
 #include "tink/aead/aead_config.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
-#include "protos/testing_api.grpc.pb.h"
+#include "tink/config/key_gen_config_2026.h"
+#include "tink/keyset_handle.h"
 
 namespace crypto {
 namespace tink {
@@ -49,7 +53,7 @@ using tink_testing_api::CreationResponse;
 std::string ValidKeyset() {
   const KeyTemplate& key_template = AeadKeyTemplates::Aes128Eax();
   auto handle_result =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result =

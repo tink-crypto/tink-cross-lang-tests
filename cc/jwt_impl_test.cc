@@ -23,13 +23,19 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/log/check.h"
+#include "absl/memory/memory.h"
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/jwt/jwt_key_templates.h"
 #include "tink/jwt/jwt_mac_config.h"
+#include "tink/jwt/jwt_mac_key_gen_config_2026.h"
 #include "tink/jwt/jwt_signature_config.h"
+#include "tink/jwt/jwt_signature_key_gen_config_2026.h"
+#include "tink/keyset_handle.h"
 #include "tink/util/test_matchers.h"
-#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {
@@ -60,7 +66,7 @@ using ::tink_testing_api::JwtVerifyResponse;
 std::string ValidKeyset() {
   const KeyTemplate& key_template = ::crypto::tink::JwtHs256Template();
   absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+      KeysetHandle::GenerateNew(key_template, KeyGenConfigJwtMac2026());
   EXPECT_THAT(handle.status(), IsOk());
 
   std::stringbuf keyset;
@@ -204,8 +210,9 @@ class JwtImplSignatureTest : public ::testing::Test {
   void SetUp() override {
     const KeyTemplate& key_template = ::crypto::tink::JwtEs256Template();
     absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-        KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
-    EXPECT_THAT(handle.status(), IsOk());
+        KeysetHandle::GenerateNew(key_template,
+                                  crypto::tink::KeyGenConfigJwtSignature2026());
+    CHECK_OK(handle.status());
 
     std::stringbuf keyset;
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
@@ -218,7 +225,8 @@ class JwtImplSignatureTest : public ::testing::Test {
     private_keyset_ = keyset.str();
 
     absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> pub_handle =
-        (*handle)->GetPublicKeysetHandle(KeyGenConfigGlobalRegistry());
+        (*handle)->GetPublicKeysetHandle(
+            crypto::tink::KeyGenConfigJwtSignature2026());
     EXPECT_THAT(pub_handle.status(), IsOk());
 
     std::stringbuf pub_keyset;

@@ -23,9 +23,13 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/memory/memory.h"
+#include "absl/status/statusor.h"
+#include "tink/aead.h"
 #include "tink/aead/aead_config.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_writer.h"
+#include "tink/config/key_gen_config_2026.h"
 #include "tink/keyset_handle.h"
 #include "tink/mac.h"
 
@@ -41,7 +45,7 @@ using ::testing::NotNull;
 std::string ValidAeadKeyset() {
   const KeyTemplate& key_template = crypto::tink::AeadKeyTemplates::Aes128Eax();
   auto handle_result = crypto::tink::KeysetHandle::GenerateNew(
-      key_template, crypto::tink::KeyGenConfigGlobalRegistry());
+      key_template, crypto::tink::KeyGenConfig2026());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result = crypto::tink::BinaryKeysetWriter::New(

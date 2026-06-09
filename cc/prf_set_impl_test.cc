@@ -16,15 +16,19 @@
 
 #include "prf_set_impl.h"
 
+#include <ostream>
+#include <sstream>
 #include <string>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/memory/memory.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
+#include "tink/config/key_gen_config_2026.h"
+#include "tink/keyset_handle.h"
 #include "tink/prf/prf_config.h"
 #include "tink/prf/prf_key_templates.h"
-#include "protos/testing_api.grpc.pb.h"
 
 namespace crypto {
 namespace tink {
@@ -50,7 +54,7 @@ using google::crypto::tink::KeyTemplate;
 std::string ValidKeyset() {
   const KeyTemplate& key_template = PrfKeyTemplates::HmacSha256();
   auto handle_result =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfigGlobalRegistry());
+      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
   auto writer_result =
