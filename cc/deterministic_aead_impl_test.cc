@@ -16,6 +16,7 @@
 
 #include "deterministic_aead_impl.h"
 
+#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -23,10 +24,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
+#include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/config/key_gen_config_2026.h"
-#include "tink/daead/deterministic_aead_config.h"
 #include "tink/daead/deterministic_aead_key_templates.h"
 #include "tink/keyset_handle.h"
 
@@ -52,7 +53,7 @@ using tink_testing_api::CreationResponse;
 
 std::string ValidKeyset() {
   const KeyTemplate& key_template = DeterministicAeadKeyTemplates::Aes256Siv();
-  auto handle_result =
+  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle_result =
       KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
   EXPECT_TRUE(handle_result.ok());
   std::stringbuf keyset;
@@ -66,12 +67,7 @@ std::string ValidKeyset() {
   return keyset.str();
 }
 
-class DeterministicAeadImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() {
-    ASSERT_TRUE(DeterministicAeadConfig::Register().ok());
-  }
-};
+using DeterministicAeadImplTest = ::testing::Test;
 
 TEST_F(DeterministicAeadImplTest, CreateSuccess) {
   tink_testing_api::DeterministicAeadImpl aead;

@@ -29,7 +29,6 @@
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/config/key_gen_config_2026.h"
-#include "tink/hybrid/hybrid_config.h"
 #include "tink/hybrid/hybrid_key_templates.h"
 #include "tink/keyset_handle.h"
 
@@ -64,10 +63,7 @@ std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   return keyset.str();
 }
 
-class HybridImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_TRUE(HybridConfig::Register().ok()); }
-};
+using HybridImplTest = ::testing::Test;
 
 TEST_F(HybridImplTest, CreateHybridDecryptSuccess) {
   tink_testing_api::HybridImpl hybrid;

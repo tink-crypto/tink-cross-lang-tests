@@ -23,7 +23,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "absl/memory/memory.h"
-#include "tink/aead/aead_config.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
@@ -66,10 +65,7 @@ std::string ValidKeyset() {
   return keyset.str();
 }
 
-class AeadImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_TRUE(AeadConfig::Register().ok()); }
-};
+using AeadImplTest = ::testing::Test;
 
 TEST_F(AeadImplTest, CreateAeadSuccess) {
   tink_testing_api::AeadImpl aead;

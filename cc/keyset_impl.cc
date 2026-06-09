@@ -24,22 +24,33 @@
 #include <utility>
 
 #include "absl/log/check.h"
+#include "absl/memory/memory.h"
+#include "absl/status/status.h"
+#include "absl/strings/str_cat.h"
+#include <grpcpp/server_context.h>
+#include <grpcpp/support/status.h>
+#include "tink/aead.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
+#include "tink/configuration.h"
 #include "tink/daead/deterministic_aead_key_templates.h"
 #include "tink/hybrid/hybrid_key_templates.h"
 #include "tink/json/json_keyset_reader.h"
 #include "tink/json/json_keyset_writer.h"
 #include "tink/jwt/jwt_key_templates.h"
+#include "tink/key_gen_configuration.h"
 #include "tink/keyset_handle.h"
+#include "tink/keyset_reader.h"
+#include "tink/keyset_writer.h"
 #include "tink/mac/mac_key_templates.h"
 #include "tink/prf/prf_key_templates.h"
 #include "tink/proto_parameters_format.h"
 #include "tink/signature/ml_dsa_parameters.h"
 #include "tink/signature/signature_key_templates.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
+#include "tink/util/statusor.h"
 #include "proto/tink.pb.h"
 
 namespace tink_testing_api {
@@ -73,7 +84,9 @@ absl::StatusOr<KeyTemplate> CreateMlDsaTemplate(
   return key_template;
 }
 
-KeysetImpl::KeysetImpl() {
+KeysetImpl::KeysetImpl(const crypto::tink::Configuration& config,
+                       const crypto::tink::KeyGenConfiguration& key_gen_config)
+    : config_(config), key_gen_config_(key_gen_config) {
   key_templates_["AES128_EAX"] = crypto::tink::AeadKeyTemplates::Aes128Eax();
   key_templates_["AES256_EAX"] = crypto::tink::AeadKeyTemplates::Aes256Eax();
   key_templates_["AES128_GCM"] = crypto::tink::AeadKeyTemplates::Aes128Gcm();
@@ -256,8 +269,8 @@ KeysetImpl::KeysetImpl() {
 
 // Returns the key template for the given template name.
 grpc::Status KeysetImpl::GetTemplate(grpc::ServerContext* context,
-                                       const KeysetTemplateRequest* request,
-                                       KeysetTemplateResponse* response) {
+                                     const KeysetTemplateRequest* request,
+                                     KeysetTemplateResponse* response) {
   auto it = key_templates_.find(request->template_name());
   if (it == key_templates_.end()) {
     response->set_err(
@@ -275,15 +288,14 @@ grpc::Status KeysetImpl::GetTemplate(grpc::ServerContext* context,
 
 // Generates a new keyset with one key from a template.
 grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
-                                    const KeysetGenerateRequest* request,
-                                    KeysetGenerateResponse* response) {
+                                  const KeysetGenerateRequest* request,
+                                  KeysetGenerateResponse* response) {
   KeyTemplate key_template;
   if (!key_template.ParseFromString(request->template_())) {
     response->set_err("Could not parse the key template");
     return grpc::Status::OK;
   }
-  auto handle_result = KeysetHandle::GenerateNew(
-      key_template, crypto::tink::KeyGenConfigGlobalRegistry());
+  auto handle_result = KeysetHandle::GenerateNew(key_template, key_gen_config_);
   if (!handle_result.ok()) {
     response->set_err(handle_result.status().message());
     return grpc::Status::OK;
@@ -307,8 +319,8 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
 
 // Returns a public keyset for a given private keyset.
 grpc::Status KeysetImpl::Public(grpc::ServerContext* context,
-                                  const KeysetPublicRequest* request,
-                                  KeysetPublicResponse* response) {
+                                const KeysetPublicRequest* request,
+                                KeysetPublicResponse* response) {
   auto reader_result = BinaryKeysetReader::New(request->private_keyset());
   if (!reader_result.ok()) {
     response->set_err(reader_result.status().message());
@@ -321,8 +333,7 @@ grpc::Status KeysetImpl::Public(grpc::ServerContext* context,
     return grpc::Status::OK;
   }
   auto public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle(
-          crypto::tink::KeyGenConfigGlobalRegistry());
+      private_handle_result.value()->GetPublicKeysetHandle(key_gen_config_);
   if (!public_handle_result.ok()) {
     response->set_err(public_handle_result.status().message());
     return grpc::Status::OK;
@@ -346,8 +357,8 @@ grpc::Status KeysetImpl::Public(grpc::ServerContext* context,
 
 // Converts a keyset from binary to JSON format.
 grpc::Status KeysetImpl::ToJson(grpc::ServerContext* context,
-                                  const KeysetToJsonRequest* request,
-                                  KeysetToJsonResponse* response) {
+                                const KeysetToJsonRequest* request,
+                                KeysetToJsonResponse* response) {
   auto reader_result = BinaryKeysetReader::New(request->keyset());
   if (!reader_result.ok()) {
     response->set_err(reader_result.status().message());
@@ -378,8 +389,8 @@ grpc::Status KeysetImpl::ToJson(grpc::ServerContext* context,
 
 // Converts a keyset from JSON to binary format.
 grpc::Status KeysetImpl::FromJson(grpc::ServerContext* context,
-                                    const KeysetFromJsonRequest* request,
-                                    KeysetFromJsonResponse* response) {
+                                  const KeysetFromJsonRequest* request,
+                                  KeysetFromJsonResponse* response) {
   auto reader_result = JsonKeysetReader::New(request->json_keyset());
   if (!reader_result.ok()) {
     response->set_err(reader_result.status().message());
@@ -424,9 +435,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
     return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
-      (*master_keyset_handle)
-          ->GetPrimitive<crypto::tink::Aead>(
-              crypto::tink::ConfigGlobalRegistry());
+      (*master_keyset_handle)->GetPrimitive<crypto::tink::Aead>(config_);
   if (!master_aead.ok()) {
     response->set_err(master_aead.status().message());
     return grpc::Status::OK;
@@ -508,9 +517,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
     return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> master_aead =
-      (*master_keyset_handle)
-          ->GetPrimitive<crypto::tink::Aead>(
-              crypto::tink::ConfigGlobalRegistry());
+      (*master_keyset_handle)->GetPrimitive<crypto::tink::Aead>(config_);
   if (!master_aead.ok()) {
     response->set_err(master_aead.status().message());
     return grpc::Status::OK;

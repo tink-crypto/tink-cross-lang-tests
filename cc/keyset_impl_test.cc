@@ -25,14 +25,17 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/memory/memory.h"
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
-#include "tink/config/tink_config.h"
+#include "tink/config/key_gen_config_2026.h"
 #include "tink/hybrid/hybrid_key_templates.h"
+#include "tink/keyset_handle.h"
 #include "tink/util/test_matchers.h"
-
 namespace crypto {
 namespace tink {
 namespace {
@@ -62,10 +65,7 @@ using ::tink_testing_api::KeysetToJsonResponse;
 using ::tink_testing_api::KeysetWriteEncryptedRequest;
 using ::tink_testing_api::KeysetWriteEncryptedResponse;
 
-class KeysetImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_TRUE(TinkConfig::Register().ok()); }
-};
+class KeysetImplTest : public ::testing::Test {};
 
 TEST_F(KeysetImplTest, GenerateSuccess) {
   tink_testing_api::KeysetImpl keyset;
@@ -99,15 +99,15 @@ TEST_F(KeysetImplTest, GenerateFail) {
 absl::StatusOr<std::string> AeadKeyset() {
   absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm(),
-                                KeyGenConfigGlobalRegistry());
+                                crypto::tink::KeyGenConfig2026());
   if (!handle.ok()) {
     return handle.status();
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
-  if (!handle.ok()) {
-    return handle.status();
+  if (!writer.ok()) {
+    return writer.status();
   }
   absl::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
   if (!status.ok()) {
@@ -120,7 +120,7 @@ absl::StatusOr<std::string> ValidPrivateKeyset() {
   absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(
           HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
-          KeyGenConfigGlobalRegistry());
+          crypto::tink::KeyGenConfig2026());
   if (!handle.ok()) {
     return handle.status();
   }

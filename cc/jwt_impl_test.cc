@@ -30,12 +30,9 @@
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/jwt/jwt_key_templates.h"
-#include "tink/jwt/jwt_mac_config.h"
 #include "tink/jwt/jwt_mac_key_gen_config_2026.h"
-#include "tink/jwt/jwt_signature_config.h"
 #include "tink/jwt/jwt_signature_key_gen_config_2026.h"
 #include "tink/keyset_handle.h"
-#include "tink/util/test_matchers.h"
 
 namespace crypto {
 namespace tink {
@@ -44,7 +41,6 @@ namespace {
 using ::crypto::tink::BinaryKeysetWriter;
 using ::crypto::tink::CleartextKeysetHandle;
 using ::crypto::tink::KeysetHandle;
-using ::crypto::tink::test::IsOk;
 using ::google::crypto::tink::KeyTemplate;
 using ::testing::ElementsAre;
 using ::testing::Eq;
@@ -67,22 +63,17 @@ std::string ValidKeyset() {
   const KeyTemplate& key_template = ::crypto::tink::JwtHs256Template();
   absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
       KeysetHandle::GenerateNew(key_template, KeyGenConfigJwtMac2026());
-  EXPECT_THAT(handle.status(), IsOk());
-
+  CHECK_OK(handle.status());
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
-  EXPECT_THAT(writer.status(), IsOk());
-
+  CHECK_OK(writer.status());
   absl::Status status = CleartextKeysetHandle::Write((*writer).get(), **handle);
-  EXPECT_THAT(status, IsOk());
+  CHECK_OK(status);
   return keyset.str();
 }
 
-class JwtImplMacTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_THAT(JwtMacRegister(), IsOk()); }
-};
+class JwtImplMacTest : public ::testing::Test {};
 
 TEST_F(JwtImplMacTest, CreateJwtMacSuccess) {
   tink_testing_api::JwtImpl jwt;
@@ -206,7 +197,6 @@ TEST_F(JwtImplMacTest, VerifyWithWrongIssuerFails) {
 
 class JwtImplSignatureTest : public ::testing::Test {
  protected:
-  static void SetUpTestSuite() { ASSERT_THAT(JwtSignatureRegister(), IsOk()); }
   void SetUp() override {
     const KeyTemplate& key_template = ::crypto::tink::JwtEs256Template();
     absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
@@ -217,26 +207,21 @@ class JwtImplSignatureTest : public ::testing::Test {
     std::stringbuf keyset;
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
-    EXPECT_THAT(writer.status(), IsOk());
+    CHECK_OK(writer.status());
 
-    absl::Status status =
-        CleartextKeysetHandle::Write((*writer).get(), **handle);
-    EXPECT_THAT(status, IsOk());
+    CHECK_OK(CleartextKeysetHandle::Write((*writer).get(), **handle));
     private_keyset_ = keyset.str();
 
-    absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> pub_handle =
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> pub_handle =
         (*handle)->GetPublicKeysetHandle(
             crypto::tink::KeyGenConfigJwtSignature2026());
-    EXPECT_THAT(pub_handle.status(), IsOk());
-
+    CHECK_OK(pub_handle.status());
     std::stringbuf pub_keyset;
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> pub_writer =
         BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&pub_keyset));
-    EXPECT_THAT(writer.status(), IsOk());
+    CHECK_OK(pub_writer.status());
 
-    absl::Status pub_status =
-        CleartextKeysetHandle::Write(pub_writer->get(), **pub_handle);
-    EXPECT_THAT(pub_status, IsOk());
+    CHECK_OK(CleartextKeysetHandle::Write((*pub_writer).get(), **pub_handle));
     public_keyset_ = pub_keyset.str();
   }
   std::string private_keyset_;

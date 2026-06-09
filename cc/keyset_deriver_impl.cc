@@ -17,15 +17,23 @@
 #include "keyset_deriver_impl.h"
 
 #include <memory>
-#include <string>
+#include <ostream>
+#include <sstream>
 #include <utility>
 
+#include "absl/status/statusor.h"
+#include <grpcpp/server_context.h>
+#include <grpcpp/support/status.h>
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/keyderivation/keyset_deriver.h"
 #include "tink/keyset_handle.h"
+#include "tink/keyset_reader.h"
+#include "tink/util/status.h"
+#include "tink/util/statusor.h"
 #include "create.h"
+#include "testing_server_config.h"
 
 namespace tink_testing_api {
 
@@ -62,7 +70,7 @@ grpc::Status KeysetDeriverImpl::DeriveKeyset(
   absl::StatusOr<std::unique_ptr<crypto::tink::KeysetDeriver>> deriver =
       (*keyset_handle)
           ->GetPrimitive<crypto::tink::KeysetDeriver>(
-              crypto::tink::ConfigGlobalRegistry());
+              tink_testing_api::TestingServerConfig());
   if (!deriver.ok()) {
     response->set_err(deriver.status().message());
     return grpc::Status::OK;

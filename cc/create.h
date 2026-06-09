@@ -27,11 +27,11 @@
 #include <grpcpp/support/status.h>
 #include "tink/binary_keyset_reader.h"
 #include "tink/cleartext_keyset_handle.h"
-#include "tink/config/global_registry.h"
 #include "tink/configuration.h"
 #include "tink/keyset_handle.h"
 #include "tink/keyset_reader.h"
 #include "tink/util/statusor.h"
+#include "testing_server_config.h"
 #include "protos/testing_api.pb.h"
 
 namespace tink_testing_api {
@@ -50,9 +50,10 @@ PrimitiveFromSerializedBinaryProtoKeyset(
   if (!reader.ok()) {
     return reader.status();
   }
+
   absl::flat_hash_map<std::string, std::string> annotations;
-  for (const auto& annotation : annotated_keyset.annotations()) {
-    annotations[annotation.first] = annotation.second;
+  for (const auto& [name, value] : annotated_keyset.annotations()) {
+    annotations[name] = value;
   }
   absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> handle =
       crypto::tink::CleartextKeysetHandle::Read(*std::move(reader),
@@ -60,6 +61,7 @@ PrimitiveFromSerializedBinaryProtoKeyset(
   if (!handle.ok()) {
     return handle.status();
   }
+
   return (*handle)->GetPrimitive<T>(config);
 }
 
@@ -68,7 +70,7 @@ crypto::tink::util::StatusOr<std::unique_ptr<T>>
 PrimitiveFromSerializedBinaryProtoKeyset(
     const AnnotatedKeyset& annotated_keyset) {
   return PrimitiveFromSerializedBinaryProtoKeyset<T>(
-      annotated_keyset, crypto::tink::ConfigGlobalRegistry());
+      annotated_keyset, tink_testing_api::TestingServerConfig());
 }
 
 // Tries to create a primitive of type T from the creation request and
@@ -91,7 +93,7 @@ template <typename T>
 grpc::Status CreatePrimitiveForRpc(const CreationRequest* request,
                                    CreationResponse* response) {
   return CreatePrimitiveForRpc<T>(request, response,
-                                  crypto::tink::ConfigGlobalRegistry());
+                                  tink_testing_api::TestingServerConfig());
 }
 
 }  // namespace tink_testing_api

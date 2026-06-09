@@ -27,7 +27,6 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/config/key_gen_config_2026.h"
 #include "tink/keyset_handle.h"
-#include "tink/mac/mac_config.h"
 #include "tink/mac/mac_key_templates.h"
 
 namespace crypto {
@@ -65,10 +64,7 @@ std::string ValidKeyset() {
   return keyset.str();
 }
 
-class MacImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_TRUE(MacConfig::Register().ok()); }
-};
+using MacImplTest = ::testing::Test;
 
 TEST_F(MacImplTest, CreateMacSuccess) {
   tink_testing_api::MacImpl mac;

@@ -22,7 +22,10 @@
 #include "absl/container/flat_hash_map.h"
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
+#include "tink/configuration.h"
+#include "tink/key_gen_configuration.h"
 #include "proto/tink.pb.h"
+#include "testing_server_config.h"
 #include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
@@ -64,9 +67,14 @@ class KeysetImpl final : public Keyset::Service {
   grpc::Status ReadEncrypted(grpc::ServerContext* context,
                              const KeysetReadEncryptedRequest* request,
                              KeysetReadEncryptedResponse* response) override;
-  KeysetImpl();
+  explicit KeysetImpl(const crypto::tink::Configuration& config =
+                          tink_testing_api::TestingServerConfig(),
+                      const crypto::tink::KeyGenConfiguration& key_gen_config =
+                          tink_testing_api::TestingServerKeyGenConfig());
 
  private:
+  const crypto::tink::Configuration& config_;
+  const crypto::tink::KeyGenConfiguration& key_gen_config_;
   absl::flat_hash_map<std::string, google::crypto::tink::KeyTemplate>
       key_templates_;
 };

@@ -17,6 +17,7 @@
 // Implementation of a JWT Service.
 #include "jwt_impl.h"
 
+#include <cstdint>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -24,7 +25,12 @@
 #include <utility>
 #include <vector>
 
+#include "absl/memory/memory.h"
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "absl/time/time.h"
+#include <grpcpp/server_context.h>
+#include <grpcpp/support/status.h>
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
@@ -32,9 +38,14 @@
 #include "tink/jwt/jwt_mac.h"
 #include "tink/jwt/jwt_public_key_sign.h"
 #include "tink/jwt/jwt_public_key_verify.h"
+#include "tink/jwt/jwt_validator.h"
 #include "tink/jwt/raw_jwt.h"
-#include "tink/util/status.h"
+#include "tink/jwt/verified_jwt.h"
+#include "tink/keyset_handle.h"
+#include "tink/keyset_reader.h"
+#include "tink/util/statusor.h"
 #include "create.h"
+#include "testing_server_config.h"
 
 namespace tink_testing_api {
 
@@ -213,19 +224,22 @@ absl::StatusOr<crypto::tink::JwtValidator> JwtValidatorFromProto(
 ::grpc::Status JwtImpl::CreateJwtMac(grpc::ServerContext* context,
                                      const CreationRequest* request,
                                      CreationResponse* response) {
-  return CreatePrimitiveForRpc<JwtMac>(request, response);
+  return CreatePrimitiveForRpc<JwtMac>(request, response,
+                                       tink_testing_api::TestingServerConfig());
 }
 
 ::grpc::Status JwtImpl::CreateJwtPublicKeySign(grpc::ServerContext* context,
                                                const CreationRequest* request,
                                                CreationResponse* response) {
-  return CreatePrimitiveForRpc<JwtPublicKeySign>(request, response);
+  return CreatePrimitiveForRpc<JwtPublicKeySign>(
+      request, response, tink_testing_api::TestingServerConfig());
 }
 
 ::grpc::Status JwtImpl::CreateJwtPublicKeyVerify(grpc::ServerContext* context,
                                                  const CreationRequest* request,
                                                  CreationResponse* response) {
-  return CreatePrimitiveForRpc<JwtPublicKeyVerify>(request, response);
+  return CreatePrimitiveForRpc<JwtPublicKeyVerify>(
+      request, response, tink_testing_api::TestingServerConfig());
 }
 
 // Computes a MAC and generates a signed compact JWT
@@ -234,7 +248,7 @@ grpc::Status JwtImpl::ComputeMacAndEncode(grpc::ServerContext* context,
                                             JwtSignResponse* response) {
   absl::StatusOr<std::unique_ptr<JwtMac>> jwt_mac =
       PrimitiveFromSerializedBinaryProtoKeyset<JwtMac>(
-          request->annotated_keyset());
+          request->annotated_keyset(), tink_testing_api::TestingServerConfig());
   if (!jwt_mac.ok()) {
     response->set_err(jwt_mac.status().message());
     return grpc::Status::OK;
@@ -260,7 +274,7 @@ grpc::Status JwtImpl::VerifyMacAndDecode(grpc::ServerContext* context,
                                            JwtVerifyResponse* response) {
   absl::StatusOr<std::unique_ptr<JwtMac>> jwt_mac =
       PrimitiveFromSerializedBinaryProtoKeyset<JwtMac>(
-          request->annotated_keyset());
+          request->annotated_keyset(), tink_testing_api::TestingServerConfig());
   if (!jwt_mac.ok()) {
     response->set_err(jwt_mac.status().message());
     return grpc::Status::OK;
@@ -282,7 +296,7 @@ grpc::Status JwtImpl::PublicKeySignAndEncode(grpc::ServerContext* context,
                                    JwtSignResponse* response) {
   absl::StatusOr<std::unique_ptr<JwtPublicKeySign>> jwt_sign =
       PrimitiveFromSerializedBinaryProtoKeyset<JwtPublicKeySign>(
-          request->annotated_keyset());
+          request->annotated_keyset(), tink_testing_api::TestingServerConfig());
   if (!jwt_sign.ok()) {
     response->set_err(jwt_sign.status().message());
     return grpc::Status::OK;
@@ -306,7 +320,7 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
                                         JwtVerifyResponse* response) {
   absl::StatusOr<std::unique_ptr<JwtPublicKeyVerify>> jwt_verify =
       PrimitiveFromSerializedBinaryProtoKeyset<JwtPublicKeyVerify>(
-          request->annotated_keyset());
+          request->annotated_keyset(), tink_testing_api::TestingServerConfig());
   if (!jwt_verify.ok()) {
     response->set_err(jwt_verify.status().message());
     return grpc::Status::OK;

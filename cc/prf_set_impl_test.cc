@@ -27,7 +27,6 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/config/key_gen_config_2026.h"
 #include "tink/keyset_handle.h"
-#include "tink/prf/prf_config.h"
 #include "tink/prf/prf_key_templates.h"
 
 namespace crypto {
@@ -67,10 +66,7 @@ std::string ValidKeyset() {
   return keyset.str();
 }
 
-class PrfSetImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() { ASSERT_TRUE(PrfConfig::Register().ok()); }
-};
+using PrfSetImplTest = ::testing::Test;
 
 TEST_F(PrfSetImplTest, CreateAeadSuccess) {
   tink_testing_api::PrfSetImpl prfset;

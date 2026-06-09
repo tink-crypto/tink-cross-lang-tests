@@ -23,13 +23,13 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/log/check.h"
 #include "absl/memory/memory.h"
 #include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/keyset_handle.h"
 #include "tink/signature/key_gen_config_2026.h"
-#include "tink/signature/signature_config.h"
 #include "tink/signature/signature_key_templates.h"
 
 namespace crypto {
@@ -62,12 +62,7 @@ std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   return keyset.str();
 }
 
-class SignatureImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() {
-    ASSERT_TRUE(SignatureConfig::Register().ok());
-  }
-};
+using SignatureImplTest = ::testing::Test;
 
 TEST_F(SignatureImplTest, CreatePublicKeySignSuccess) {
   tink_testing_api::SignatureImpl signature;

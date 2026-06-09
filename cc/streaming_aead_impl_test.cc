@@ -27,7 +27,6 @@
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/keyset_handle.h"
 #include "tink/streamingaead/key_gen_config_2026.h"
-#include "tink/streamingaead/streaming_aead_config.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
 
 namespace crypto {
@@ -67,12 +66,7 @@ std::string ValidKeyset() {
   return keyset.str();
 }
 
-class StreamingAeadImplTest : public ::testing::Test {
- protected:
-  static void SetUpTestSuite() {
-    ASSERT_TRUE(StreamingAeadConfig::Register().ok());
-  }
-};
+class StreamingAeadImplTest : public ::testing::Test {};
 
 TEST_F(StreamingAeadImplTest, CreateSuccess) {
   tink_testing_api::StreamingAeadImpl streaming_aead;

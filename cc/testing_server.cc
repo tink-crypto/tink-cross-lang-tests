@@ -27,6 +27,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
+#include "tink/config/global_registry.h"
 #include "tink/config/tink_config.h"
 #include "tink/hybrid/hpke_config.h"
 #include "tink/integration/gcpkms/gcp_kms_client.h"
@@ -45,6 +46,7 @@
 #include "prf_set_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
+#include "testing_server_config.h"
 
 ABSL_FLAG(int, port, 23456, "the port");
 ABSL_FLAG(std::string, gcp_credentials_path, "",
@@ -110,7 +112,8 @@ void RunServer() {
   std::string server_address = absl::StrCat("[::]:", port);
 
   MetadataImpl metadata;
-  KeysetImpl keyset;
+  KeysetImpl keyset(tink_testing_api::TestingServerConfig(),
+                    crypto::tink::KeyGenConfigGlobalRegistry());
   AeadImpl aead;
   DeterministicAeadImpl deterministic_aead;
   HybridImpl hybrid;
