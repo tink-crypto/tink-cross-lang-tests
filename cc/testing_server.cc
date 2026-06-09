@@ -14,17 +14,19 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <grpcpp/grpcpp.h>
-
 #include <iostream>
 #include <memory>
-#include <ostream>
 #include <string>
 
 // Placeholder for internal base library
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
+#include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
+#include <grpc/grpc_security_constants.h>
+#include <grpcpp/security/server_credentials.h>
+#include <grpcpp/server.h>
+#include <grpcpp/server_builder.h>
 #include "tink/config/tink_config.h"
 #include "tink/hybrid/hpke_config.h"
 #include "tink/integration/gcpkms/gcp_kms_client.h"
@@ -32,7 +34,6 @@
 #include "tink/jwt/jwt_signature_config.h"
 #include "tink/keyderivation/key_derivation_config.h"
 #include "tink/util/fake_kms_client.h"
-#include "tink/util/status.h"
 #include "aead_impl.h"
 #include "deterministic_aead_impl.h"
 #include "hybrid_impl.h"
@@ -44,7 +45,6 @@
 #include "prf_set_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
-#include "protos/testing_api.grpc.pb.h"
 
 ABSL_FLAG(int, port, 23456, "the port");
 ABSL_FLAG(std::string, gcp_credentials_path, "",

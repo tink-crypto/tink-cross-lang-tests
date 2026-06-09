@@ -17,10 +17,8 @@
 #ifndef THIRD_PARTY_TINK_TESTING_CC_SIGNATURE_IMPL_H_
 #define THIRD_PARTY_TINK_TESTING_CC_SIGNATURE_IMPL_H_
 
-#include <grpcpp/grpcpp.h>
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
-
 #include "protos/testing_api.grpc.pb.h"
 
 namespace tink_testing_api {
