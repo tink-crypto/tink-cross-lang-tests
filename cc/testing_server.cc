@@ -27,13 +27,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
 #include <grpcpp/server_builder.h>
-#include "tink/config/global_registry.h"
-#include "tink/config/tink_config.h"
-#include "tink/hybrid/hpke_config.h"
 #include "tink/integration/gcpkms/gcp_kms_client.h"
-#include "tink/jwt/jwt_mac_config.h"
-#include "tink/jwt/jwt_signature_config.h"
-#include "tink/keyderivation/key_derivation_config.h"
 #include "tink/util/fake_kms_client.h"
 #include "aead_impl.h"
 #include "deterministic_aead_impl.h"
@@ -46,7 +40,6 @@
 #include "prf_set_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
-#include "testing_server_config.h"
 
 ABSL_FLAG(int, port, 23456, "the port");
 ABSL_FLAG(std::string, gcp_credentials_path, "",
@@ -60,34 +53,6 @@ ABSL_FLAG(std::string, aws_credentials_path, "", "AWS KMS credentials path");
 namespace tink_testing_api {
 
 void RunServer() {
-  auto status = crypto::tink::TinkConfig::Register();
-  if (!status.ok()) {
-    std::cerr << "TinkConfig::Register() failed: " << status.message() << '\n';
-    return;
-  }
-  auto hpke_status = crypto::tink::RegisterHpke();
-  if (!hpke_status.ok()) {
-    std::cerr << "RegisterHpke() failed: " << hpke_status.message() << '\n';
-    return;
-  }
-  auto jwt_mac_status = crypto::tink::JwtMacRegister();
-  if (!jwt_mac_status.ok()) {
-    std::cerr << "JwtMacRegister() failed: " << jwt_mac_status.message()
-              << '\n';
-    return;
-  }
-  auto jwt_signature_status = crypto::tink::JwtSignatureRegister();
-  if (!jwt_signature_status.ok()) {
-    std::cerr << "JwtSignatureRegister() failed: "
-              << jwt_signature_status.message() << '\n';
-    return;
-  }
-  auto key_derivation_status = crypto::tink::KeyDerivationConfig::Register();
-  if (!key_derivation_status.ok()) {
-    std::cout << "KeyDerivationConfig::Register() failed: "
-              << key_derivation_status.message() << '\n';
-    return;
-  }
   auto register_fake_kms_client_status =
       crypto::tink::test::FakeKmsClient::RegisterNewClient("", "");
   if (!register_fake_kms_client_status.ok()) {
@@ -112,8 +77,7 @@ void RunServer() {
   std::string server_address = absl::StrCat("[::]:", port);
 
   MetadataImpl metadata;
-  KeysetImpl keyset(tink_testing_api::TestingServerConfig(),
-                    crypto::tink::KeyGenConfigGlobalRegistry());
+  KeysetImpl keyset;
   AeadImpl aead;
   DeterministicAeadImpl deterministic_aead;
   HybridImpl hybrid;

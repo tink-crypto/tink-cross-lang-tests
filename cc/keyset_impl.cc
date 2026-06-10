@@ -27,6 +27,7 @@
 #include "absl/memory/memory.h"
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
+#include "absl/types/optional.h"
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
 #include "tink/aead.h"
@@ -41,10 +42,12 @@
 #include "tink/json/json_keyset_writer.h"
 #include "tink/jwt/jwt_key_templates.h"
 #include "tink/key_gen_configuration.h"
+#include "tink/key_status.h"
 #include "tink/keyset_handle.h"
 #include "tink/keyset_reader.h"
 #include "tink/keyset_writer.h"
 #include "tink/mac/mac_key_templates.h"
+#include "tink/parameters.h"
 #include "tink/prf/prf_key_templates.h"
 #include "tink/proto_parameters_format.h"
 #include "tink/signature/ml_dsa_parameters.h"
@@ -290,14 +293,27 @@ grpc::Status KeysetImpl::GetTemplate(grpc::ServerContext* context,
 grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
                                   const KeysetGenerateRequest* request,
                                   KeysetGenerateResponse* response) {
-  KeyTemplate key_template;
-  if (!key_template.ParseFromString(request->template_())) {
-    response->set_err("Could not parse the key template");
+  absl::StatusOr<std::unique_ptr<crypto::tink::Parameters>> parameters =
+      crypto::tink::ParseParametersFromProtoFormat(request->template_());
+  if (!parameters.ok()) {
+    response->set_err(parameters.status().message());
     return grpc::Status::OK;
   }
-  auto handle_result = KeysetHandle::GenerateNew(key_template, key_gen_config_);
-  if (!handle_result.ok()) {
-    response->set_err(handle_result.status().message());
+
+  std::shared_ptr<const crypto::tink::Parameters> shared_parameters =
+      std::move(*parameters);
+  crypto::tink::KeysetHandleBuilder::Entry entry =
+      crypto::tink::KeysetHandleBuilder::Entry::CreateFromParams(
+          shared_parameters, crypto::tink::KeyStatus::kEnabled,
+          /*is_primary=*/true,
+          /*id=*/absl::nullopt);
+  absl::StatusOr<crypto::tink::KeysetHandle> handle =
+      crypto::tink::KeysetHandleBuilder()
+          .AddEntry(std::move(entry))
+          .Build(key_gen_config_);
+
+  if (!handle.ok()) {
+    response->set_err(handle.status().message());
     return grpc::Status::OK;
   }
   std::stringbuf keyset;
@@ -307,8 +323,8 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
     response->set_err(writer_result.status().message());
     return grpc::Status::OK;
   }
-  auto status = CleartextKeysetHandle::Write(writer_result.value().get(),
-                                             *handle_result.value());
+  auto status =
+      CleartextKeysetHandle::Write(writer_result.value().get(), *handle);
   if (!status.ok()) {
     response->set_err(status.message());
     return grpc::Status::OK;
