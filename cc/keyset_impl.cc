@@ -50,10 +50,11 @@
 #include "tink/parameters.h"
 #include "tink/prf/prf_key_templates.h"
 #include "tink/proto_parameters_format.h"
+#include "tink/signature/composite_ml_dsa_parameters.h"
 #include "tink/signature/ml_dsa_parameters.h"
 #include "tink/signature/signature_key_templates.h"
 #include "tink/streamingaead/streaming_aead_key_templates.h"
-#include "tink/util/statusor.h"
+#include "absl/status/statusor.h"
 #include "proto/tink.pb.h"
 
 namespace tink_testing_api {
@@ -66,14 +67,11 @@ using ::crypto::tink::JsonKeysetWriter;
 using ::crypto::tink::KeysetHandle;
 using ::crypto::tink::KeysetReader;
 using ::crypto::tink::KeysetWriter;
-using ::crypto::tink::util::StatusOr;
 using ::google::crypto::tink::KeyTemplate;
 
-absl::StatusOr<KeyTemplate> CreateMlDsaTemplate(
-    crypto::tink::MlDsaParameters::Instance instance,
-    crypto::tink::MlDsaParameters::Variant variant) {
-  absl::StatusOr<crypto::tink::MlDsaParameters> parameters =
-      crypto::tink::MlDsaParameters::Create(instance, variant);
+template <typename ParametersT>
+absl::StatusOr<KeyTemplate> CreateTemplate(
+    const absl::StatusOr<ParametersT>& parameters) {
   if (!parameters.ok()) return parameters.status();
 
   absl::StatusOr<std::string> serialized =
@@ -244,30 +242,83 @@ KeysetImpl::KeysetImpl(const crypto::tink::Configuration& config,
       crypto::tink::RawJwtPs512_4096_F4_Template();
 
   // ML-DSA-65
-  absl::StatusOr<KeyTemplate> mldsa65_tink = CreateMlDsaTemplate(
-      crypto::tink::MlDsaParameters::Instance::kMlDsa65,
-      crypto::tink::MlDsaParameters::Variant::kTink);
+  absl::StatusOr<KeyTemplate> mldsa65_tink =
+      CreateTemplate(crypto::tink::MlDsaParameters::Create(
+          crypto::tink::MlDsaParameters::Instance::kMlDsa65,
+          crypto::tink::MlDsaParameters::Variant::kTink));
   CHECK_OK(mldsa65_tink.status());
   key_templates_["ML_DSA_65"] = *mldsa65_tink;
 
-  absl::StatusOr<KeyTemplate> mldsa65_raw = CreateMlDsaTemplate(
-      crypto::tink::MlDsaParameters::Instance::kMlDsa65,
-      crypto::tink::MlDsaParameters::Variant::kNoPrefix);
+  absl::StatusOr<KeyTemplate> mldsa65_raw =
+      CreateTemplate(crypto::tink::MlDsaParameters::Create(
+          crypto::tink::MlDsaParameters::Instance::kMlDsa65,
+          crypto::tink::MlDsaParameters::Variant::kNoPrefix));
   CHECK_OK(mldsa65_raw.status());
   key_templates_["ML_DSA_65_RAW"] = *mldsa65_raw;
 
   // ML-DSA-87
-  absl::StatusOr<KeyTemplate> mldsa87_tink = CreateMlDsaTemplate(
-      crypto::tink::MlDsaParameters::Instance::kMlDsa87,
-      crypto::tink::MlDsaParameters::Variant::kTink);
+  absl::StatusOr<KeyTemplate> mldsa87_tink =
+      CreateTemplate(crypto::tink::MlDsaParameters::Create(
+          crypto::tink::MlDsaParameters::Instance::kMlDsa87,
+          crypto::tink::MlDsaParameters::Variant::kTink));
   CHECK_OK(mldsa87_tink.status());
   key_templates_["ML_DSA_87"] = *mldsa87_tink;
 
-  absl::StatusOr<KeyTemplate> mldsa87_raw = CreateMlDsaTemplate(
-      crypto::tink::MlDsaParameters::Instance::kMlDsa87,
-      crypto::tink::MlDsaParameters::Variant::kNoPrefix);
+  absl::StatusOr<KeyTemplate> mldsa87_raw =
+      CreateTemplate(crypto::tink::MlDsaParameters::Create(
+          crypto::tink::MlDsaParameters::Instance::kMlDsa87,
+          crypto::tink::MlDsaParameters::Variant::kNoPrefix));
   CHECK_OK(mldsa87_raw.status());
   key_templates_["ML_DSA_87_RAW"] = *mldsa87_raw;
+
+  // Composite ML-DSA
+  absl::StatusOr<KeyTemplate> composite_mldsa65_ed25519 = CreateTemplate(
+      crypto::tink::CompositeMlDsaParameters::Create(
+          crypto::tink::CompositeMlDsaParameters::MlDsaInstance::kMlDsa65,
+          crypto::tink::CompositeMlDsaParameters::ClassicalAlgorithm::kEd25519,
+          crypto::tink::CompositeMlDsaParameters::Variant::kTink));
+  CHECK_OK(composite_mldsa65_ed25519.status());
+  key_templates_["COMPOSITE_MLDSA_65_ED25519"] = *composite_mldsa65_ed25519;
+
+  absl::StatusOr<KeyTemplate> composite_mldsa65_ecdsa_p256 = CreateTemplate(
+      crypto::tink::CompositeMlDsaParameters::Create(
+          crypto::tink::CompositeMlDsaParameters::MlDsaInstance::kMlDsa65,
+          crypto::tink::CompositeMlDsaParameters::ClassicalAlgorithm::
+              kEcdsaP256,
+          crypto::tink::CompositeMlDsaParameters::Variant::kTink));
+  CHECK_OK(composite_mldsa65_ecdsa_p256.status());
+  key_templates_["COMPOSITE_MLDSA_65_ECDSA_P256"] =
+      *composite_mldsa65_ecdsa_p256;
+
+  absl::StatusOr<KeyTemplate> composite_mldsa87_ecdsa_p384 = CreateTemplate(
+      crypto::tink::CompositeMlDsaParameters::Create(
+          crypto::tink::CompositeMlDsaParameters::MlDsaInstance::kMlDsa87,
+          crypto::tink::CompositeMlDsaParameters::ClassicalAlgorithm::
+              kEcdsaP384,
+          crypto::tink::CompositeMlDsaParameters::Variant::kTink));
+  CHECK_OK(composite_mldsa87_ecdsa_p384.status());
+  key_templates_["COMPOSITE_MLDSA_87_ECDSA_P384"] =
+      *composite_mldsa87_ecdsa_p384;
+
+  absl::StatusOr<KeyTemplate> composite_mldsa65_rsa3072_pkcs1 = CreateTemplate(
+      crypto::tink::CompositeMlDsaParameters::Create(
+          crypto::tink::CompositeMlDsaParameters::MlDsaInstance::kMlDsa65,
+          crypto::tink::CompositeMlDsaParameters::ClassicalAlgorithm::
+              kRsa3072Pkcs1,
+          crypto::tink::CompositeMlDsaParameters::Variant::kTink));
+  CHECK_OK(composite_mldsa65_rsa3072_pkcs1.status());
+  key_templates_["COMPOSITE_MLDSA_65_RSA3072_PKCS1"] =
+      *composite_mldsa65_rsa3072_pkcs1;
+
+  absl::StatusOr<KeyTemplate> composite_mldsa87_rsa4096_pss = CreateTemplate(
+      crypto::tink::CompositeMlDsaParameters::Create(
+          crypto::tink::CompositeMlDsaParameters::MlDsaInstance::kMlDsa87,
+          crypto::tink::CompositeMlDsaParameters::ClassicalAlgorithm::
+              kRsa4096Pss,
+          crypto::tink::CompositeMlDsaParameters::Variant::kTink));
+  CHECK_OK(composite_mldsa87_rsa4096_pss.status());
+  key_templates_["COMPOSITE_MLDSA_87_RSA4096_PSS"] =
+      *composite_mldsa87_rsa4096_pss;
 }
 
 // Returns the key template for the given template name.

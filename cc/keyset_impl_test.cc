@@ -349,6 +349,40 @@ TEST_F(KeysetImplTest, ReadEncryptedKeysetFail) {
   EXPECT_THAT(read_response.err(), Not(IsEmpty()));
 }
 
+TEST_F(KeysetImplTest, GenerateModernTemplatesSuccess) {
+  tink_testing_api::KeysetImpl keyset;
+  std::vector<std::string> templates = {
+      "ML_DSA_65",
+      "ML_DSA_65_RAW",
+      "ML_DSA_87",
+      "ML_DSA_87_RAW",
+      "COMPOSITE_MLDSA_65_ED25519",
+      "COMPOSITE_MLDSA_65_ECDSA_P256",
+      "COMPOSITE_MLDSA_87_ECDSA_P384",
+      "COMPOSITE_MLDSA_65_RSA3072_PKCS1",
+      "COMPOSITE_MLDSA_87_RSA4096_PSS",
+  };
+
+  for (const std::string& template_name : templates) {
+    KeysetTemplateRequest template_request;
+    template_request.set_template_name(template_name);
+    KeysetTemplateResponse template_response;
+    ASSERT_TRUE(
+        keyset.GetTemplate(nullptr, &template_request, &template_response)
+            .ok());
+    ASSERT_THAT(template_response.err(), IsEmpty());
+
+    KeysetGenerateRequest generate_request;
+    generate_request.set_template_(template_response.key_template());
+    KeysetGenerateResponse generate_response;
+    EXPECT_TRUE(
+        keyset.Generate(nullptr, &generate_request, &generate_response).ok());
+    EXPECT_THAT(generate_response.err(), IsEmpty())
+        << "Failed for " << template_name;
+    EXPECT_THAT(generate_response.keyset(), Not(IsEmpty()));
+  }
+}
+
 using GetTemplateTest = TestWithParam<std::string>;
 
 TEST_P(GetTemplateTest, GetTemplateSuccess) {
@@ -452,7 +486,12 @@ INSTANTIATE_TEST_SUITE_P(
         "JWT_PS384_3072_F4",
         "JWT_PS384_3072_F4_RAW",
         "JWT_PS512_4096_F4",
-        "JWT_PS512_4096_F4_RAW"}));
+        "JWT_PS512_4096_F4_RAW",
+        "COMPOSITE_MLDSA_65_ED25519",
+        "COMPOSITE_MLDSA_65_ECDSA_P256",
+        "COMPOSITE_MLDSA_87_ECDSA_P384",
+        "COMPOSITE_MLDSA_65_RSA3072_PKCS1",
+        "COMPOSITE_MLDSA_87_RSA4096_PSS"}));
 
 }  // namespace
 }  // namespace tink
