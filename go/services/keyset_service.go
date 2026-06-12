@@ -20,19 +20,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/tink-crypto/tink-go/v2/aead"
 	"github.com/tink-crypto/tink-go/v2/daead"
 	"github.com/tink-crypto/tink-go/v2/hybrid"
 	"github.com/tink-crypto/tink-go/v2/insecurecleartextkeyset"
-	mldsapb "github.com/tink-crypto/tink-go/v2/proto/ml_dsa_go_proto"
 	"github.com/tink-crypto/tink-go/v2/jwt"
 	"github.com/tink-crypto/tink-go/v2/keyset"
 	"github.com/tink-crypto/tink-go/v2/mac"
 	"github.com/tink-crypto/tink-go/v2/prf"
+
+	// Register the Composite ML-DSA key managers and templates.
+	_ "github.com/tink-crypto/tink-go/v2/signature/compositemldsa"
 	"github.com/tink-crypto/tink-go/v2/signature/mldsa"
 	"github.com/tink-crypto/tink-go/v2/signature"
 	"github.com/tink-crypto/tink-go/v2/streamingaead"
+	compositemldsapb "github.com/tink-crypto/tink-go/v2/proto/composite_ml_dsa_go_proto"
+	mldsapb "github.com/tink-crypto/tink-go/v2/proto/ml_dsa_go_proto"
 	tinkpb "github.com/tink-crypto/tink-go/v2/proto/tink_go_proto"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 
@@ -41,6 +46,7 @@ import (
 
 // KeysetService implements the Keyset testing service.
 type KeysetService struct {
+	mu        sync.Mutex
 	Templates map[string]*tinkpb.KeyTemplate
 	pb.KeysetServer
 }
@@ -79,12 +85,36 @@ func createMlDsaTemplate(instance mldsa.Instance, variant mldsa.Variant) (*tinkp
 
 	return &tinkpb.KeyTemplate{
 		TypeUrl:          "type.googleapis.com/google.crypto.tink.MlDsaPrivateKey",
-        Value:            serializedFormat,
+		Value:            serializedFormat,
 		OutputPrefixType: prefixType,
 	}, nil
 }
 
+func createCompositeMlDsaTemplate(
+	mlDsaInstance mldsapb.MlDsaInstance,
+	classicalAlg compositemldsapb.CompositeMlDsaClassicalAlgorithm) (*tinkpb.KeyTemplate, error) {
+	keyFormat := &compositemldsapb.CompositeMlDsaKeyFormat{
+		Version: 0,
+		Params: &compositemldsapb.CompositeMlDsaParams{
+			MlDsaInstance:      mlDsaInstance,
+			ClassicalAlgorithm: classicalAlg,
+		},
+	}
+	serializedFormat, err := proto.Marshal(keyFormat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tinkpb.KeyTemplate{
+		TypeUrl:          "type.googleapis.com/google.crypto.tink.CompositeMlDsaPrivateKey",
+		Value:            serializedFormat,
+		OutputPrefixType: tinkpb.OutputPrefixType_TINK,
+	}, nil
+}
+
 func (s *KeysetService) GetTemplate(ctx context.Context, req *pb.KeysetTemplateRequest) (*pb.KeysetTemplateResponse, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.Templates == nil {
 		s.Templates = map[string]*tinkpb.KeyTemplate{
 			"AES128_GCM":                                                 aead.AES128GCMKeyTemplate(),
@@ -189,6 +219,49 @@ func (s *KeysetService) GetTemplate(ctx context.Context, req *pb.KeysetTemplateR
 			return nil, fmt.Errorf("create ML_DSA_87_RAW template: %w", err)
 		}
 		s.Templates["ML_DSA_87_RAW"] = mldsa87Raw
+
+		// Add Composite ML-DSA templates
+		mlDsa65Ed25519, err := createCompositeMlDsaTemplate(mldsapb.MlDsaInstance_ML_DSA_65, compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_ED25519)
+		if err != nil {
+			return nil, fmt.Errorf("create COMPOSITE_MLDSA_65_ED25519 template: %w", err)
+		}
+		s.Templates["COMPOSITE_MLDSA_65_ED25519"] = mlDsa65Ed25519
+
+		mlDsa65EcdsaP256, err := createCompositeMlDsaTemplate(
+			mldsapb.MlDsaInstance_ML_DSA_65,
+			compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_ECDSA_P256,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("create COMPOSITE_MLDSA_65_ECDSA_P256 template: %w", err)
+		}
+		s.Templates["COMPOSITE_MLDSA_65_ECDSA_P256"] = mlDsa65EcdsaP256
+
+		mlDsa87EcdsaP384, err := createCompositeMlDsaTemplate(
+			mldsapb.MlDsaInstance_ML_DSA_87,
+			compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_ECDSA_P384,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("create COMPOSITE_MLDSA_87_ECDSA_P384 template: %w", err)
+		}
+		s.Templates["COMPOSITE_MLDSA_87_ECDSA_P384"] = mlDsa87EcdsaP384
+
+		mlDsa65Rsa3072Pkcs1, err := createCompositeMlDsaTemplate(
+			mldsapb.MlDsaInstance_ML_DSA_65,
+			compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_RSA3072_PKCS1,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("create COMPOSITE_MLDSA_65_RSA3072_PKCS1 template: %w", err)
+		}
+		s.Templates["COMPOSITE_MLDSA_65_RSA3072_PKCS1"] = mlDsa65Rsa3072Pkcs1
+
+		mlDsa87Rsa4096Pss, err := createCompositeMlDsaTemplate(
+			mldsapb.MlDsaInstance_ML_DSA_87,
+			compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_RSA4096_PSS,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("create COMPOSITE_MLDSA_87_RSA4096_PSS template: %w", err)
+		}
+		s.Templates["COMPOSITE_MLDSA_87_RSA4096_PSS"] = mlDsa87Rsa4096Pss
 	}
 	template, success := s.Templates[req.GetTemplateName()]
 	if success && template != nil {
