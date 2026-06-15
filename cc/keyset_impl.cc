@@ -27,7 +27,6 @@
 #include "absl/memory/memory.h"
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
-#include "absl/types/optional.h"
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
 #include "tink/aead.h"
@@ -42,7 +41,6 @@
 #include "tink/json/json_keyset_writer.h"
 #include "tink/jwt/jwt_key_templates.h"
 #include "tink/key_gen_configuration.h"
-#include "tink/key_status.h"
 #include "tink/keyset_handle.h"
 #include "tink/keyset_reader.h"
 #include "tink/keyset_writer.h"
@@ -351,17 +349,9 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
     return grpc::Status::OK;
   }
 
-  std::shared_ptr<const crypto::tink::Parameters> shared_parameters =
-      std::move(*parameters);
-  crypto::tink::KeysetHandleBuilder::Entry entry =
-      crypto::tink::KeysetHandleBuilder::Entry::CreateFromParams(
-          shared_parameters, crypto::tink::KeyStatus::kEnabled,
-          /*is_primary=*/true,
-          /*id=*/absl::nullopt);
-  absl::StatusOr<crypto::tink::KeysetHandle> handle =
-      crypto::tink::KeysetHandleBuilder()
-          .AddEntry(std::move(entry))
-          .Build(key_gen_config_);
+  absl::StatusOr<std::unique_ptr<crypto::tink::KeysetHandle>> handle =
+      crypto::tink::KeysetHandle::GenerateNewFromParameters(**parameters,
+                                                            key_gen_config_);
 
   if (!handle.ok()) {
     response->set_err(handle.status().message());
@@ -375,7 +365,7 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
     return grpc::Status::OK;
   }
   auto status =
-      CleartextKeysetHandle::Write(writer_result.value().get(), *handle);
+      CleartextKeysetHandle::Write(writer_result.value().get(), **handle);
   if (!status.ok()) {
     response->set_err(status.message());
     return grpc::Status::OK;
