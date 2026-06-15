@@ -75,6 +75,7 @@ KEY_TYPES = {
         'MlDsaPrivateKey',
         'RsaSsaPkcs1PrivateKey',
         'RsaSsaPssPrivateKey',
+        'CompositeMlDsaPrivateKey',
     ),
     signature.PublicKeyVerify: (
         'EcdsaPublicKey',
@@ -82,6 +83,7 @@ KEY_TYPES = {
         'MlDsaPublicKey',
         'RsaSsaPkcs1PublicKey',
         'RsaSsaPssPublicKey',
+        'CompositeMlDsaPublicKey',
     ),
 }
 
@@ -101,6 +103,7 @@ PRIVATE_TO_PUBLIC_KEY = {
     'MlDsaPrivateKey': 'MlDsaPublicKey',
     'RsaSsaPkcs1PrivateKey': 'RsaSsaPkcs1PublicKey',
     'RsaSsaPssPrivateKey': 'RsaSsaPssPublicKey',
+    'CompositeMlDsaPrivateKey': 'CompositeMlDsaPublicKey',
     'JwtEcdsaPrivateKey': 'JwtEcdsaPublicKey',
     'JwtRsaSsaPkcs1PrivateKey': 'JwtRsaSsaPkcs1PublicKey',
     'JwtRsaSsaPssPrivateKey': 'JwtRsaSsaPssPublicKey',
@@ -139,6 +142,8 @@ SUPPORTED_LANGUAGES = {
     'RsaSsaPkcs1PublicKey': ['cc', 'java', 'go', 'python'],
     'RsaSsaPssPrivateKey': ['cc', 'java', 'go', 'python'],
     'RsaSsaPssPublicKey': ['cc', 'java', 'go', 'python'],
+    'CompositeMlDsaPrivateKey': ['cc', 'go'],
+    'CompositeMlDsaPublicKey': ['cc', 'go'],
     'AesCmacPrfKey': ['cc', 'java', 'go', 'python'],
     'HmacPrfKey': ['cc', 'java', 'go', 'python'],
     'HkdfPrfKey': ['cc', 'java', 'go', 'python'],

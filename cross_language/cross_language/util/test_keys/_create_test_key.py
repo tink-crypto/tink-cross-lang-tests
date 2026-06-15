@@ -69,6 +69,12 @@ def _use_stored_key(template: tink_pb2.KeyTemplate) -> bool:
   if (template.type_url ==
       'type.googleapis.com/google.crypto.tink.JwtRsaSsaPssPrivateKey'):
     return True
+  # Python Tink does not support Composite ML-DSA, so we use stored keys.
+  if (
+      template.type_url
+      == 'type.googleapis.com/google.crypto.tink.CompositeMlDsaPrivateKey'
+  ):
+    return True
   return False
 
 

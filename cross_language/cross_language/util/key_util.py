@@ -60,6 +60,7 @@ from tink.proto import aes_gcm_pb2
 from tink.proto import aes_gcm_siv_pb2
 from tink.proto import aes_siv_pb2
 from tink.proto import chacha20_poly1305_pb2
+from tink.proto import composite_ml_dsa_pb2
 from tink.proto import ecdsa_pb2
 from tink.proto import ecies_aead_hkdf_pb2
 from tink.proto import ed25519_pb2
@@ -169,6 +170,14 @@ KeyProto.add_key_type(kms_aead_pb2.KmsAeadKey, kms_aead_pb2.KmsAeadKeyFormat)
 KeyProto.add_key_type(kms_envelope_pb2.KmsEnvelopeAeadKey,
                       kms_envelope_pb2.KmsEnvelopeAeadKeyFormat)
 KeyProto.add_key_type(ml_dsa_pb2.MlDsaPrivateKey, ml_dsa_pb2.MlDsaKeyFormat)
+KeyProto.add_key_type(
+    composite_ml_dsa_pb2.CompositeMlDsaPrivateKey,
+    composite_ml_dsa_pb2.CompositeMlDsaKeyFormat,
+)
+KeyProto.add_key_type(
+    composite_ml_dsa_pb2.CompositeMlDsaPublicKey,
+    composite_ml_dsa_pb2.CompositeMlDsaKeyFormat,
+)
 
 
 def _text_format_field(value: Any,

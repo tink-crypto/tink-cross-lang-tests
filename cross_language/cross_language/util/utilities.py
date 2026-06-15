@@ -26,11 +26,35 @@ from tink import prf
 from tink import signature
 from tink import streaming_aead
 
+from tink.proto import composite_ml_dsa_pb2
+from tink.proto import ml_dsa_pb2
 from tink.proto import tink_pb2
 from cross_language import tink_config
 
 # All languages supported by cross-language tests.
 ALL_LANGUAGES = ['cc', 'java', 'go', 'python']
+
+
+# TODO: b/522248157 - Replace this function once composite ML-DSA is implemented
+# in Python.
+def _composite_ml_dsa_template(
+    ml_dsa_instance: ml_dsa_pb2.MlDsaInstance,
+    classical_alg: composite_ml_dsa_pb2.CompositeMlDsaClassicalAlgorithm,
+) -> tink_pb2.KeyTemplate:
+  key_format = composite_ml_dsa_pb2.CompositeMlDsaKeyFormat(
+      version=0,
+      params=composite_ml_dsa_pb2.CompositeMlDsaParams(
+          ml_dsa_instance=ml_dsa_instance,
+          classical_algorithm=classical_alg,
+      ),
+  )
+  return tink_pb2.KeyTemplate(
+      type_url=(
+          'type.googleapis.com/google.crypto.tink.CompositeMlDsaPrivateKey'
+      ),
+      value=key_format.SerializeToString(),
+      output_prefix_type=tink_pb2.TINK,
+  )
 
 
 # For each KeyType, a list of Tinkey KeyTemplate names.
@@ -167,6 +191,13 @@ KEY_TEMPLATE_NAMES = {
     'MlDsaPrivateKey': [
         'ML_DSA_65',
         'ML_DSA_87',
+    ],
+    'CompositeMlDsaPrivateKey': [
+        'COMPOSITE_MLDSA_65_ED25519',
+        'COMPOSITE_MLDSA_65_ECDSA_P256',
+        'COMPOSITE_MLDSA_87_ECDSA_P384',
+        'COMPOSITE_MLDSA_65_RSA3072_PKCS1',
+        'COMPOSITE_MLDSA_87_RSA4096_PSS',
     ],
 }
 
@@ -341,6 +372,26 @@ KEY_TEMPLATE = {
     'JWT_PS512_4096_F4_RAW': jwt.raw_jwt_ps512_4096_f4_template(),
     'ML_DSA_65': signature.signature_key_templates.ML_DSA_65,
     'ML_DSA_87': signature.signature_key_templates.ML_DSA_87,
+    'COMPOSITE_MLDSA_65_ED25519': _composite_ml_dsa_template(
+        ml_dsa_pb2.ML_DSA_65,
+        composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ED25519,
+    ),
+    'COMPOSITE_MLDSA_65_ECDSA_P256': _composite_ml_dsa_template(
+        ml_dsa_pb2.ML_DSA_65,
+        composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P256,
+    ),
+    'COMPOSITE_MLDSA_87_ECDSA_P384': _composite_ml_dsa_template(
+        ml_dsa_pb2.ML_DSA_87,
+        composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P384,
+    ),
+    'COMPOSITE_MLDSA_65_RSA3072_PKCS1': _composite_ml_dsa_template(
+        ml_dsa_pb2.ML_DSA_65,
+        composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_RSA3072_PKCS1,
+    ),
+    'COMPOSITE_MLDSA_87_RSA4096_PSS': _composite_ml_dsa_template(
+        ml_dsa_pb2.ML_DSA_87,
+        composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_RSA4096_PSS,
+    ),
 }
 
 
