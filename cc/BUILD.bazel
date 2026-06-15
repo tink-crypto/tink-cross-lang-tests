@@ -387,7 +387,6 @@ cc_test(
         ":keyset_deriver_impl",
         ":testing_api_cpp_library",
         "@googletest//:gtest_main",
-        "@tink_cc//tink/config:tink_config",
         "@tink_cc//tink/keyderivation:key_derivation_config",
         "@tink_cc//tink/util:test_matchers",
     ],

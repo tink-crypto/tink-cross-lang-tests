@@ -20,7 +20,6 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "tink/config/tink_config.h"
 #include "tink/keyderivation/key_derivation_config.h"
 #include "tink/util/test_matchers.h"
 #include "proto/tink.pb.h"
@@ -41,7 +40,6 @@ using ::tink_testing_api::DeriveKeysetResponse;
 class KeysetDeriverImplTest : public ::testing::Test {
  protected:
   static void SetUpTestSuite() {
-    ASSERT_THAT(::crypto::tink::TinkConfig::Register(), IsOk());
     ASSERT_THAT(::crypto::tink::KeyDerivationConfig::Register(), IsOk());
   }
 };
