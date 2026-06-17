@@ -127,7 +127,9 @@ def all_derived_template_names() -> Iterable[str]:
 
 def all_template_names_with_supported_lang() -> Iterable[Tuple[str, str]]:
   for derived_template_name in utilities.KEY_TEMPLATE.keys():
-    for lang in SUPPORTED_LANGUAGES:
+    for lang in utilities.SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME[
+        derived_template_name
+    ]:
       yield (derived_template_name, lang)
 
 
