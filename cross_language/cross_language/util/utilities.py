@@ -438,7 +438,6 @@ def key_types_in_keyset(keyset: bytes) -> List[str]:
 
 def is_google3() -> bool:
   try:
-
     return importlib.util.find_spec('google3') is not None
   except (ImportError, AttributeError, ValueError):
     return False

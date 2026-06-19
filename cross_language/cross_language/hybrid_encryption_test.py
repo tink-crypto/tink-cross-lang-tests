@@ -43,58 +43,74 @@ def tearDownModule():
 
 # maps from key_template_name to (key_template, supported_langs)
 _ADDITIONAL_KEY_TEMPLATES = {
-    'ECIES_P256_HKDF_HMAC_SHA256_AES256_SIV':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+    'ECIES_P256_HKDF_HMAC_SHA256_AES256_SIV': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.NIST_P256,
             ec_point_format=common_pb2.COMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=daead.deterministic_aead_key_templates.AES256_SIV),
-         ['cc', 'java', 'go', 'python']),
-    'ECIES_P256_HKDF_HMAC_SHA256_XCHACHA20_POLY1305':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+            dem_key_template=daead.deterministic_aead_key_templates.AES256_SIV,
+        ),
+        ['cc', 'java', 'go', 'python'],
+    ),
+    'ECIES_P256_HKDF_HMAC_SHA256_XCHACHA20_POLY1305': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.NIST_P256,
             ec_point_format=common_pb2.UNCOMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=aead.aead_key_templates.XCHACHA20_POLY1305),
-         # Java and Go do not support XCHACHA20_POLY1305 for hybrid encryption.
-         ['cc', 'python']),
+            dem_key_template=aead.aead_key_templates.XCHACHA20_POLY1305,
+        ),
+        # Java and Go do not support XCHACHA20_POLY1305 for hybrid encryption.
+        ['cc', 'python'],
+    ),
     # equal to HybridKeyTemplates::EciesX25519HkdfHmacSha256Aes128Gcm
-    'ECIES_X25519_HKDF_HMAC_SHA256_AES128_GCM':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+    'ECIES_X25519_HKDF_HMAC_SHA256_AES128_GCM': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.CURVE25519,
             ec_point_format=common_pb2.COMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=aead.aead_key_templates.AES128_GCM),
-         # Java and Go do not support CURVE25519 for hybrid encryption.
-         ['cc', 'python']),
+            dem_key_template=aead.aead_key_templates.AES128_GCM,
+        ),
+        # Java and Go do not support CURVE25519 for hybrid encryption.
+        ['cc', 'python'],
+    ),
     # equal to HybridKeyTemplates::EciesX25519HkdfHmacSha256Aes128CtrHmacSha256
-    'ECIES_X25519_HKDF_HMAC_SHA256_AES128_CTR_HMAC_SHA256':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+    'ECIES_X25519_HKDF_HMAC_SHA256_AES128_CTR_HMAC_SHA256': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.CURVE25519,
             ec_point_format=common_pb2.COMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=aead.aead_key_templates.AES128_CTR_HMAC_SHA256),
-         # Java and Go do not support CURVE25519 for hybrid encryption.
-         ['cc', 'python']),
+            dem_key_template=aead.aead_key_templates.AES128_CTR_HMAC_SHA256,
+        ),
+        # Java and Go do not support CURVE25519 for hybrid encryption.
+        ['cc', 'python'],
+    ),
     # equal to HybridKeyTemplates::EciesX25519HkdfHmacSha256XChaCha20Poly1305
-    'ECIES_X25519_HKDF_HMAC_SHA256_XCHACHA20_POLY1305':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+    'ECIES_X25519_HKDF_HMAC_SHA256_XCHACHA20_POLY1305': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.CURVE25519,
             ec_point_format=common_pb2.COMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=aead.aead_key_templates.XCHACHA20_POLY1305),
-         # Java and Go neither support CURVE25519 nor XCHACHA20_POLY130 for
-         # Hybrid Encryption.
-         ['cc', 'python']),
+            dem_key_template=aead.aead_key_templates.XCHACHA20_POLY1305,
+        ),
+        # Java and Go neither support CURVE25519 nor XCHACHA20_POLY130 for
+        # Hybrid Encryption.
+        ['cc', 'python'],
+    ),
     # equal to HybridKeyTemplates::EciesX25519HkdfHmacSha256DeterministicAesSiv
-    'ECIES_X25519_HKDF_HMAC_SHA256_AES256_SIV':
-        (hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
+    'ECIES_X25519_HKDF_HMAC_SHA256_AES256_SIV': (
+        hybrid.hybrid_key_templates.create_ecies_aead_hkdf_key_template(
             curve_type=common_pb2.CURVE25519,
             ec_point_format=common_pb2.COMPRESSED,
             hash_type=common_pb2.SHA256,
-            dem_key_template=daead.deterministic_aead_key_templates.AES256_SIV),
-         # Java and Go do not support CURVE25519 for Hybrid Encryption.
-         ['cc', 'python']),
+            dem_key_template=daead.deterministic_aead_key_templates.AES256_SIV,
+        ),
+        # Java and Go do not support CURVE25519 for Hybrid Encryption.
+        ['cc', 'python'],
+    ),
+    'X_WING_HKDF_SHA256_HKDF_SHA256_AES_256_GCM': (
+        hybrid.hybrid_key_templates.X_WING_HKDF_SHA256_HKDF_SHA256_AES_256_GCM,
+        ['cc', 'java', 'go', 'python'],
+    ),
 }
 
 
