@@ -4,6 +4,11 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])
 
+java_import(
+    name = "tink_java_maven_from_local_repo",
+    jars = ["@tink_java//:tink"],
+)
+
 java_proto_library(
     name = "testing_api_java_proto",
     testonly = 1,

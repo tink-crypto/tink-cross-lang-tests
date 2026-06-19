@@ -63,6 +63,10 @@ local_path_override(
 )
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.override(
+    coordinates = "com.google.crypto.tink:tink",
+    target = "@tink_testing_java//:tink_java_maven_from_local_repo",
+)
 maven.install(
     artifacts = [
         # go/keep-sorted start
