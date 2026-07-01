@@ -1,2 +1,6 @@
 absl-py
 hvac>=2.1.0
+google-auth>=2.38.0
+google-api-core>=2.24.2
+google-cloud-kms>=3.4.1
+boto3>=1.37.32
