@@ -203,8 +203,13 @@ class _TestingServers():
       except IOError as e:
         logging.info('unable to open server output file %s', output_path)
         raise RuntimeError('Could not start %s server' % lang) from e
+      env = os.environ.copy()
+      # Remove PYTHONPATH to prevent the parent test's python path from
+      # overriding the child server's own runfiles.
+      env.pop('PYTHONPATH', None)
       self._server[lang] = subprocess.Popen(
-          cmd, stdout=self._output_file[lang], stderr=subprocess.STDOUT)
+          cmd, stdout=self._output_file[lang], stderr=subprocess.STDOUT, env=env
+      )
       logging.info('%s server started on port %d with pid: %d. Log output: %s',
                    lang, port, self._server[lang].pid,
                    self._output_file[lang].name)
