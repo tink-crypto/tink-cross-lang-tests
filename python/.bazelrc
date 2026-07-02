@@ -10,6 +10,9 @@ build --cxxopt='-std=c++17' --host_cxxopt='-std=c++17'
 build --per_file_copt=external/.*@-w
 build --host_per_file_copt=external/.*@-w
 
+# https://github.com/bazel-contrib/rules_python/issues/2947
+common --incompatible_default_to_explicit_init_py
+
 # Use shell script wrappers instead of Python wrappers for executables.
 # This avoids requiring 'python3' on the host PATH inside the sandbox.
 build --@rules_python//python/config_settings:bootstrap_impl=script
