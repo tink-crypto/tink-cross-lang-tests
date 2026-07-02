@@ -69,6 +69,7 @@ py_test(
         "//cross_language/tink_config",
         "//cross_language/util:testing_servers",
         "//cross_language/util:utilities",
+        "//cross_language/util/test_keys",
         requirement("absl-py"),
         "@tink_py//tink:tink_python",
         "@tink_py//tink/aead",
@@ -179,9 +180,9 @@ py_test(
     name = "signature_test",
     srcs = ["signature_test.py"],
     deps = [
-        "//cross_language/tink_config",
         "//cross_language/util:testing_servers",
         "//cross_language/util:utilities",
+        "//cross_language/util/test_keys",
         requirement("absl-py"),
         "@tink_py//tink:tink_python",
         "@tink_py//tink/proto:tink_py_pb2",
@@ -194,9 +195,9 @@ py_test(
     name = "hybrid_encryption_test",
     srcs = ["hybrid_encryption_test.py"],
     deps = [
-        "//cross_language/tink_config",
         "//cross_language/util:testing_servers",
         "//cross_language/util:utilities",
+        "//cross_language/util/test_keys",
         requirement("absl-py"),
         "@tink_py//tink:tink_python",
         "@tink_py//tink/aead",
@@ -226,12 +227,14 @@ py_test(
     name = "jwt_test",
     srcs = ["jwt_test.py"],
     deps = [
-        "//cross_language/tink_config",
         "//cross_language/util:testing_servers",
         "//cross_language/util:utilities",
+        "//cross_language/util/test_keys",
         requirement("absl-py"),
         "@tink_py//tink:tink_python",
         "@tink_py//tink/jwt",
+        "@tink_py//tink/mac",
+        "@tink_py//tink/signature",
     ],
 )
 

@@ -34,6 +34,7 @@ from tink import signature
 
 from tink.proto import tink_pb2
 from cross_language import tink_config
+from cross_language.util import test_keys
 from cross_language.util import testing_servers
 from cross_language.util import utilities
 
@@ -53,6 +54,14 @@ def test_cases(primitive: Any) -> Iterable[Tuple[str, str]]:
 
 
 def setUpModule():
+  aead.register()
+  daead.register()
+  mac.register()
+  hybrid.register()
+  signature.register()
+  prf.register()
+  jwt.register_jwt_mac()
+  jwt.register_jwt_signature()
   testing_servers.start('key_version')
 
 
@@ -67,7 +76,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_aead_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to use an AEAD primitive."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    keyset = testing_servers.new_keyset(lang, template)
+    keyset = test_keys.new_or_stored_keyset(template)
 
     with self.assertRaises(tink.TinkError):
       _ = testing_servers.remote_primitive(lang, unset_primary(keyset),
@@ -77,7 +86,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_daead_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to use a DAEAD primitive."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    keyset = testing_servers.new_keyset(lang, template)
+    keyset = test_keys.new_or_stored_keyset(template)
     with self.assertRaises(tink.TinkError):
       _ = testing_servers.remote_primitive(lang, unset_primary(keyset),
                                            daead.DeterministicAead)
@@ -86,7 +95,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_mac_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to use a MAC primitive."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    keyset = testing_servers.new_keyset(lang, template)
+    keyset = test_keys.new_or_stored_keyset(template)
     with self.assertRaises(tink.TinkError):
       testing_servers.remote_primitive(lang, unset_primary(keyset), mac.Mac)
 
@@ -94,7 +103,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_prf_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to use a PRF set primitive."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    keyset = testing_servers.new_keyset(lang, template)
+    keyset = test_keys.new_or_stored_keyset(template)
     with self.assertRaises(tink.TinkError):
       _ = testing_servers.remote_primitive(lang, unset_primary(keyset),
                                            prf.PrfSet)
@@ -103,7 +112,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_signature_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to sign and verify signatures."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    private_keyset = testing_servers.new_keyset(lang, template)
+    private_keyset = test_keys.new_or_stored_keyset(template)
     public_keyset = testing_servers.public_keyset(lang, private_keyset)
     signer = testing_servers.remote_primitive(lang, private_keyset,
                                               signature.PublicKeySign)
@@ -130,7 +139,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_hybrid_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to use hybrid encryption."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    private_keyset = testing_servers.new_keyset(lang, template)
+    private_keyset = test_keys.new_or_stored_keyset(template)
     public_keyset = testing_servers.public_keyset(lang, private_keyset)
 
     private_keyset_without_primary = unset_primary(private_keyset)
@@ -150,7 +159,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_jwt_signature_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to sign and verify JWT signatures."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    private_keyset = testing_servers.new_keyset(lang, template)
+    private_keyset = test_keys.new_or_stored_keyset(template)
     public_keyset = testing_servers.public_keyset(lang, private_keyset)
     signer = testing_servers.remote_primitive(lang, private_keyset,
                                               jwt.JwtPublicKeySign)
@@ -184,7 +193,7 @@ class KeysetValidationTest(parameterized.TestCase):
   def test_jwt_mac_without_primary(self, key_template_name, lang):
     """Unsets the primary key and tries to create and verify JWT MACs."""
     template = utilities.KEY_TEMPLATE[key_template_name]
-    keyset = testing_servers.new_keyset(lang, template)
+    keyset = test_keys.new_or_stored_keyset(template)
 
     with self.assertRaises(tink.TinkError):
       _ = testing_servers.remote_primitive(lang, unset_primary(keyset),

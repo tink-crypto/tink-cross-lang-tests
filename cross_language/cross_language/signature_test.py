@@ -22,6 +22,7 @@ from tink import signature
 
 from tink.proto import tink_pb2
 from tink.testing import keyset_builder
+from cross_language.util import test_keys
 from cross_language.util import testing_servers
 from cross_language.util import utilities
 
@@ -52,10 +53,7 @@ class SignatureTest(parameterized.TestCase):
       supported_langs = [l for l in supported_langs if l != 'java']
     self.assertNotEmpty(supported_langs)
     key_template = utilities.KEY_TEMPLATE[key_template_name]
-    # Take the first supported language to generate the private keyset.
-    private_keyset = testing_servers.new_keyset(
-        supported_langs[0], key_template
-    )
+    private_keyset = test_keys.new_or_stored_keyset(key_template)
     supported_signers = {}
     for lang in supported_langs:
       supported_signers[lang] = testing_servers.remote_primitive(

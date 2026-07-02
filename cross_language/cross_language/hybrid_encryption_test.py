@@ -26,6 +26,7 @@ from tink import hybrid
 from tink.proto import common_pb2
 from tink.proto import tink_pb2
 from tink.testing import keyset_builder
+from cross_language.util import test_keys
 from cross_language.util import testing_servers
 from cross_language.util import utilities
 
@@ -130,8 +131,7 @@ class HybridEncryptionTest(parameterized.TestCase):
           utilities.SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME[key_template_name])
     self.assertNotEmpty(supported_langs)
     # Take the first supported language to generate the private keyset.
-    private_keyset = testing_servers.new_keyset(supported_langs[0],
-                                                key_template)
+    private_keyset = test_keys.new_or_stored_keyset(key_template)
     supported_decs = [
         testing_servers.remote_primitive(lang, private_keyset,
                                          hybrid.HybridDecrypt)
