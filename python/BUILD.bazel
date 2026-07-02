@@ -1,4 +1,4 @@
-load("@rules_proto_grpc_python//:defs.bzl", "python_grpc_library")
+load("@rules_proto_grpc_python//:python_grpc_compile.bzl", "python_grpc_compile")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@tink_py_pip_deps//:requirements.bzl", "requirement")
 
@@ -9,9 +9,19 @@ package(
 
 licenses(["notice"])
 
-python_grpc_library(
-    name = "testing_api_python_library",
+python_grpc_compile(
+    name = "testing_api_python_pb",
     protos = ["//protos:testing_api_proto"],
+)
+
+py_library(
+    name = "testing_api_python_library",
+    srcs = [":testing_api_python_pb"],
+    imports = ["testing_api_python_pb"],
+    deps = [
+        requirement("grpcio"),
+        "@com_google_protobuf//:protobuf_python",
+    ],
 )
 
 py_library(
