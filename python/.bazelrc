@@ -9,6 +9,9 @@ build --cxxopt='-std=c++17' --host_cxxopt='-std=c++17'
 # in project code.
 build --per_file_copt=external/.*@-w
 build --host_per_file_copt=external/.*@-w
+
+# Prevent Bazel from generating empty __init__.py files that break namespaces.
+# e.g. the 'google' package namespace used by cloud client libraries.
 # https://github.com/bazel-contrib/rules_python/issues/2947
 common --incompatible_default_to_explicit_init_py
 
