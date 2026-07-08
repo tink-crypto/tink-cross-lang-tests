@@ -62,7 +62,7 @@ android_sdk_repository_extension = use_extension("@rules_android//rules/android_
 use_repo(android_sdk_repository_extension, "androidsdk")
 
 android_sdk_repository_extension.configure(
-    api_level = 30,
+    api_level = 37,
     build_tools_version = "35.0.0",
 )
 
