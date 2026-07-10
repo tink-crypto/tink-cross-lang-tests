@@ -38,6 +38,7 @@ import (
 	"github.com/tink-crypto/tink-go/v2/streamingaead"
 	compositemldsapb "github.com/tink-crypto/tink-go/v2/proto/composite_ml_dsa_go_proto"
 	mldsapb "github.com/tink-crypto/tink-go/v2/proto/ml_dsa_go_proto"
+	slhdsapb "github.com/tink-crypto/tink-go/v2/proto/slh_dsa_go_proto"
 	tinkpb "github.com/tink-crypto/tink-go/v2/proto/tink_go_proto"
 	pb "github.com/tink-crypto/tink-cross-lang-tests/go/protos/testing_api_go_grpc"
 
@@ -85,6 +86,27 @@ func createMlDsaTemplate(instance mldsa.Instance, variant mldsa.Variant) (*tinkp
 
 	return &tinkpb.KeyTemplate{
 		TypeUrl:          "type.googleapis.com/google.crypto.tink.MlDsaPrivateKey",
+		Value:            serializedFormat,
+		OutputPrefixType: prefixType,
+	}, nil
+}
+
+func createSlhDsaTemplate(hashType slhdsapb.SlhDsaHashType, sigType slhdsapb.SlhDsaSignatureType, keySize int32, prefixType tinkpb.OutputPrefixType) (*tinkpb.KeyTemplate, error) {
+	keyFormat := &slhdsapb.SlhDsaKeyFormat{
+		Version: 0,
+		Params: &slhdsapb.SlhDsaParams{
+			HashType: hashType,
+			SigType:  sigType,
+			KeySize:  keySize,
+		},
+	}
+	serializedFormat, err := proto.Marshal(keyFormat)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tinkpb.KeyTemplate{
+		TypeUrl:          "type.googleapis.com/google.crypto.tink.SlhDsaPrivateKey",
 		Value:            serializedFormat,
 		OutputPrefixType: prefixType,
 	}, nil
@@ -219,6 +241,19 @@ func (s *KeysetService) GetTemplate(ctx context.Context, req *pb.KeysetTemplateR
 			return nil, fmt.Errorf("create ML_DSA_87_RAW template: %w", err)
 		}
 		s.Templates["ML_DSA_87_RAW"] = mldsa87Raw
+
+		// Add SLH-DSA templates
+		slhDsaSha2_128s, err := createSlhDsaTemplate(slhdsapb.SlhDsaHashType_SHA2, slhdsapb.SlhDsaSignatureType_SMALL_SIGNATURE, 64, tinkpb.OutputPrefixType_TINK)
+		if err != nil {
+			return nil, fmt.Errorf("create SLH_DSA_SHA2_128S template: %w", err)
+		}
+		s.Templates["SLH_DSA_SHA2_128S"] = slhDsaSha2_128s
+
+		slhDsaSha2_128sRaw, err := createSlhDsaTemplate(slhdsapb.SlhDsaHashType_SHA2, slhdsapb.SlhDsaSignatureType_SMALL_SIGNATURE, 64, tinkpb.OutputPrefixType_RAW)
+		if err != nil {
+			return nil, fmt.Errorf("create SLH_DSA_SHA2_128S_RAW template: %w", err)
+		}
+		s.Templates["SLH_DSA_SHA2_128S_RAW"] = slhDsaSha2_128sRaw
 
 		// Add Composite ML-DSA templates
 		mlDsa65Ed25519, err := createCompositeMlDsaTemplate(mldsapb.MlDsaInstance_ML_DSA_65, compositemldsapb.CompositeMlDsaClassicalAlgorithm_CLASSICAL_ALGORITHM_ED25519)
