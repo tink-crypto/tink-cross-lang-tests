@@ -93,16 +93,23 @@ def _kms_envelope_aead_templates(
 
 
 # Maps from (kms_service, template_name) to template.
-_KMS_ENVELOPE_AEAD_KEY_TEMPLATES = _kms_envelope_aead_templates(['GCP', 'AWS', 'HCVAULT'])
+_KMS_ENVELOPE_AEAD_KEY_TEMPLATES = _kms_envelope_aead_templates([
+    # TODO(b/532941360): Re-enable once updated credentials are available.
+    # 'GCP',
+    'AWS',
+    'HCVAULT',
+])
 _SUPPORTED_LANGUAGES_FOR_KMS_ENVELOPE_AEAD = {
-    'GCP': ('python', 'cc', 'go', 'java'),
+    # TODO(b/532941360): Re-enable once updated credentials are available.
+    # 'GCP': ('python', 'cc', 'go', 'java'),
     'AWS': ('python', 'go', 'java'),
     'HCVAULT': ('python', 'go', 'java'),
 }
 
 _SUPPORTED_LANGUAGES_FOR_KMS_AEAD = {
     'AWS': ('python', 'go', 'java'),
-    'GCP': ('python', 'cc', 'go', 'java'),
+    # TODO(b/532941360): Re-enable once updated credentials are available.
+    # 'GCP': ('python', 'cc', 'go', 'java'),
     'HCVAULT': ('python', 'go', 'java'),
 }
 
