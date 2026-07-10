@@ -1,4 +1,6 @@
-load("@grpc-java//:java_grpc_library.bzl", "java_grpc_library")
+load("@rules_proto_grpc_java//:defs.bzl", "java_grpc_library")
+load("@com_google_protobuf//bazel:java_proto_library.bzl", "java_proto_library")
+load("@rules_java//java:defs.bzl", "java_binary", "java_import", "java_library", "java_test")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -18,7 +20,7 @@ java_proto_library(
 java_grpc_library(
     name = "testing_api_java_grpc",
     testonly = 1,
-    srcs = ["//protos:testing_api_proto"],
+    protos = ["//protos:testing_api_proto"],
     deps = [":testing_api_java_proto"],
 )
 

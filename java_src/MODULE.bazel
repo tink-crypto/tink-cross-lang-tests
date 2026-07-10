@@ -21,8 +21,16 @@ bazel_dep(
     version = "33.6",
     repo_name = "com_google_protobuf",
 )
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "bazel_jar_jar", version = "0.1.11.bcr.1")
+bazel_dep(name = "grpc-proto", version = "0.0.0-20240627-ec30f58.bcr.1")
+bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+bazel_dep(name = "rules_java", version = "8.16.1")
+bazel_dep(name = "rules_shell", version = "0.8.0")
+bazel_dep(name = "rules_license", version = "1.0.0")
+bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "rules_proto_grpc", version = "5.7.1")
-bazel_dep(name = "grpc-java", version = "1.75.0")
+bazel_dep(name = "grpc-java", version = "1.78.0")
 bazel_dep(name = "rules_proto_grpc_java", version = "5.8.0")
 bazel_dep(name = "rules_jvm_external", version = "6.8")
 bazel_dep(name = "googletest", version = "1.17.0")
@@ -70,6 +78,8 @@ maven.install(
     artifacts = [
         # go/keep-sorted start
         "args4j:args4j:2.33",
+        "com.google.truth:truth:1.4.4",
+        "junit:junit:4.13.2",
         # go/keep-sorted end
     ],
     known_contributing_modules = [
