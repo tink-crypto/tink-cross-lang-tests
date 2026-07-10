@@ -455,6 +455,8 @@ INSTANTIATE_TEST_SUITE_P(
         "ML_DSA_65_RAW",
         "ML_DSA_87",
         "ML_DSA_87_RAW",
+        "SLH_DSA_SHA2_128S",
+        "SLH_DSA_SHA2_128S_RAW",
         "AES_CMAC_PRF",
         "HMAC_SHA256_PRF",
         "HMAC_SHA512_PRF",

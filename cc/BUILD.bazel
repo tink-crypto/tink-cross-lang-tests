@@ -1,5 +1,5 @@
-load("@rules_proto_grpc_cpp//:defs.bzl", "cpp_grpc_library")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("@rules_proto_grpc_cpp//:defs.bzl", "cpp_grpc_library")
 
 package(
     default_testonly = 1,
@@ -63,6 +63,7 @@ cc_library(
         "@tink_cc//tink/signature:composite_ml_dsa_parameters",
         "@tink_cc//tink/signature:ml_dsa_parameters",
         "@tink_cc//tink/signature:signature_key_templates",
+        "@tink_cc//tink/signature:slh_dsa_parameters",
         "@tink_cc//tink/streamingaead:streaming_aead_key_templates",
     ],
 )
