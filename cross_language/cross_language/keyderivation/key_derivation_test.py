@@ -64,6 +64,10 @@ NOT_YET_SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME = {
     'ECDSA_P384_SHA512': ['java', 'go'],
     'ECDSA_P521': ['java', 'go'],
     'ECDSA_P521_IEEE_P1363': ['java', 'go'],
+    # MlDsaPrivateKey
+    'ML_DSA_44': ['java', 'go'],
+    'ML_DSA_65': ['java', 'go'],
+    'ML_DSA_87': ['java', 'go'],
     # AesCmacPrfKey
     'AES_CMAC_PRF': ['java', 'go'],
     # HkdfPrfKey
