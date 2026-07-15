@@ -105,7 +105,7 @@ absl::StatusOr<std::string> AeadKeyset() {
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
     return writer.status();
   }
@@ -126,7 +126,7 @@ absl::StatusOr<std::string> ValidPrivateKeyset() {
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
     return writer.status();
   }

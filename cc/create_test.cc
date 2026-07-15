@@ -50,7 +50,7 @@ std::string ValidAeadKeyset() {
   CHECK_OK(handle_result);
   std::stringbuf keyset;
   auto writer_result = crypto::tink::BinaryKeysetWriter::New(
-      absl::make_unique<std::ostream>(&keyset));
+      std::make_unique<std::ostream>(&keyset));
   EXPECT_TRUE(writer_result.ok());
 
   auto status = crypto::tink::CleartextKeysetHandle::Write(

@@ -372,7 +372,7 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<crypto::tink::BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
     response->set_err(writer.status().message());
     return ::grpc::Status::OK;

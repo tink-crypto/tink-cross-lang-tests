@@ -57,10 +57,10 @@ using ::crypto::tink::util::StatusOr;
     return ::grpc::Status::OK;
   }
 
-  auto ciphertext_stream = absl::make_unique<std::stringstream>();
+  auto ciphertext_stream = std::make_unique<std::stringstream>();
   auto ciphertext_buf = ciphertext_stream->rdbuf();
   auto ciphertext_destination(
-      absl::make_unique<OstreamOutputStream>(std::move(ciphertext_stream)));
+      std::make_unique<OstreamOutputStream>(std::move(ciphertext_stream)));
 
   auto encrypting_stream_result =
       streaming_aead_result.value()->NewEncryptingStream(
@@ -117,9 +117,9 @@ using ::crypto::tink::util::StatusOr;
   }
 
   auto ciphertext_stream =
-      absl::make_unique<std::stringstream>(request->ciphertext());
+      std::make_unique<std::stringstream>(request->ciphertext());
   std::unique_ptr<InputStream> ciphertext_source(
-      absl::make_unique<IstreamInputStream>(std::move(ciphertext_stream)));
+      std::make_unique<IstreamInputStream>(std::move(ciphertext_stream)));
 
   auto decrypting_stream_result =
       streaming_aead_result.value()->NewDecryptingStream(

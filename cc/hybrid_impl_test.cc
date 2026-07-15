@@ -55,7 +55,7 @@ using google::crypto::tink::KeyTemplate;
 std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   std::stringbuf keyset;
   auto writer_result =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   EXPECT_TRUE(writer_result.ok());
   auto status =
       CleartextKeysetHandle::Write(writer_result.value().get(), keyset_handle);

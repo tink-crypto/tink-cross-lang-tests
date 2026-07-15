@@ -379,7 +379,7 @@ grpc::Status KeysetImpl::Generate(grpc::ServerContext* context,
   }
   std::stringbuf keyset;
   auto writer_result =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer_result.ok()) {
     response->set_err(writer_result.status().message());
     return grpc::Status::OK;
@@ -417,7 +417,7 @@ grpc::Status KeysetImpl::Public(grpc::ServerContext* context,
   }
   std::stringbuf public_keyset;
   auto writer_result =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&public_keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&public_keyset));
   if (!writer_result.ok()) {
     response->set_err(writer_result.status().message());
     return grpc::Status::OK;
@@ -449,7 +449,7 @@ grpc::Status KeysetImpl::ToJson(grpc::ServerContext* context,
   }
   std::stringbuf json_keyset;
   auto writer_result =
-      JsonKeysetWriter::New(absl::make_unique<std::ostream>(&json_keyset));
+      JsonKeysetWriter::New(std::make_unique<std::ostream>(&json_keyset));
   if (!writer_result.ok()) {
     response->set_err(writer_result.status().message());
     return grpc::Status::OK;
@@ -481,7 +481,7 @@ grpc::Status KeysetImpl::FromJson(grpc::ServerContext* context,
   }
   std::stringbuf keyset;
   auto writer_result =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer_result.ok()) {
     response->set_err(writer_result.status().message());
     return grpc::Status::OK;
@@ -537,7 +537,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
   if (request->keyset_writer_type() == KEYSET_WRITER_BINARY) {
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> binary_keyset_writer =
         BinaryKeysetWriter::New(
-            absl::make_unique<std::ostream>(&encrypted_keyset));
+            std::make_unique<std::ostream>(&encrypted_keyset));
     if (!binary_keyset_writer.ok()) {
       response->set_err(binary_keyset_writer.status().message());
       return grpc::Status::OK;
@@ -546,7 +546,7 @@ grpc::Status KeysetImpl::WriteEncrypted(
   } else if (request->keyset_writer_type() == KEYSET_WRITER_JSON) {
     absl::StatusOr<std::unique_ptr<JsonKeysetWriter>> json_keyset_writer =
         JsonKeysetWriter::New(
-            absl::make_unique<std::ostream>(&encrypted_keyset));
+            std::make_unique<std::ostream>(&encrypted_keyset));
     if (!json_keyset_writer.ok()) {
       response->set_err(json_keyset_writer.status().message());
       return grpc::Status::OK;
@@ -646,7 +646,7 @@ grpc::Status KeysetImpl::ReadEncrypted(
 
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> keyset_writer =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!keyset_writer.ok()) {
     response->set_err(keyset_writer.status().message());
     return grpc::Status::OK;

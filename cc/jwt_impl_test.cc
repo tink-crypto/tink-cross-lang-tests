@@ -66,7 +66,7 @@ std::string ValidKeyset() {
   CHECK_OK(handle.status());
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   CHECK_OK(writer.status());
   absl::Status status = CleartextKeysetHandle::Write((*writer).get(), **handle);
   CHECK_OK(status);
@@ -206,7 +206,7 @@ class JwtImplSignatureTest : public ::testing::Test {
 
     std::stringbuf keyset;
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-        BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&keyset));
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
     CHECK_OK(writer.status());
 
     CHECK_OK(CleartextKeysetHandle::Write((*writer).get(), **handle));
@@ -218,7 +218,7 @@ class JwtImplSignatureTest : public ::testing::Test {
     CHECK_OK(pub_handle.status());
     std::stringbuf pub_keyset;
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> pub_writer =
-        BinaryKeysetWriter::New(absl::make_unique<std::ostream>(&pub_keyset));
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&pub_keyset));
     CHECK_OK(pub_writer.status());
 
     CHECK_OK(CleartextKeysetHandle::Write((*pub_writer).get(), **pub_handle));
