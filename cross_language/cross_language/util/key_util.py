@@ -77,7 +77,6 @@ from tink.proto import kms_envelope_pb2
 from tink.proto import ml_dsa_pb2
 from tink.proto import rsa_ssa_pkcs1_pb2
 from tink.proto import rsa_ssa_pss_pb2
-from tink.proto import slh_dsa_pb2
 from tink.proto import x_aes_gcm_pb2
 from tink.proto import xchacha20_poly1305_pb2
 
@@ -171,7 +170,6 @@ KeyProto.add_key_type(kms_aead_pb2.KmsAeadKey, kms_aead_pb2.KmsAeadKeyFormat)
 KeyProto.add_key_type(kms_envelope_pb2.KmsEnvelopeAeadKey,
                       kms_envelope_pb2.KmsEnvelopeAeadKeyFormat)
 KeyProto.add_key_type(ml_dsa_pb2.MlDsaPrivateKey, ml_dsa_pb2.MlDsaKeyFormat)
-KeyProto.add_key_type(slh_dsa_pb2.SlhDsaPrivateKey, slh_dsa_pb2.SlhDsaKeyFormat)
 KeyProto.add_key_type(
     composite_ml_dsa_pb2.CompositeMlDsaPrivateKey,
     composite_ml_dsa_pb2.CompositeMlDsaKeyFormat,

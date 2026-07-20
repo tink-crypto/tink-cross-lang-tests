@@ -199,9 +199,6 @@ KEY_TEMPLATE_NAMES = {
         'COMPOSITE_MLDSA_65_RSA3072_PKCS1',
         'COMPOSITE_MLDSA_87_RSA4096_PSS',
     ],
-    'SlhDsaPrivateKey': [
-        'SLH_DSA_SHA2_128S',
-    ],
 }
 
 
@@ -395,7 +392,6 @@ KEY_TEMPLATE = {
         ml_dsa_pb2.ML_DSA_87,
         composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_RSA4096_PSS,
     ),
-    'SLH_DSA_SHA2_128S': signature.signature_key_templates.SLH_DSA_SHA2_128S,
 }
 
 

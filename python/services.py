@@ -28,7 +28,6 @@ from tink import signature
 from tink import streaming_aead
 
 from tink.proto import ml_dsa_pb2
-from tink.proto import slh_dsa_pb2
 from tink.proto import tink_pb2
 from tink.testing import bytes_io
 from protos import testing_api_pb2
@@ -41,20 +40,6 @@ def _create_ml_dsa_key_template(ml_dsa_instance, output_prefix_type):
   return tink_pb2.KeyTemplate(
       value=key_format.SerializeToString(),
       type_url='type.googleapis.com/google.crypto.tink.MlDsaPrivateKey',
-      output_prefix_type=output_prefix_type,
-  )
-
-
-def _create_slh_dsa_key_template(
-    hash_type, sig_type, key_size, output_prefix_type
-):
-  params = slh_dsa_pb2.SlhDsaParams(
-      hash_type=hash_type, sig_type=sig_type, key_size=key_size
-  )
-  key_format = slh_dsa_pb2.SlhDsaKeyFormat(params=params)
-  return tink_pb2.KeyTemplate(
-      value=key_format.SerializeToString(),
-      type_url='type.googleapis.com/google.crypto.tink.SlhDsaPrivateKey',
       output_prefix_type=output_prefix_type,
   )
 
@@ -222,10 +207,6 @@ _KEY_TEMPLATE = {
     'ML_DSA_87': signature.signature_key_templates.ML_DSA_87,
     'ML_DSA_87_RAW': _create_ml_dsa_key_template(
         ml_dsa_pb2.MlDsaInstance.ML_DSA_87, tink_pb2.RAW
-    ),
-    'SLH_DSA_SHA2_128S': signature.signature_key_templates.SLH_DSA_SHA2_128S,
-    'SLH_DSA_SHA2_128S_RAW': _create_slh_dsa_key_template(
-        slh_dsa_pb2.SHA2, slh_dsa_pb2.SMALL_SIGNATURE, 64, tink_pb2.RAW
     ),
 }
 

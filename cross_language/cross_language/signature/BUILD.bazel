@@ -57,16 +57,6 @@ py_library(
 )
 
 py_library(
-    name = "slhdsa_keys",
-    srcs = ["slhdsa_keys.py"],
-    deps = [
-        "//cross_language:test_key",
-        "@tink_py//tink/proto:slh_dsa_py_pb2",
-        "@tink_py//tink/proto:tink_py_pb2",
-    ],
-)
-
-py_library(
     name = "rsa_ssa_pss_keys",
     srcs = ["rsa_ssa_pss_keys.py"],
     deps = [
@@ -97,7 +87,6 @@ py_test(
         ":mldsa_keys",
         ":rsa_ssa_pkcs1_keys",
         ":rsa_ssa_pss_keys",
-        ":slhdsa_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
@@ -117,7 +106,6 @@ py_test(
         ":mldsa_keys",
         ":rsa_ssa_pkcs1_keys",
         ":rsa_ssa_pss_keys",
-        ":slhdsa_keys",
         requirement("absl-py"),
         "//cross_language:test_key",
         "//cross_language/tink_config",
