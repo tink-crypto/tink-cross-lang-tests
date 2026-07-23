@@ -26,6 +26,7 @@ from cross_language.signature import ed25519_keys
 from cross_language.signature import mldsa_keys
 from cross_language.signature import rsa_ssa_pkcs1_keys
 from cross_language.signature import rsa_ssa_pss_keys
+from cross_language.signature import slhdsa_keys
 from cross_language.util import testing_servers
 
 
@@ -43,6 +44,8 @@ def signature_keys() -> Iterator[test_key.TestKey]:
   for key in ecdsa_keys.ecdsa_private_keys():
     yield key
   for key in mldsa_keys.mldsa_private_keys():
+    yield key
+  for key in slhdsa_keys.slhdsa_private_keys():
     yield key
   for key in rsa_ssa_pss_keys.rsa_ssa_pss_private_keys():
     yield key
