@@ -30,8 +30,6 @@ python.toolchain(
 )
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-use_repo(pip, tink_py_pip_deps = "p")
-
 pip.parse(
     hub_name = "testing_python_pip_deps",
     python_version = "3.12",

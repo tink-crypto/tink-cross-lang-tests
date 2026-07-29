@@ -1,6 +1,6 @@
 load("@rules_proto_grpc_python//:python_grpc_compile.bzl", "python_grpc_compile")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
-load("@tink_py_pip_deps//:requirements.bzl", "requirement")
+load("@testing_python_pip_deps//:requirements.bzl", "requirement")
 
 package(
     default_testonly = 1,
