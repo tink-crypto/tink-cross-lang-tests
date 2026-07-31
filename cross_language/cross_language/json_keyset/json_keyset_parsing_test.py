@@ -139,7 +139,7 @@ TEST_CASES = [
         lang_exceptions=['cc'],
     ),
     TestCase(
-        name='multiple_primary_keys',
+        name='keys_with_the_same_id_as_primary_key',
         valid=False,
         json_keyset="""{
     "primaryKeyId":42,
@@ -206,7 +206,7 @@ TEST_CASES = [
       }
     ]
 }""",
-        lang_exceptions=['go', 'cc', 'python'],
+        lang_exceptions=['cc', 'python'],
     ),
     TestCase(
         name='with_duplicate_map_key',
