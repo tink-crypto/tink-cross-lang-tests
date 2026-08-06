@@ -68,6 +68,8 @@ NOT_YET_SUPPORTED_LANGUAGES_BY_TEMPLATE_NAME = {
     'ML_DSA_44': ['java', 'go'],
     'ML_DSA_65': ['java', 'go'],
     'ML_DSA_87': ['java', 'go'],
+    # SlhDsaPrivateKey
+    'SLH_DSA_SHA2_128S': ['java', 'go'],
     # AesCmacPrfKey
     'AES_CMAC_PRF': ['java', 'go'],
     # HkdfPrfKey
