@@ -39,23 +39,15 @@ public final class SignatureServiceImpl extends SignatureImplBase {
   @Override
   public void createPublicKeySign(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    try {
-      Util.createPrimitiveForRpc(request, responseObserver, PublicKeySign.class, SignatureConfig2026.get());
-    } catch (GeneralSecurityException e) {
-      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
-      responseObserver.onCompleted();
-    }
+    Util.createPrimitiveForRpc(
+        request, responseObserver, PublicKeySign.class, SignatureConfig2026.get());
   }
 
   @Override
   public void createPublicKeyVerify(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    try {
-      Util.createPrimitiveForRpc(request, responseObserver, PublicKeyVerify.class, SignatureConfig2026.get());
-    } catch (GeneralSecurityException e) {
-      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
-      responseObserver.onCompleted();
-    }
+    Util.createPrimitiveForRpc(
+        request, responseObserver, PublicKeyVerify.class, SignatureConfig2026.get());
   }
 
   private SignatureSignResponse sign(SignatureSignRequest request) throws GeneralSecurityException {
