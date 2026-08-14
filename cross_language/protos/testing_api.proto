@@ -388,6 +388,23 @@ service Signature {
   rpc Verify(SignatureVerifyRequest) returns (SignatureVerifyResponse) {}
 }
 
+// Service for Prehash computation and signing.
+service SignPrehash {
+  // Creates a Prehash object without using it.
+  rpc CreatePrehash(CreationRequest) returns (CreationResponse) {}
+  // Creates a PrehashSigner object without using it.
+  rpc CreatePrehashSigner(CreationRequest) returns (CreationResponse) {}
+
+  // Computes prehash for data. The client must call "CreatePrehash" first to see
+  // if creation succeeds before calling this.
+  rpc ComputePrehash(ComputePrehashRequest)
+      returns (ComputePrehashResponse) {}
+  // Signs prehash. The client must call "CreatePrehashSigner" first to see if
+  // creation succeeds before calling this.
+  rpc SignPrehash(SignPrehashRequest)
+      returns (SignPrehashResponse) {}
+}
+
 message SignatureSignRequest {
   AnnotatedKeyset private_annotated_keyset = 1;
   bytes data = 2;
@@ -408,6 +425,30 @@ message SignatureVerifyRequest {
 
 message SignatureVerifyResponse {
   string err = 1;
+}
+
+message ComputePrehashRequest {
+  AnnotatedKeyset public_annotated_keyset = 1;
+  bytes data = 2;
+}
+
+message ComputePrehashResponse {
+  oneof result {
+    bytes prehash = 1;
+    string err = 2;
+  }
+}
+
+message SignPrehashRequest {
+  AnnotatedKeyset private_annotated_keyset = 1;
+  bytes prehash = 2;
+}
+
+message SignPrehashResponse {
+  oneof result {
+    bytes signature = 1;
+    string err = 2;
+  }
 }
 
 // Service for PrfSet computation
