@@ -37,6 +37,7 @@
 #include "keyset_impl.h"
 #include "mac_impl.h"
 #include "metadata_impl.h"
+#include "sign_prehash_impl.h"
 #include "prf_set_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
@@ -83,6 +84,7 @@ void RunServer() {
   HybridImpl hybrid;
   MacImpl mac;
   SignatureImpl signature;
+  SignPrehashImpl sign_prehash;
   StreamingAeadImpl streaming_aead;
   PrfSetImpl prf_set;
   JwtImpl jwt;
@@ -99,6 +101,7 @@ void RunServer() {
   builder.RegisterService(&hybrid);
   builder.RegisterService(&mac);
   builder.RegisterService(&signature);
+  builder.RegisterService(&sign_prehash);
   builder.RegisterService(&prf_set);
   builder.RegisterService(&streaming_aead);
   builder.RegisterService(&jwt);

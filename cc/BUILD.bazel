@@ -283,6 +283,38 @@ cc_test(
 )
 
 cc_library(
+    name = "sign_prehash_impl",
+    srcs = ["sign_prehash_impl.cc"],
+    hdrs = ["sign_prehash_impl.h"],
+    deps = [
+        ":create",
+        ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:core_headers",
+        "@abseil-cpp//absl/status:statusor",
+        "@com_github_grpc_grpc//:grpc++",
+        "@tink_cc//tink/signature:prehash",
+        "@tink_cc//tink/signature:sign_prehash",
+    ],
+)
+
+cc_test(
+    name = "sign_prehash_impl_test",
+    srcs = ["sign_prehash_impl_test.cc"],
+    deps = [
+        ":sign_prehash_impl",
+        ":testing_api_cpp_library",
+        "@abseil-cpp//absl/status:status_matchers",
+        "@abseil-cpp//absl/status:statusor",
+        "@googletest//:gtest_main",
+        "@tink_cc//tink:binary_keyset_writer",
+        "@tink_cc//tink:cleartext_keyset_handle",
+        "@tink_cc//tink:keyset_handle",
+        "@tink_cc//tink/signature:key_gen_config_2026",
+        "@tink_cc//tink/signature:ml_dsa_parameters",
+    ],
+)
+
+cc_library(
     name = "prf_set_impl",
     srcs = ["prf_set_impl.cc"],
     hdrs = ["prf_set_impl.h"],
@@ -509,6 +541,7 @@ cc_binary(
         ":mac_impl",
         ":metadata_impl",
         ":prf_set_impl",
+        ":sign_prehash_impl",
         ":signature_impl",
         ":streaming_aead_impl",
         ":testing_api_cpp_library",
