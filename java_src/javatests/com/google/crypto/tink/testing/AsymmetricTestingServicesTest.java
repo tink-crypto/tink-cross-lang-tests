@@ -26,6 +26,8 @@ import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.hybrid.EciesAeadHkdfPrivateKeyManager;
 import com.google.crypto.tink.signature.EcdsaSignKeyManager;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
+import com.google.crypto.tink.testing.proto.ComputePrehashRequest;
+import com.google.crypto.tink.testing.proto.ComputePrehashResponse;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.HybridDecryptRequest;
@@ -38,6 +40,9 @@ import com.google.crypto.tink.testing.proto.KeysetGenerateResponse;
 import com.google.crypto.tink.testing.proto.KeysetGrpc;
 import com.google.crypto.tink.testing.proto.KeysetPublicRequest;
 import com.google.crypto.tink.testing.proto.KeysetPublicResponse;
+import com.google.crypto.tink.testing.proto.SignPrehashGrpc;
+import com.google.crypto.tink.testing.proto.SignPrehashRequest;
+import com.google.crypto.tink.testing.proto.SignPrehashResponse;
 import com.google.crypto.tink.testing.proto.SignatureGrpc;
 import com.google.crypto.tink.testing.proto.SignatureSignRequest;
 import com.google.crypto.tink.testing.proto.SignatureSignResponse;
@@ -61,6 +66,7 @@ public final class AsymmetricTestingServicesTest {
   KeysetGrpc.KeysetBlockingStub keysetStub;
   HybridGrpc.HybridBlockingStub hybridStub;
   SignatureGrpc.SignatureBlockingStub signatureStub;
+  SignPrehashGrpc.SignPrehashBlockingStub signPrehashStub;
 
   @Before
   public void setUp() throws Exception {
@@ -72,12 +78,14 @@ public final class AsymmetricTestingServicesTest {
             .addService(new KeysetServiceImpl())
             .addService(new HybridServiceImpl())
             .addService(new SignatureServiceImpl())
+            .addService(new SignPrehashServiceImpl())
             .build()
             .start();
     channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
     keysetStub = KeysetGrpc.newBlockingStub(channel);
     hybridStub = HybridGrpc.newBlockingStub(channel);
     signatureStub = SignatureGrpc.newBlockingStub(channel);
+    signPrehashStub = SignPrehashGrpc.newBlockingStub(channel);
   }
 
   @After
@@ -468,4 +476,53 @@ public final class AsymmetricTestingServicesTest {
     assertThat(verifyResponse.getErr()).isNotEmpty();
   }
 
+  @Test
+  public void signPrehashCreatePrehash_returnsError() throws Exception {
+    CreationResponse response =
+        signPrehashStub.createPrehash(
+            CreationRequest.newBuilder()
+                .setAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom("some keyset", UTF_8)))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
+
+  @Test
+  public void signPrehashCreatePrehashSigner_returnsError() throws Exception {
+    CreationResponse response =
+        signPrehashStub.createPrehashSigner(
+            CreationRequest.newBuilder()
+                .setAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom("some keyset", UTF_8)))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
+
+  @Test
+  public void signPrehashComputePrehash_returnsError() throws Exception {
+    ComputePrehashResponse response =
+        signPrehashStub.computePrehash(
+            ComputePrehashRequest.newBuilder()
+                .setPublicAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom("some keyset", UTF_8)))
+                .setData(ByteString.copyFrom("some data", UTF_8))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
+
+  @Test
+  public void signPrehashSignPrehash_returnsError() throws Exception {
+    SignPrehashResponse response =
+        signPrehashStub.signPrehash(
+            SignPrehashRequest.newBuilder()
+                .setPrivateAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom("some keyset", UTF_8)))
+                .setPrehash(ByteString.copyFrom("some prehash", UTF_8))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
 }

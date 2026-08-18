@@ -37,6 +37,7 @@ java_library(
         "java/com/google/crypto/tink/testing/MacServiceImpl.java",
         "java/com/google/crypto/tink/testing/MetadataServiceImpl.java",
         "java/com/google/crypto/tink/testing/PrfSetServiceImpl.java",
+        "java/com/google/crypto/tink/testing/SignPrehashServiceImpl.java",
         "java/com/google/crypto/tink/testing/SignatureServiceImpl.java",
         "java/com/google/crypto/tink/testing/StreamingAeadServiceImpl.java",
         "java/com/google/crypto/tink/testing/Util.java",

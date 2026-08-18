@@ -95,6 +95,7 @@ public final class TestingServer {
         .addService(new MacServiceImpl())
         .addService(new PrfSetServiceImpl())
         .addService(new SignatureServiceImpl())
+        .addService(new SignPrehashServiceImpl())
         .addService(new JwtServiceImpl())
         .addService(new KeysetDeriverServiceImpl())
         .build()
