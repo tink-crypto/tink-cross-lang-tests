@@ -3059,6 +3059,278 @@ func (x *SignatureVerifyResponse) GetErr() string {
 	return ""
 }
 
+type ComputePrehashRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PublicAnnotatedKeyset *AnnotatedKeyset `protobuf:"bytes,1,opt,name=public_annotated_keyset,json=publicAnnotatedKeyset,proto3" json:"public_annotated_keyset,omitempty"`
+	Data                  []byte           `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+}
+
+func (x *ComputePrehashRequest) Reset() {
+	*x = ComputePrehashRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_go_protos_testing_api_proto_msgTypes[44]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ComputePrehashRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ComputePrehashRequest) ProtoMessage() {}
+
+func (x *ComputePrehashRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_go_protos_testing_api_proto_msgTypes[44]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ComputePrehashRequest.ProtoReflect.Descriptor instead.
+func (*ComputePrehashRequest) Descriptor() ([]byte, []int) {
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *ComputePrehashRequest) GetPublicAnnotatedKeyset() *AnnotatedKeyset {
+	if x != nil {
+		return x.PublicAnnotatedKeyset
+	}
+	return nil
+}
+
+func (x *ComputePrehashRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type ComputePrehashResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Result:
+	//
+	//	*ComputePrehashResponse_Prehash
+	//	*ComputePrehashResponse_Err
+	Result isComputePrehashResponse_Result `protobuf_oneof:"result"`
+}
+
+func (x *ComputePrehashResponse) Reset() {
+	*x = ComputePrehashResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_go_protos_testing_api_proto_msgTypes[45]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ComputePrehashResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ComputePrehashResponse) ProtoMessage() {}
+
+func (x *ComputePrehashResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_go_protos_testing_api_proto_msgTypes[45]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ComputePrehashResponse.ProtoReflect.Descriptor instead.
+func (*ComputePrehashResponse) Descriptor() ([]byte, []int) {
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{45}
+}
+
+func (m *ComputePrehashResponse) GetResult() isComputePrehashResponse_Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (x *ComputePrehashResponse) GetPrehash() []byte {
+	if x, ok := x.GetResult().(*ComputePrehashResponse_Prehash); ok {
+		return x.Prehash
+	}
+	return nil
+}
+
+func (x *ComputePrehashResponse) GetErr() string {
+	if x, ok := x.GetResult().(*ComputePrehashResponse_Err); ok {
+		return x.Err
+	}
+	return ""
+}
+
+type isComputePrehashResponse_Result interface {
+	isComputePrehashResponse_Result()
+}
+
+type ComputePrehashResponse_Prehash struct {
+	Prehash []byte `protobuf:"bytes,1,opt,name=prehash,proto3,oneof"`
+}
+
+type ComputePrehashResponse_Err struct {
+	Err string `protobuf:"bytes,2,opt,name=err,proto3,oneof"`
+}
+
+func (*ComputePrehashResponse_Prehash) isComputePrehashResponse_Result() {}
+
+func (*ComputePrehashResponse_Err) isComputePrehashResponse_Result() {}
+
+type SignPrehashRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PrivateAnnotatedKeyset *AnnotatedKeyset `protobuf:"bytes,1,opt,name=private_annotated_keyset,json=privateAnnotatedKeyset,proto3" json:"private_annotated_keyset,omitempty"`
+	Prehash                []byte           `protobuf:"bytes,2,opt,name=prehash,proto3" json:"prehash,omitempty"`
+}
+
+func (x *SignPrehashRequest) Reset() {
+	*x = SignPrehashRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_go_protos_testing_api_proto_msgTypes[46]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignPrehashRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignPrehashRequest) ProtoMessage() {}
+
+func (x *SignPrehashRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_go_protos_testing_api_proto_msgTypes[46]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignPrehashRequest.ProtoReflect.Descriptor instead.
+func (*SignPrehashRequest) Descriptor() ([]byte, []int) {
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *SignPrehashRequest) GetPrivateAnnotatedKeyset() *AnnotatedKeyset {
+	if x != nil {
+		return x.PrivateAnnotatedKeyset
+	}
+	return nil
+}
+
+func (x *SignPrehashRequest) GetPrehash() []byte {
+	if x != nil {
+		return x.Prehash
+	}
+	return nil
+}
+
+type SignPrehashResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Result:
+	//
+	//	*SignPrehashResponse_Signature
+	//	*SignPrehashResponse_Err
+	Result isSignPrehashResponse_Result `protobuf_oneof:"result"`
+}
+
+func (x *SignPrehashResponse) Reset() {
+	*x = SignPrehashResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_go_protos_testing_api_proto_msgTypes[47]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SignPrehashResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignPrehashResponse) ProtoMessage() {}
+
+func (x *SignPrehashResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_go_protos_testing_api_proto_msgTypes[47]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SignPrehashResponse.ProtoReflect.Descriptor instead.
+func (*SignPrehashResponse) Descriptor() ([]byte, []int) {
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{47}
+}
+
+func (m *SignPrehashResponse) GetResult() isSignPrehashResponse_Result {
+	if m != nil {
+		return m.Result
+	}
+	return nil
+}
+
+func (x *SignPrehashResponse) GetSignature() []byte {
+	if x, ok := x.GetResult().(*SignPrehashResponse_Signature); ok {
+		return x.Signature
+	}
+	return nil
+}
+
+func (x *SignPrehashResponse) GetErr() string {
+	if x, ok := x.GetResult().(*SignPrehashResponse_Err); ok {
+		return x.Err
+	}
+	return ""
+}
+
+type isSignPrehashResponse_Result interface {
+	isSignPrehashResponse_Result()
+}
+
+type SignPrehashResponse_Signature struct {
+	Signature []byte `protobuf:"bytes,1,opt,name=signature,proto3,oneof"`
+}
+
+type SignPrehashResponse_Err struct {
+	Err string `protobuf:"bytes,2,opt,name=err,proto3,oneof"`
+}
+
+func (*SignPrehashResponse_Signature) isSignPrehashResponse_Result() {}
+
+func (*SignPrehashResponse_Err) isSignPrehashResponse_Result() {}
+
 type PrfSetKeyIdsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -3070,7 +3342,7 @@ type PrfSetKeyIdsRequest struct {
 func (x *PrfSetKeyIdsRequest) Reset() {
 	*x = PrfSetKeyIdsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[44]
+		mi := &file_go_protos_testing_api_proto_msgTypes[48]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3083,7 +3355,7 @@ func (x *PrfSetKeyIdsRequest) String() string {
 func (*PrfSetKeyIdsRequest) ProtoMessage() {}
 
 func (x *PrfSetKeyIdsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[44]
+	mi := &file_go_protos_testing_api_proto_msgTypes[48]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3096,7 +3368,7 @@ func (x *PrfSetKeyIdsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrfSetKeyIdsRequest.ProtoReflect.Descriptor instead.
 func (*PrfSetKeyIdsRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{44}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *PrfSetKeyIdsRequest) GetAnnotatedKeyset() *AnnotatedKeyset {
@@ -3121,7 +3393,7 @@ type PrfSetKeyIdsResponse struct {
 func (x *PrfSetKeyIdsResponse) Reset() {
 	*x = PrfSetKeyIdsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[45]
+		mi := &file_go_protos_testing_api_proto_msgTypes[49]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3134,7 +3406,7 @@ func (x *PrfSetKeyIdsResponse) String() string {
 func (*PrfSetKeyIdsResponse) ProtoMessage() {}
 
 func (x *PrfSetKeyIdsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[45]
+	mi := &file_go_protos_testing_api_proto_msgTypes[49]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3147,7 +3419,7 @@ func (x *PrfSetKeyIdsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrfSetKeyIdsResponse.ProtoReflect.Descriptor instead.
 func (*PrfSetKeyIdsResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{45}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{49}
 }
 
 func (m *PrfSetKeyIdsResponse) GetResult() isPrfSetKeyIdsResponse_Result {
@@ -3201,7 +3473,7 @@ type PrfSetComputeRequest struct {
 func (x *PrfSetComputeRequest) Reset() {
 	*x = PrfSetComputeRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[46]
+		mi := &file_go_protos_testing_api_proto_msgTypes[50]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3214,7 +3486,7 @@ func (x *PrfSetComputeRequest) String() string {
 func (*PrfSetComputeRequest) ProtoMessage() {}
 
 func (x *PrfSetComputeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[46]
+	mi := &file_go_protos_testing_api_proto_msgTypes[50]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3227,7 +3499,7 @@ func (x *PrfSetComputeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrfSetComputeRequest.ProtoReflect.Descriptor instead.
 func (*PrfSetComputeRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{46}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *PrfSetComputeRequest) GetAnnotatedKeyset() *AnnotatedKeyset {
@@ -3273,7 +3545,7 @@ type PrfSetComputeResponse struct {
 func (x *PrfSetComputeResponse) Reset() {
 	*x = PrfSetComputeResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[47]
+		mi := &file_go_protos_testing_api_proto_msgTypes[51]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3286,7 +3558,7 @@ func (x *PrfSetComputeResponse) String() string {
 func (*PrfSetComputeResponse) ProtoMessage() {}
 
 func (x *PrfSetComputeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[47]
+	mi := &file_go_protos_testing_api_proto_msgTypes[51]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3299,7 +3571,7 @@ func (x *PrfSetComputeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrfSetComputeResponse.ProtoReflect.Descriptor instead.
 func (*PrfSetComputeResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{47}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{51}
 }
 
 func (m *PrfSetComputeResponse) GetResult() isPrfSetComputeResponse_Result {
@@ -3358,7 +3630,7 @@ type JwtClaimValue struct {
 func (x *JwtClaimValue) Reset() {
 	*x = JwtClaimValue{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[48]
+		mi := &file_go_protos_testing_api_proto_msgTypes[52]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3371,7 +3643,7 @@ func (x *JwtClaimValue) String() string {
 func (*JwtClaimValue) ProtoMessage() {}
 
 func (x *JwtClaimValue) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[48]
+	mi := &file_go_protos_testing_api_proto_msgTypes[52]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3384,7 +3656,7 @@ func (x *JwtClaimValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtClaimValue.ProtoReflect.Descriptor instead.
 func (*JwtClaimValue) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{48}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{52}
 }
 
 func (m *JwtClaimValue) GetKind() isJwtClaimValue_Kind {
@@ -3495,7 +3767,7 @@ type JwtToken struct {
 func (x *JwtToken) Reset() {
 	*x = JwtToken{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[49]
+		mi := &file_go_protos_testing_api_proto_msgTypes[53]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3508,7 +3780,7 @@ func (x *JwtToken) String() string {
 func (*JwtToken) ProtoMessage() {}
 
 func (x *JwtToken) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[49]
+	mi := &file_go_protos_testing_api_proto_msgTypes[53]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3521,7 +3793,7 @@ func (x *JwtToken) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtToken.ProtoReflect.Descriptor instead.
 func (*JwtToken) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{49}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *JwtToken) GetIssuer() *wrapperspb.StringValue {
@@ -3607,7 +3879,7 @@ type JwtValidator struct {
 func (x *JwtValidator) Reset() {
 	*x = JwtValidator{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[50]
+		mi := &file_go_protos_testing_api_proto_msgTypes[54]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3620,7 +3892,7 @@ func (x *JwtValidator) String() string {
 func (*JwtValidator) ProtoMessage() {}
 
 func (x *JwtValidator) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[50]
+	mi := &file_go_protos_testing_api_proto_msgTypes[54]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3633,7 +3905,7 @@ func (x *JwtValidator) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtValidator.ProtoReflect.Descriptor instead.
 func (*JwtValidator) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{50}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *JwtValidator) GetExpectedTypeHeader() *wrapperspb.StringValue {
@@ -3718,7 +3990,7 @@ type JwtSignRequest struct {
 func (x *JwtSignRequest) Reset() {
 	*x = JwtSignRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[51]
+		mi := &file_go_protos_testing_api_proto_msgTypes[55]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3731,7 +4003,7 @@ func (x *JwtSignRequest) String() string {
 func (*JwtSignRequest) ProtoMessage() {}
 
 func (x *JwtSignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[51]
+	mi := &file_go_protos_testing_api_proto_msgTypes[55]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3744,7 +4016,7 @@ func (x *JwtSignRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtSignRequest.ProtoReflect.Descriptor instead.
 func (*JwtSignRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{51}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *JwtSignRequest) GetAnnotatedKeyset() *AnnotatedKeyset {
@@ -3776,7 +4048,7 @@ type JwtSignResponse struct {
 func (x *JwtSignResponse) Reset() {
 	*x = JwtSignResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[52]
+		mi := &file_go_protos_testing_api_proto_msgTypes[56]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3789,7 +4061,7 @@ func (x *JwtSignResponse) String() string {
 func (*JwtSignResponse) ProtoMessage() {}
 
 func (x *JwtSignResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[52]
+	mi := &file_go_protos_testing_api_proto_msgTypes[56]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3802,7 +4074,7 @@ func (x *JwtSignResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtSignResponse.ProtoReflect.Descriptor instead.
 func (*JwtSignResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{52}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{56}
 }
 
 func (m *JwtSignResponse) GetResult() isJwtSignResponse_Result {
@@ -3855,7 +4127,7 @@ type JwtVerifyRequest struct {
 func (x *JwtVerifyRequest) Reset() {
 	*x = JwtVerifyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[53]
+		mi := &file_go_protos_testing_api_proto_msgTypes[57]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3868,7 +4140,7 @@ func (x *JwtVerifyRequest) String() string {
 func (*JwtVerifyRequest) ProtoMessage() {}
 
 func (x *JwtVerifyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[53]
+	mi := &file_go_protos_testing_api_proto_msgTypes[57]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3881,7 +4153,7 @@ func (x *JwtVerifyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtVerifyRequest.ProtoReflect.Descriptor instead.
 func (*JwtVerifyRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{53}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *JwtVerifyRequest) GetAnnotatedKeyset() *AnnotatedKeyset {
@@ -3920,7 +4192,7 @@ type JwtVerifyResponse struct {
 func (x *JwtVerifyResponse) Reset() {
 	*x = JwtVerifyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[54]
+		mi := &file_go_protos_testing_api_proto_msgTypes[58]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3933,7 +4205,7 @@ func (x *JwtVerifyResponse) String() string {
 func (*JwtVerifyResponse) ProtoMessage() {}
 
 func (x *JwtVerifyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[54]
+	mi := &file_go_protos_testing_api_proto_msgTypes[58]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3946,7 +4218,7 @@ func (x *JwtVerifyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtVerifyResponse.ProtoReflect.Descriptor instead.
 func (*JwtVerifyResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{54}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{58}
 }
 
 func (m *JwtVerifyResponse) GetResult() isJwtVerifyResponse_Result {
@@ -3997,7 +4269,7 @@ type JwtToJwkSetRequest struct {
 func (x *JwtToJwkSetRequest) Reset() {
 	*x = JwtToJwkSetRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[55]
+		mi := &file_go_protos_testing_api_proto_msgTypes[59]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4010,7 +4282,7 @@ func (x *JwtToJwkSetRequest) String() string {
 func (*JwtToJwkSetRequest) ProtoMessage() {}
 
 func (x *JwtToJwkSetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[55]
+	mi := &file_go_protos_testing_api_proto_msgTypes[59]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4023,7 +4295,7 @@ func (x *JwtToJwkSetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtToJwkSetRequest.ProtoReflect.Descriptor instead.
 func (*JwtToJwkSetRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{55}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *JwtToJwkSetRequest) GetKeyset() []byte {
@@ -4048,7 +4320,7 @@ type JwtToJwkSetResponse struct {
 func (x *JwtToJwkSetResponse) Reset() {
 	*x = JwtToJwkSetResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[56]
+		mi := &file_go_protos_testing_api_proto_msgTypes[60]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4061,7 +4333,7 @@ func (x *JwtToJwkSetResponse) String() string {
 func (*JwtToJwkSetResponse) ProtoMessage() {}
 
 func (x *JwtToJwkSetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[56]
+	mi := &file_go_protos_testing_api_proto_msgTypes[60]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4074,7 +4346,7 @@ func (x *JwtToJwkSetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtToJwkSetResponse.ProtoReflect.Descriptor instead.
 func (*JwtToJwkSetResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{56}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{60}
 }
 
 func (m *JwtToJwkSetResponse) GetResult() isJwtToJwkSetResponse_Result {
@@ -4125,7 +4397,7 @@ type JwtFromJwkSetRequest struct {
 func (x *JwtFromJwkSetRequest) Reset() {
 	*x = JwtFromJwkSetRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[57]
+		mi := &file_go_protos_testing_api_proto_msgTypes[61]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4138,7 +4410,7 @@ func (x *JwtFromJwkSetRequest) String() string {
 func (*JwtFromJwkSetRequest) ProtoMessage() {}
 
 func (x *JwtFromJwkSetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[57]
+	mi := &file_go_protos_testing_api_proto_msgTypes[61]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4151,7 +4423,7 @@ func (x *JwtFromJwkSetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtFromJwkSetRequest.ProtoReflect.Descriptor instead.
 func (*JwtFromJwkSetRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{57}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *JwtFromJwkSetRequest) GetJwkSet() string {
@@ -4176,7 +4448,7 @@ type JwtFromJwkSetResponse struct {
 func (x *JwtFromJwkSetResponse) Reset() {
 	*x = JwtFromJwkSetResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[58]
+		mi := &file_go_protos_testing_api_proto_msgTypes[62]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4189,7 +4461,7 @@ func (x *JwtFromJwkSetResponse) String() string {
 func (*JwtFromJwkSetResponse) ProtoMessage() {}
 
 func (x *JwtFromJwkSetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[58]
+	mi := &file_go_protos_testing_api_proto_msgTypes[62]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4202,7 +4474,7 @@ func (x *JwtFromJwkSetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JwtFromJwkSetResponse.ProtoReflect.Descriptor instead.
 func (*JwtFromJwkSetResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{58}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{62}
 }
 
 func (m *JwtFromJwkSetResponse) GetResult() isJwtFromJwkSetResponse_Result {
@@ -4254,7 +4526,7 @@ type DeriveKeysetRequest struct {
 func (x *DeriveKeysetRequest) Reset() {
 	*x = DeriveKeysetRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[59]
+		mi := &file_go_protos_testing_api_proto_msgTypes[63]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4267,7 +4539,7 @@ func (x *DeriveKeysetRequest) String() string {
 func (*DeriveKeysetRequest) ProtoMessage() {}
 
 func (x *DeriveKeysetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[59]
+	mi := &file_go_protos_testing_api_proto_msgTypes[63]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4280,7 +4552,7 @@ func (x *DeriveKeysetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeriveKeysetRequest.ProtoReflect.Descriptor instead.
 func (*DeriveKeysetRequest) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{59}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *DeriveKeysetRequest) GetAnnotatedKeyset() *AnnotatedKeyset {
@@ -4312,7 +4584,7 @@ type DeriveKeysetResponse struct {
 func (x *DeriveKeysetResponse) Reset() {
 	*x = DeriveKeysetResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[60]
+		mi := &file_go_protos_testing_api_proto_msgTypes[64]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4325,7 +4597,7 @@ func (x *DeriveKeysetResponse) String() string {
 func (*DeriveKeysetResponse) ProtoMessage() {}
 
 func (x *DeriveKeysetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[60]
+	mi := &file_go_protos_testing_api_proto_msgTypes[64]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4338,7 +4610,7 @@ func (x *DeriveKeysetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeriveKeysetResponse.ProtoReflect.Descriptor instead.
 func (*DeriveKeysetResponse) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{60}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{64}
 }
 
 func (m *DeriveKeysetResponse) GetResult() isDeriveKeysetResponse_Result {
@@ -4390,7 +4662,7 @@ type PrfSetKeyIdsResponse_Output struct {
 func (x *PrfSetKeyIdsResponse_Output) Reset() {
 	*x = PrfSetKeyIdsResponse_Output{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_go_protos_testing_api_proto_msgTypes[62]
+		mi := &file_go_protos_testing_api_proto_msgTypes[66]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4403,7 +4675,7 @@ func (x *PrfSetKeyIdsResponse_Output) String() string {
 func (*PrfSetKeyIdsResponse_Output) ProtoMessage() {}
 
 func (x *PrfSetKeyIdsResponse_Output) ProtoReflect() protoreflect.Message {
-	mi := &file_go_protos_testing_api_proto_msgTypes[62]
+	mi := &file_go_protos_testing_api_proto_msgTypes[66]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4416,7 +4688,7 @@ func (x *PrfSetKeyIdsResponse_Output) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrfSetKeyIdsResponse_Output.ProtoReflect.Descriptor instead.
 func (*PrfSetKeyIdsResponse_Output) Descriptor() ([]byte, []int) {
-	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{45, 0}
+	return file_go_protos_testing_api_proto_rawDescGZIP(), []int{49, 0}
 }
 
 func (x *PrfSetKeyIdsResponse_Output) GetPrimaryKeyId() uint32 {
@@ -4753,6 +5025,34 @@ var file_go_protos_testing_api_proto_rawDesc = []byte{
 	0x61, 0x74, 0x61, 0x22, 0x2b, 0x0a, 0x17, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65,
 	0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10,
 	0x0a, 0x03, 0x65, 0x72, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x65, 0x72, 0x72,
+	0x22, 0x86, 0x01, 0x0a, 0x15, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68,
+	0x61, 0x73, 0x68, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x59, 0x0a, 0x17, 0x70, 0x75,
+	0x62, 0x6c, 0x69, 0x63, 0x5f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x6b,
+	0x65, 0x79, 0x73, 0x65, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x21, 0x2e, 0x74, 0x69,
+	0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x41,
+	0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x52, 0x15,
+	0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x41, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x65, 0x64, 0x4b,
+	0x65, 0x79, 0x73, 0x65, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x52, 0x0a, 0x16, 0x43, 0x6f, 0x6d,
+	0x70, 0x75, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a, 0x07, 0x70, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0c, 0x48, 0x00, 0x52, 0x07, 0x70, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x12,
+	0x12, 0x0a, 0x03, 0x65, 0x72, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x03,
+	0x65, 0x72, 0x72, 0x42, 0x08, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x8b, 0x01,
+	0x0a, 0x12, 0x53, 0x69, 0x67, 0x6e, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x5b, 0x0a, 0x18, 0x70, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x5f,
+	0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x6b, 0x65, 0x79, 0x73, 0x65, 0x74,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65,
+	0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x41, 0x6e, 0x6e, 0x6f, 0x74, 0x61,
+	0x74, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x52, 0x16, 0x70, 0x72, 0x69, 0x76, 0x61,
+	0x74, 0x65, 0x41, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x65, 0x64, 0x4b, 0x65, 0x79, 0x73, 0x65,
+	0x74, 0x12, 0x18, 0x0a, 0x07, 0x70, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x07, 0x70, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x22, 0x53, 0x0a, 0x13, 0x53,
+	0x69, 0x67, 0x6e, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x1e, 0x0a, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0c, 0x48, 0x00, 0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75,
+	0x72, 0x65, 0x12, 0x12, 0x0a, 0x03, 0x65, 0x72, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x48,
+	0x00, 0x52, 0x03, 0x65, 0x72, 0x72, 0x42, 0x08, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
 	0x22, 0x63, 0x0a, 0x13, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x4c, 0x0a, 0x10, 0x61, 0x6e, 0x6e, 0x6f, 0x74,
 	0x61, 0x74, 0x65, 0x64, 0x5f, 0x6b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
@@ -5139,98 +5439,124 @@ var file_go_protos_testing_api_proto_rawDesc = []byte{
 	0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74,
 	0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72,
 	0x65, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x32, 0x94, 0x02, 0x0a, 0x06, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x12, 0x51, 0x0a, 0x06,
-	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65,
-	0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
-	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
-	0x59, 0x0a, 0x06, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73, 0x12, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
-	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x50, 0x72, 0x66,
-	0x53, 0x65, 0x74, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
-	0x61, 0x70, 0x69, 0x2e, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5c, 0x0a, 0x07, 0x43, 0x6f,
-	0x6d, 0x70, 0x75, 0x74, 0x65, 0x12, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x43,
-	0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e,
+	0x00, 0x32, 0x8c, 0x03, 0x0a, 0x0b, 0x53, 0x69, 0x67, 0x6e, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73,
+	0x68, 0x12, 0x58, 0x0a, 0x0d, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68, 0x61,
+	0x73, 0x68, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
+	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5e, 0x0a, 0x13, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x53, 0x69, 0x67, 0x6e,
+	0x65, 0x72, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
+	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x65, 0x0a, 0x0e, 0x43,
+	0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x12, 0x27, 0x2e,
 	0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69,
-	0x2e, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x32, 0xe9, 0x06, 0x0a, 0x03, 0x4a, 0x77, 0x74,
-	0x12, 0x57, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x4a, 0x77, 0x74, 0x4d, 0x61, 0x63,
-	0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
-	0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x61, 0x0a, 0x16, 0x43, 0x72, 0x65,
-	0x61, 0x74, 0x65, 0x4a, 0x77, 0x74, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x53,
-	0x69, 0x67, 0x6e, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65,
-	0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x63, 0x0a, 0x18,
-	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x4a, 0x77, 0x74, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b,
-	0x65, 0x79, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
+	0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65,
+	0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74,
+	0x65, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x00, 0x12, 0x5c, 0x0a, 0x0b, 0x53, 0x69, 0x67, 0x6e, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73,
+	0x68, 0x12, 0x24, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67,
+	0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x50, 0x72, 0x65, 0x68, 0x61, 0x73, 0x68,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74,
+	0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x50,
+	0x72, 0x65, 0x68, 0x61, 0x73, 0x68, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x32, 0x94, 0x02, 0x0a, 0x06, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x12, 0x51, 0x0a, 0x06, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
+	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
 	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69,
-	0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43,
-	0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x5c, 0x0a, 0x13, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x4d, 0x61, 0x63, 0x41,
-	0x6e, 0x64, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x20, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
-	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x53,
-	0x69, 0x67, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x74, 0x69, 0x6e,
-	0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77,
-	0x74, 0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
-	0x5f, 0x0a, 0x12, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x4d, 0x61, 0x63, 0x41, 0x6e, 0x64, 0x44,
-	0x65, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69,
-	0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
-	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74,
-	0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
-	0x12, 0x5f, 0x0a, 0x16, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x53, 0x69, 0x67,
-	0x6e, 0x41, 0x6e, 0x64, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x20, 0x2e, 0x74, 0x69, 0x6e,
-	0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77,
-	0x74, 0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x74,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x59,
+	0x0a, 0x06, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73, 0x12, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
+	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x50, 0x72, 0x66, 0x53,
+	0x65, 0x74, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61,
+	0x70, 0x69, 0x2e, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x4b, 0x65, 0x79, 0x49, 0x64, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5c, 0x0a, 0x07, 0x43, 0x6f, 0x6d,
+	0x70, 0x75, 0x74, 0x65, 0x12, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74,
+	0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x43, 0x6f,
+	0x6d, 0x70, 0x75, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x74,
 	0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e,
-	0x4a, 0x77, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x65, 0x0a, 0x18, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x56, 0x65,
-	0x72, 0x69, 0x66, 0x79, 0x41, 0x6e, 0x64, 0x44, 0x65, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x22, 0x2e,
-	0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69,
-	0x2e, 0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x23, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67,
-	0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x59, 0x0a, 0x08, 0x54, 0x6f, 0x4a, 0x77,
-	0x6b, 0x53, 0x65, 0x74, 0x12, 0x24, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74,
-	0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x54, 0x6f, 0x4a, 0x77, 0x6b,
-	0x53, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x74, 0x69, 0x6e,
-	0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77,
-	0x74, 0x54, 0x6f, 0x4a, 0x77, 0x6b, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0x00, 0x12, 0x5f, 0x0a, 0x0a, 0x46, 0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53, 0x65,
-	0x74, 0x12, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67,
-	0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x46, 0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53,
-	0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
+	0x50, 0x72, 0x66, 0x53, 0x65, 0x74, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x32, 0xe9, 0x06, 0x0a, 0x03, 0x4a, 0x77, 0x74, 0x12,
+	0x57, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x4a, 0x77, 0x74, 0x4d, 0x61, 0x63, 0x12,
+	0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61,
+	0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x61, 0x0a, 0x16, 0x43, 0x72, 0x65, 0x61,
+	0x74, 0x65, 0x4a, 0x77, 0x74, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x53, 0x69,
+	0x67, 0x6e, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73,
+	0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x63, 0x0a, 0x18, 0x43,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x4a, 0x77, 0x74, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65,
+	0x79, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74,
+	0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e,
+	0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x12, 0x5c, 0x0a, 0x13, 0x43, 0x6f, 0x6d, 0x70, 0x75, 0x74, 0x65, 0x4d, 0x61, 0x63, 0x41, 0x6e,
+	0x64, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x20, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74,
+	0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x53, 0x69,
+	0x67, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
 	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74,
-	0x46, 0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x00, 0x32, 0xc3, 0x01, 0x0a, 0x0d, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x44,
-	0x65, 0x72, 0x69, 0x76, 0x65, 0x72, 0x12, 0x51, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
-	0x12, 0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
-	0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5f, 0x0a, 0x0c, 0x44, 0x65, 0x72,
-	0x69, 0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x12, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
-	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x44, 0x65, 0x72,
-	0x69, 0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
-	0x61, 0x70, 0x69, 0x2e, 0x44, 0x65, 0x72, 0x69, 0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x66, 0x0a, 0x24, 0x63, 0x6f,
-	0x6d, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e,
-	0x74, 0x69, 0x6e, 0x6b, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x3c, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
-	0x2f, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x74, 0x69, 0x6e, 0x6b, 0x2f, 0x74, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x67, 0x2f, 0x67, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x74, 0x65,
-	0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x5f, 0x67, 0x6f, 0x5f, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5f,
+	0x0a, 0x12, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x4d, 0x61, 0x63, 0x41, 0x6e, 0x64, 0x44, 0x65,
+	0x63, 0x6f, 0x64, 0x65, 0x12, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74,
+	0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66,
+	0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
+	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x56,
+	0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12,
+	0x5f, 0x0a, 0x16, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x53, 0x69, 0x67, 0x6e,
+	0x41, 0x6e, 0x64, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x20, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
+	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x74, 0x69,
+	0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a,
+	0x77, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00,
+	0x12, 0x65, 0x0a, 0x18, 0x50, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x4b, 0x65, 0x79, 0x56, 0x65, 0x72,
+	0x69, 0x66, 0x79, 0x41, 0x6e, 0x64, 0x44, 0x65, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x22, 0x2e, 0x74,
+	0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e,
+	0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x23, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
+	0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x56, 0x65, 0x72, 0x69, 0x66, 0x79, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x59, 0x0a, 0x08, 0x54, 0x6f, 0x4a, 0x77, 0x6b,
+	0x53, 0x65, 0x74, 0x12, 0x24, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69,
+	0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x54, 0x6f, 0x4a, 0x77, 0x6b, 0x53,
+	0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b,
+	0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74,
+	0x54, 0x6f, 0x4a, 0x77, 0x6b, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x00, 0x12, 0x5f, 0x0a, 0x0a, 0x46, 0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53, 0x65, 0x74,
+	0x12, 0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
+	0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x46, 0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53, 0x65,
+	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
+	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4a, 0x77, 0x74, 0x46,
+	0x72, 0x6f, 0x6d, 0x4a, 0x77, 0x6b, 0x53, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x32, 0xc3, 0x01, 0x0a, 0x0d, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x44, 0x65,
+	0x72, 0x69, 0x76, 0x65, 0x72, 0x12, 0x51, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12,
+	0x21, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61,
+	0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x22, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5f, 0x0a, 0x0c, 0x44, 0x65, 0x72, 0x69,
+	0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x12, 0x25, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f,
+	0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x44, 0x65, 0x72, 0x69,
+	0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x26, 0x2e, 0x74, 0x69, 0x6e, 0x6b, 0x5f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x61,
+	0x70, 0x69, 0x2e, 0x44, 0x65, 0x72, 0x69, 0x76, 0x65, 0x4b, 0x65, 0x79, 0x73, 0x65, 0x74, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x71, 0x0a, 0x24, 0x63, 0x6f, 0x6d,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2e, 0x74,
+	0x69, 0x6e, 0x6b, 0x2e, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x50, 0x01, 0x5a, 0x47, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x74, 0x69, 0x6e, 0x6b, 0x2d, 0x63, 0x72, 0x79, 0x70, 0x74, 0x6f, 0x2f, 0x74, 0x69, 0x6e, 0x6b,
+	0x2d, 0x67, 0x6f, 0x2f, 0x76, 0x32, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x2f, 0x67,
+	0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x74, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x67, 0x5f,
+	0x61, 0x70, 0x69, 0x5f, 0x67, 0x6f, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -5246,7 +5572,7 @@ func file_go_protos_testing_api_proto_rawDescGZIP() []byte {
 }
 
 var file_go_protos_testing_api_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_go_protos_testing_api_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
+var file_go_protos_testing_api_proto_msgTypes = make([]protoimpl.MessageInfo, 68)
 var file_go_protos_testing_api_proto_goTypes = []interface{}{
 	(KeysetReaderType)(0),                    // 0: tink_testing_api.KeysetReaderType
 	(KeysetWriterType)(0),                    // 1: tink_testing_api.KeysetWriterType
@@ -5295,36 +5621,40 @@ var file_go_protos_testing_api_proto_goTypes = []interface{}{
 	(*SignatureSignResponse)(nil),            // 44: tink_testing_api.SignatureSignResponse
 	(*SignatureVerifyRequest)(nil),           // 45: tink_testing_api.SignatureVerifyRequest
 	(*SignatureVerifyResponse)(nil),          // 46: tink_testing_api.SignatureVerifyResponse
-	(*PrfSetKeyIdsRequest)(nil),              // 47: tink_testing_api.PrfSetKeyIdsRequest
-	(*PrfSetKeyIdsResponse)(nil),             // 48: tink_testing_api.PrfSetKeyIdsResponse
-	(*PrfSetComputeRequest)(nil),             // 49: tink_testing_api.PrfSetComputeRequest
-	(*PrfSetComputeResponse)(nil),            // 50: tink_testing_api.PrfSetComputeResponse
-	(*JwtClaimValue)(nil),                    // 51: tink_testing_api.JwtClaimValue
-	(*JwtToken)(nil),                         // 52: tink_testing_api.JwtToken
-	(*JwtValidator)(nil),                     // 53: tink_testing_api.JwtValidator
-	(*JwtSignRequest)(nil),                   // 54: tink_testing_api.JwtSignRequest
-	(*JwtSignResponse)(nil),                  // 55: tink_testing_api.JwtSignResponse
-	(*JwtVerifyRequest)(nil),                 // 56: tink_testing_api.JwtVerifyRequest
-	(*JwtVerifyResponse)(nil),                // 57: tink_testing_api.JwtVerifyResponse
-	(*JwtToJwkSetRequest)(nil),               // 58: tink_testing_api.JwtToJwkSetRequest
-	(*JwtToJwkSetResponse)(nil),              // 59: tink_testing_api.JwtToJwkSetResponse
-	(*JwtFromJwkSetRequest)(nil),             // 60: tink_testing_api.JwtFromJwkSetRequest
-	(*JwtFromJwkSetResponse)(nil),            // 61: tink_testing_api.JwtFromJwkSetResponse
-	(*DeriveKeysetRequest)(nil),              // 62: tink_testing_api.DeriveKeysetRequest
-	(*DeriveKeysetResponse)(nil),             // 63: tink_testing_api.DeriveKeysetResponse
-	nil,                                      // 64: tink_testing_api.AnnotatedKeyset.AnnotationsEntry
-	(*PrfSetKeyIdsResponse_Output)(nil),      // 65: tink_testing_api.PrfSetKeyIdsResponse.Output
-	nil,                                      // 66: tink_testing_api.JwtToken.CustomClaimsEntry
-	(*wrapperspb.StringValue)(nil),           // 67: google.protobuf.StringValue
-	(*timestamppb.Timestamp)(nil),            // 68: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),              // 69: google.protobuf.Duration
+	(*ComputePrehashRequest)(nil),            // 47: tink_testing_api.ComputePrehashRequest
+	(*ComputePrehashResponse)(nil),           // 48: tink_testing_api.ComputePrehashResponse
+	(*SignPrehashRequest)(nil),               // 49: tink_testing_api.SignPrehashRequest
+	(*SignPrehashResponse)(nil),              // 50: tink_testing_api.SignPrehashResponse
+	(*PrfSetKeyIdsRequest)(nil),              // 51: tink_testing_api.PrfSetKeyIdsRequest
+	(*PrfSetKeyIdsResponse)(nil),             // 52: tink_testing_api.PrfSetKeyIdsResponse
+	(*PrfSetComputeRequest)(nil),             // 53: tink_testing_api.PrfSetComputeRequest
+	(*PrfSetComputeResponse)(nil),            // 54: tink_testing_api.PrfSetComputeResponse
+	(*JwtClaimValue)(nil),                    // 55: tink_testing_api.JwtClaimValue
+	(*JwtToken)(nil),                         // 56: tink_testing_api.JwtToken
+	(*JwtValidator)(nil),                     // 57: tink_testing_api.JwtValidator
+	(*JwtSignRequest)(nil),                   // 58: tink_testing_api.JwtSignRequest
+	(*JwtSignResponse)(nil),                  // 59: tink_testing_api.JwtSignResponse
+	(*JwtVerifyRequest)(nil),                 // 60: tink_testing_api.JwtVerifyRequest
+	(*JwtVerifyResponse)(nil),                // 61: tink_testing_api.JwtVerifyResponse
+	(*JwtToJwkSetRequest)(nil),               // 62: tink_testing_api.JwtToJwkSetRequest
+	(*JwtToJwkSetResponse)(nil),              // 63: tink_testing_api.JwtToJwkSetResponse
+	(*JwtFromJwkSetRequest)(nil),             // 64: tink_testing_api.JwtFromJwkSetRequest
+	(*JwtFromJwkSetResponse)(nil),            // 65: tink_testing_api.JwtFromJwkSetResponse
+	(*DeriveKeysetRequest)(nil),              // 66: tink_testing_api.DeriveKeysetRequest
+	(*DeriveKeysetResponse)(nil),             // 67: tink_testing_api.DeriveKeysetResponse
+	nil,                                      // 68: tink_testing_api.AnnotatedKeyset.AnnotationsEntry
+	(*PrfSetKeyIdsResponse_Output)(nil),      // 69: tink_testing_api.PrfSetKeyIdsResponse.Output
+	nil,                                      // 70: tink_testing_api.JwtToken.CustomClaimsEntry
+	(*wrapperspb.StringValue)(nil),           // 71: google.protobuf.StringValue
+	(*timestamppb.Timestamp)(nil),            // 72: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),              // 73: google.protobuf.Duration
 }
 var file_go_protos_testing_api_proto_depIdxs = []int32{
 	15, // 0: tink_testing_api.KeysetReadEncryptedRequest.associated_data:type_name -> tink_testing_api.BytesValue
 	0,  // 1: tink_testing_api.KeysetReadEncryptedRequest.keyset_reader_type:type_name -> tink_testing_api.KeysetReaderType
 	15, // 2: tink_testing_api.KeysetWriteEncryptedRequest.associated_data:type_name -> tink_testing_api.BytesValue
 	1,  // 3: tink_testing_api.KeysetWriteEncryptedRequest.keyset_writer_type:type_name -> tink_testing_api.KeysetWriterType
-	64, // 4: tink_testing_api.AnnotatedKeyset.annotations:type_name -> tink_testing_api.AnnotatedKeyset.AnnotationsEntry
+	68, // 4: tink_testing_api.AnnotatedKeyset.annotations:type_name -> tink_testing_api.AnnotatedKeyset.AnnotationsEntry
 	20, // 5: tink_testing_api.CreationRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
 	20, // 6: tink_testing_api.AeadEncryptRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
 	20, // 7: tink_testing_api.AeadDecryptRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
@@ -5338,119 +5668,129 @@ var file_go_protos_testing_api_proto_depIdxs = []int32{
 	20, // 15: tink_testing_api.HybridDecryptRequest.private_annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
 	20, // 16: tink_testing_api.SignatureSignRequest.private_annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
 	20, // 17: tink_testing_api.SignatureVerifyRequest.public_annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	20, // 18: tink_testing_api.PrfSetKeyIdsRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	65, // 19: tink_testing_api.PrfSetKeyIdsResponse.output:type_name -> tink_testing_api.PrfSetKeyIdsResponse.Output
-	20, // 20: tink_testing_api.PrfSetComputeRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	2,  // 21: tink_testing_api.JwtClaimValue.null_value:type_name -> tink_testing_api.NullValue
-	67, // 22: tink_testing_api.JwtToken.issuer:type_name -> google.protobuf.StringValue
-	67, // 23: tink_testing_api.JwtToken.subject:type_name -> google.protobuf.StringValue
-	67, // 24: tink_testing_api.JwtToken.jwt_id:type_name -> google.protobuf.StringValue
-	68, // 25: tink_testing_api.JwtToken.expiration:type_name -> google.protobuf.Timestamp
-	68, // 26: tink_testing_api.JwtToken.not_before:type_name -> google.protobuf.Timestamp
-	68, // 27: tink_testing_api.JwtToken.issued_at:type_name -> google.protobuf.Timestamp
-	66, // 28: tink_testing_api.JwtToken.custom_claims:type_name -> tink_testing_api.JwtToken.CustomClaimsEntry
-	67, // 29: tink_testing_api.JwtToken.type_header:type_name -> google.protobuf.StringValue
-	67, // 30: tink_testing_api.JwtValidator.expected_type_header:type_name -> google.protobuf.StringValue
-	67, // 31: tink_testing_api.JwtValidator.expected_issuer:type_name -> google.protobuf.StringValue
-	67, // 32: tink_testing_api.JwtValidator.expected_audience:type_name -> google.protobuf.StringValue
-	68, // 33: tink_testing_api.JwtValidator.now:type_name -> google.protobuf.Timestamp
-	69, // 34: tink_testing_api.JwtValidator.clock_skew:type_name -> google.protobuf.Duration
-	20, // 35: tink_testing_api.JwtSignRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	52, // 36: tink_testing_api.JwtSignRequest.raw_jwt:type_name -> tink_testing_api.JwtToken
-	20, // 37: tink_testing_api.JwtVerifyRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	53, // 38: tink_testing_api.JwtVerifyRequest.validator:type_name -> tink_testing_api.JwtValidator
-	52, // 39: tink_testing_api.JwtVerifyResponse.verified_jwt:type_name -> tink_testing_api.JwtToken
-	20, // 40: tink_testing_api.DeriveKeysetRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
-	51, // 41: tink_testing_api.JwtToken.CustomClaimsEntry.value:type_name -> tink_testing_api.JwtClaimValue
-	3,  // 42: tink_testing_api.Metadata.GetServerInfo:input_type -> tink_testing_api.ServerInfoRequest
-	5,  // 43: tink_testing_api.Keyset.GetTemplate:input_type -> tink_testing_api.KeysetTemplateRequest
-	7,  // 44: tink_testing_api.Keyset.Generate:input_type -> tink_testing_api.KeysetGenerateRequest
-	9,  // 45: tink_testing_api.Keyset.Public:input_type -> tink_testing_api.KeysetPublicRequest
-	11, // 46: tink_testing_api.Keyset.ToJson:input_type -> tink_testing_api.KeysetToJsonRequest
-	13, // 47: tink_testing_api.Keyset.FromJson:input_type -> tink_testing_api.KeysetFromJsonRequest
-	16, // 48: tink_testing_api.Keyset.ReadEncrypted:input_type -> tink_testing_api.KeysetReadEncryptedRequest
-	18, // 49: tink_testing_api.Keyset.WriteEncrypted:input_type -> tink_testing_api.KeysetWriteEncryptedRequest
-	21, // 50: tink_testing_api.Aead.Create:input_type -> tink_testing_api.CreationRequest
-	23, // 51: tink_testing_api.Aead.Encrypt:input_type -> tink_testing_api.AeadEncryptRequest
-	25, // 52: tink_testing_api.Aead.Decrypt:input_type -> tink_testing_api.AeadDecryptRequest
-	21, // 53: tink_testing_api.DeterministicAead.Create:input_type -> tink_testing_api.CreationRequest
-	27, // 54: tink_testing_api.DeterministicAead.EncryptDeterministically:input_type -> tink_testing_api.DeterministicAeadEncryptRequest
-	29, // 55: tink_testing_api.DeterministicAead.DecryptDeterministically:input_type -> tink_testing_api.DeterministicAeadDecryptRequest
-	21, // 56: tink_testing_api.StreamingAead.Create:input_type -> tink_testing_api.CreationRequest
-	31, // 57: tink_testing_api.StreamingAead.Encrypt:input_type -> tink_testing_api.StreamingAeadEncryptRequest
-	33, // 58: tink_testing_api.StreamingAead.Decrypt:input_type -> tink_testing_api.StreamingAeadDecryptRequest
-	21, // 59: tink_testing_api.Mac.Create:input_type -> tink_testing_api.CreationRequest
-	35, // 60: tink_testing_api.Mac.ComputeMac:input_type -> tink_testing_api.ComputeMacRequest
-	37, // 61: tink_testing_api.Mac.VerifyMac:input_type -> tink_testing_api.VerifyMacRequest
-	21, // 62: tink_testing_api.Hybrid.CreateHybridEncrypt:input_type -> tink_testing_api.CreationRequest
-	21, // 63: tink_testing_api.Hybrid.CreateHybridDecrypt:input_type -> tink_testing_api.CreationRequest
-	39, // 64: tink_testing_api.Hybrid.Encrypt:input_type -> tink_testing_api.HybridEncryptRequest
-	41, // 65: tink_testing_api.Hybrid.Decrypt:input_type -> tink_testing_api.HybridDecryptRequest
-	21, // 66: tink_testing_api.Signature.CreatePublicKeySign:input_type -> tink_testing_api.CreationRequest
-	21, // 67: tink_testing_api.Signature.CreatePublicKeyVerify:input_type -> tink_testing_api.CreationRequest
-	43, // 68: tink_testing_api.Signature.Sign:input_type -> tink_testing_api.SignatureSignRequest
-	45, // 69: tink_testing_api.Signature.Verify:input_type -> tink_testing_api.SignatureVerifyRequest
-	21, // 70: tink_testing_api.PrfSet.Create:input_type -> tink_testing_api.CreationRequest
-	47, // 71: tink_testing_api.PrfSet.KeyIds:input_type -> tink_testing_api.PrfSetKeyIdsRequest
-	49, // 72: tink_testing_api.PrfSet.Compute:input_type -> tink_testing_api.PrfSetComputeRequest
-	21, // 73: tink_testing_api.Jwt.CreateJwtMac:input_type -> tink_testing_api.CreationRequest
-	21, // 74: tink_testing_api.Jwt.CreateJwtPublicKeySign:input_type -> tink_testing_api.CreationRequest
-	21, // 75: tink_testing_api.Jwt.CreateJwtPublicKeyVerify:input_type -> tink_testing_api.CreationRequest
-	54, // 76: tink_testing_api.Jwt.ComputeMacAndEncode:input_type -> tink_testing_api.JwtSignRequest
-	56, // 77: tink_testing_api.Jwt.VerifyMacAndDecode:input_type -> tink_testing_api.JwtVerifyRequest
-	54, // 78: tink_testing_api.Jwt.PublicKeySignAndEncode:input_type -> tink_testing_api.JwtSignRequest
-	56, // 79: tink_testing_api.Jwt.PublicKeyVerifyAndDecode:input_type -> tink_testing_api.JwtVerifyRequest
-	58, // 80: tink_testing_api.Jwt.ToJwkSet:input_type -> tink_testing_api.JwtToJwkSetRequest
-	60, // 81: tink_testing_api.Jwt.FromJwkSet:input_type -> tink_testing_api.JwtFromJwkSetRequest
-	21, // 82: tink_testing_api.KeysetDeriver.Create:input_type -> tink_testing_api.CreationRequest
-	62, // 83: tink_testing_api.KeysetDeriver.DeriveKeyset:input_type -> tink_testing_api.DeriveKeysetRequest
-	4,  // 84: tink_testing_api.Metadata.GetServerInfo:output_type -> tink_testing_api.ServerInfoResponse
-	6,  // 85: tink_testing_api.Keyset.GetTemplate:output_type -> tink_testing_api.KeysetTemplateResponse
-	8,  // 86: tink_testing_api.Keyset.Generate:output_type -> tink_testing_api.KeysetGenerateResponse
-	10, // 87: tink_testing_api.Keyset.Public:output_type -> tink_testing_api.KeysetPublicResponse
-	12, // 88: tink_testing_api.Keyset.ToJson:output_type -> tink_testing_api.KeysetToJsonResponse
-	14, // 89: tink_testing_api.Keyset.FromJson:output_type -> tink_testing_api.KeysetFromJsonResponse
-	17, // 90: tink_testing_api.Keyset.ReadEncrypted:output_type -> tink_testing_api.KeysetReadEncryptedResponse
-	19, // 91: tink_testing_api.Keyset.WriteEncrypted:output_type -> tink_testing_api.KeysetWriteEncryptedResponse
-	22, // 92: tink_testing_api.Aead.Create:output_type -> tink_testing_api.CreationResponse
-	24, // 93: tink_testing_api.Aead.Encrypt:output_type -> tink_testing_api.AeadEncryptResponse
-	26, // 94: tink_testing_api.Aead.Decrypt:output_type -> tink_testing_api.AeadDecryptResponse
-	22, // 95: tink_testing_api.DeterministicAead.Create:output_type -> tink_testing_api.CreationResponse
-	28, // 96: tink_testing_api.DeterministicAead.EncryptDeterministically:output_type -> tink_testing_api.DeterministicAeadEncryptResponse
-	30, // 97: tink_testing_api.DeterministicAead.DecryptDeterministically:output_type -> tink_testing_api.DeterministicAeadDecryptResponse
-	22, // 98: tink_testing_api.StreamingAead.Create:output_type -> tink_testing_api.CreationResponse
-	32, // 99: tink_testing_api.StreamingAead.Encrypt:output_type -> tink_testing_api.StreamingAeadEncryptResponse
-	34, // 100: tink_testing_api.StreamingAead.Decrypt:output_type -> tink_testing_api.StreamingAeadDecryptResponse
-	22, // 101: tink_testing_api.Mac.Create:output_type -> tink_testing_api.CreationResponse
-	36, // 102: tink_testing_api.Mac.ComputeMac:output_type -> tink_testing_api.ComputeMacResponse
-	38, // 103: tink_testing_api.Mac.VerifyMac:output_type -> tink_testing_api.VerifyMacResponse
-	22, // 104: tink_testing_api.Hybrid.CreateHybridEncrypt:output_type -> tink_testing_api.CreationResponse
-	22, // 105: tink_testing_api.Hybrid.CreateHybridDecrypt:output_type -> tink_testing_api.CreationResponse
-	40, // 106: tink_testing_api.Hybrid.Encrypt:output_type -> tink_testing_api.HybridEncryptResponse
-	42, // 107: tink_testing_api.Hybrid.Decrypt:output_type -> tink_testing_api.HybridDecryptResponse
-	22, // 108: tink_testing_api.Signature.CreatePublicKeySign:output_type -> tink_testing_api.CreationResponse
-	22, // 109: tink_testing_api.Signature.CreatePublicKeyVerify:output_type -> tink_testing_api.CreationResponse
-	44, // 110: tink_testing_api.Signature.Sign:output_type -> tink_testing_api.SignatureSignResponse
-	46, // 111: tink_testing_api.Signature.Verify:output_type -> tink_testing_api.SignatureVerifyResponse
-	22, // 112: tink_testing_api.PrfSet.Create:output_type -> tink_testing_api.CreationResponse
-	48, // 113: tink_testing_api.PrfSet.KeyIds:output_type -> tink_testing_api.PrfSetKeyIdsResponse
-	50, // 114: tink_testing_api.PrfSet.Compute:output_type -> tink_testing_api.PrfSetComputeResponse
-	22, // 115: tink_testing_api.Jwt.CreateJwtMac:output_type -> tink_testing_api.CreationResponse
-	22, // 116: tink_testing_api.Jwt.CreateJwtPublicKeySign:output_type -> tink_testing_api.CreationResponse
-	22, // 117: tink_testing_api.Jwt.CreateJwtPublicKeyVerify:output_type -> tink_testing_api.CreationResponse
-	55, // 118: tink_testing_api.Jwt.ComputeMacAndEncode:output_type -> tink_testing_api.JwtSignResponse
-	57, // 119: tink_testing_api.Jwt.VerifyMacAndDecode:output_type -> tink_testing_api.JwtVerifyResponse
-	55, // 120: tink_testing_api.Jwt.PublicKeySignAndEncode:output_type -> tink_testing_api.JwtSignResponse
-	57, // 121: tink_testing_api.Jwt.PublicKeyVerifyAndDecode:output_type -> tink_testing_api.JwtVerifyResponse
-	59, // 122: tink_testing_api.Jwt.ToJwkSet:output_type -> tink_testing_api.JwtToJwkSetResponse
-	61, // 123: tink_testing_api.Jwt.FromJwkSet:output_type -> tink_testing_api.JwtFromJwkSetResponse
-	22, // 124: tink_testing_api.KeysetDeriver.Create:output_type -> tink_testing_api.CreationResponse
-	63, // 125: tink_testing_api.KeysetDeriver.DeriveKeyset:output_type -> tink_testing_api.DeriveKeysetResponse
-	84, // [84:126] is the sub-list for method output_type
-	42, // [42:84] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	20, // 18: tink_testing_api.ComputePrehashRequest.public_annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	20, // 19: tink_testing_api.SignPrehashRequest.private_annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	20, // 20: tink_testing_api.PrfSetKeyIdsRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	69, // 21: tink_testing_api.PrfSetKeyIdsResponse.output:type_name -> tink_testing_api.PrfSetKeyIdsResponse.Output
+	20, // 22: tink_testing_api.PrfSetComputeRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	2,  // 23: tink_testing_api.JwtClaimValue.null_value:type_name -> tink_testing_api.NullValue
+	71, // 24: tink_testing_api.JwtToken.issuer:type_name -> google.protobuf.StringValue
+	71, // 25: tink_testing_api.JwtToken.subject:type_name -> google.protobuf.StringValue
+	71, // 26: tink_testing_api.JwtToken.jwt_id:type_name -> google.protobuf.StringValue
+	72, // 27: tink_testing_api.JwtToken.expiration:type_name -> google.protobuf.Timestamp
+	72, // 28: tink_testing_api.JwtToken.not_before:type_name -> google.protobuf.Timestamp
+	72, // 29: tink_testing_api.JwtToken.issued_at:type_name -> google.protobuf.Timestamp
+	70, // 30: tink_testing_api.JwtToken.custom_claims:type_name -> tink_testing_api.JwtToken.CustomClaimsEntry
+	71, // 31: tink_testing_api.JwtToken.type_header:type_name -> google.protobuf.StringValue
+	71, // 32: tink_testing_api.JwtValidator.expected_type_header:type_name -> google.protobuf.StringValue
+	71, // 33: tink_testing_api.JwtValidator.expected_issuer:type_name -> google.protobuf.StringValue
+	71, // 34: tink_testing_api.JwtValidator.expected_audience:type_name -> google.protobuf.StringValue
+	72, // 35: tink_testing_api.JwtValidator.now:type_name -> google.protobuf.Timestamp
+	73, // 36: tink_testing_api.JwtValidator.clock_skew:type_name -> google.protobuf.Duration
+	20, // 37: tink_testing_api.JwtSignRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	56, // 38: tink_testing_api.JwtSignRequest.raw_jwt:type_name -> tink_testing_api.JwtToken
+	20, // 39: tink_testing_api.JwtVerifyRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	57, // 40: tink_testing_api.JwtVerifyRequest.validator:type_name -> tink_testing_api.JwtValidator
+	56, // 41: tink_testing_api.JwtVerifyResponse.verified_jwt:type_name -> tink_testing_api.JwtToken
+	20, // 42: tink_testing_api.DeriveKeysetRequest.annotated_keyset:type_name -> tink_testing_api.AnnotatedKeyset
+	55, // 43: tink_testing_api.JwtToken.CustomClaimsEntry.value:type_name -> tink_testing_api.JwtClaimValue
+	3,  // 44: tink_testing_api.Metadata.GetServerInfo:input_type -> tink_testing_api.ServerInfoRequest
+	5,  // 45: tink_testing_api.Keyset.GetTemplate:input_type -> tink_testing_api.KeysetTemplateRequest
+	7,  // 46: tink_testing_api.Keyset.Generate:input_type -> tink_testing_api.KeysetGenerateRequest
+	9,  // 47: tink_testing_api.Keyset.Public:input_type -> tink_testing_api.KeysetPublicRequest
+	11, // 48: tink_testing_api.Keyset.ToJson:input_type -> tink_testing_api.KeysetToJsonRequest
+	13, // 49: tink_testing_api.Keyset.FromJson:input_type -> tink_testing_api.KeysetFromJsonRequest
+	16, // 50: tink_testing_api.Keyset.ReadEncrypted:input_type -> tink_testing_api.KeysetReadEncryptedRequest
+	18, // 51: tink_testing_api.Keyset.WriteEncrypted:input_type -> tink_testing_api.KeysetWriteEncryptedRequest
+	21, // 52: tink_testing_api.Aead.Create:input_type -> tink_testing_api.CreationRequest
+	23, // 53: tink_testing_api.Aead.Encrypt:input_type -> tink_testing_api.AeadEncryptRequest
+	25, // 54: tink_testing_api.Aead.Decrypt:input_type -> tink_testing_api.AeadDecryptRequest
+	21, // 55: tink_testing_api.DeterministicAead.Create:input_type -> tink_testing_api.CreationRequest
+	27, // 56: tink_testing_api.DeterministicAead.EncryptDeterministically:input_type -> tink_testing_api.DeterministicAeadEncryptRequest
+	29, // 57: tink_testing_api.DeterministicAead.DecryptDeterministically:input_type -> tink_testing_api.DeterministicAeadDecryptRequest
+	21, // 58: tink_testing_api.StreamingAead.Create:input_type -> tink_testing_api.CreationRequest
+	31, // 59: tink_testing_api.StreamingAead.Encrypt:input_type -> tink_testing_api.StreamingAeadEncryptRequest
+	33, // 60: tink_testing_api.StreamingAead.Decrypt:input_type -> tink_testing_api.StreamingAeadDecryptRequest
+	21, // 61: tink_testing_api.Mac.Create:input_type -> tink_testing_api.CreationRequest
+	35, // 62: tink_testing_api.Mac.ComputeMac:input_type -> tink_testing_api.ComputeMacRequest
+	37, // 63: tink_testing_api.Mac.VerifyMac:input_type -> tink_testing_api.VerifyMacRequest
+	21, // 64: tink_testing_api.Hybrid.CreateHybridEncrypt:input_type -> tink_testing_api.CreationRequest
+	21, // 65: tink_testing_api.Hybrid.CreateHybridDecrypt:input_type -> tink_testing_api.CreationRequest
+	39, // 66: tink_testing_api.Hybrid.Encrypt:input_type -> tink_testing_api.HybridEncryptRequest
+	41, // 67: tink_testing_api.Hybrid.Decrypt:input_type -> tink_testing_api.HybridDecryptRequest
+	21, // 68: tink_testing_api.Signature.CreatePublicKeySign:input_type -> tink_testing_api.CreationRequest
+	21, // 69: tink_testing_api.Signature.CreatePublicKeyVerify:input_type -> tink_testing_api.CreationRequest
+	43, // 70: tink_testing_api.Signature.Sign:input_type -> tink_testing_api.SignatureSignRequest
+	45, // 71: tink_testing_api.Signature.Verify:input_type -> tink_testing_api.SignatureVerifyRequest
+	21, // 72: tink_testing_api.SignPrehash.CreatePrehash:input_type -> tink_testing_api.CreationRequest
+	21, // 73: tink_testing_api.SignPrehash.CreatePrehashSigner:input_type -> tink_testing_api.CreationRequest
+	47, // 74: tink_testing_api.SignPrehash.ComputePrehash:input_type -> tink_testing_api.ComputePrehashRequest
+	49, // 75: tink_testing_api.SignPrehash.SignPrehash:input_type -> tink_testing_api.SignPrehashRequest
+	21, // 76: tink_testing_api.PrfSet.Create:input_type -> tink_testing_api.CreationRequest
+	51, // 77: tink_testing_api.PrfSet.KeyIds:input_type -> tink_testing_api.PrfSetKeyIdsRequest
+	53, // 78: tink_testing_api.PrfSet.Compute:input_type -> tink_testing_api.PrfSetComputeRequest
+	21, // 79: tink_testing_api.Jwt.CreateJwtMac:input_type -> tink_testing_api.CreationRequest
+	21, // 80: tink_testing_api.Jwt.CreateJwtPublicKeySign:input_type -> tink_testing_api.CreationRequest
+	21, // 81: tink_testing_api.Jwt.CreateJwtPublicKeyVerify:input_type -> tink_testing_api.CreationRequest
+	58, // 82: tink_testing_api.Jwt.ComputeMacAndEncode:input_type -> tink_testing_api.JwtSignRequest
+	60, // 83: tink_testing_api.Jwt.VerifyMacAndDecode:input_type -> tink_testing_api.JwtVerifyRequest
+	58, // 84: tink_testing_api.Jwt.PublicKeySignAndEncode:input_type -> tink_testing_api.JwtSignRequest
+	60, // 85: tink_testing_api.Jwt.PublicKeyVerifyAndDecode:input_type -> tink_testing_api.JwtVerifyRequest
+	62, // 86: tink_testing_api.Jwt.ToJwkSet:input_type -> tink_testing_api.JwtToJwkSetRequest
+	64, // 87: tink_testing_api.Jwt.FromJwkSet:input_type -> tink_testing_api.JwtFromJwkSetRequest
+	21, // 88: tink_testing_api.KeysetDeriver.Create:input_type -> tink_testing_api.CreationRequest
+	66, // 89: tink_testing_api.KeysetDeriver.DeriveKeyset:input_type -> tink_testing_api.DeriveKeysetRequest
+	4,  // 90: tink_testing_api.Metadata.GetServerInfo:output_type -> tink_testing_api.ServerInfoResponse
+	6,  // 91: tink_testing_api.Keyset.GetTemplate:output_type -> tink_testing_api.KeysetTemplateResponse
+	8,  // 92: tink_testing_api.Keyset.Generate:output_type -> tink_testing_api.KeysetGenerateResponse
+	10, // 93: tink_testing_api.Keyset.Public:output_type -> tink_testing_api.KeysetPublicResponse
+	12, // 94: tink_testing_api.Keyset.ToJson:output_type -> tink_testing_api.KeysetToJsonResponse
+	14, // 95: tink_testing_api.Keyset.FromJson:output_type -> tink_testing_api.KeysetFromJsonResponse
+	17, // 96: tink_testing_api.Keyset.ReadEncrypted:output_type -> tink_testing_api.KeysetReadEncryptedResponse
+	19, // 97: tink_testing_api.Keyset.WriteEncrypted:output_type -> tink_testing_api.KeysetWriteEncryptedResponse
+	22, // 98: tink_testing_api.Aead.Create:output_type -> tink_testing_api.CreationResponse
+	24, // 99: tink_testing_api.Aead.Encrypt:output_type -> tink_testing_api.AeadEncryptResponse
+	26, // 100: tink_testing_api.Aead.Decrypt:output_type -> tink_testing_api.AeadDecryptResponse
+	22, // 101: tink_testing_api.DeterministicAead.Create:output_type -> tink_testing_api.CreationResponse
+	28, // 102: tink_testing_api.DeterministicAead.EncryptDeterministically:output_type -> tink_testing_api.DeterministicAeadEncryptResponse
+	30, // 103: tink_testing_api.DeterministicAead.DecryptDeterministically:output_type -> tink_testing_api.DeterministicAeadDecryptResponse
+	22, // 104: tink_testing_api.StreamingAead.Create:output_type -> tink_testing_api.CreationResponse
+	32, // 105: tink_testing_api.StreamingAead.Encrypt:output_type -> tink_testing_api.StreamingAeadEncryptResponse
+	34, // 106: tink_testing_api.StreamingAead.Decrypt:output_type -> tink_testing_api.StreamingAeadDecryptResponse
+	22, // 107: tink_testing_api.Mac.Create:output_type -> tink_testing_api.CreationResponse
+	36, // 108: tink_testing_api.Mac.ComputeMac:output_type -> tink_testing_api.ComputeMacResponse
+	38, // 109: tink_testing_api.Mac.VerifyMac:output_type -> tink_testing_api.VerifyMacResponse
+	22, // 110: tink_testing_api.Hybrid.CreateHybridEncrypt:output_type -> tink_testing_api.CreationResponse
+	22, // 111: tink_testing_api.Hybrid.CreateHybridDecrypt:output_type -> tink_testing_api.CreationResponse
+	40, // 112: tink_testing_api.Hybrid.Encrypt:output_type -> tink_testing_api.HybridEncryptResponse
+	42, // 113: tink_testing_api.Hybrid.Decrypt:output_type -> tink_testing_api.HybridDecryptResponse
+	22, // 114: tink_testing_api.Signature.CreatePublicKeySign:output_type -> tink_testing_api.CreationResponse
+	22, // 115: tink_testing_api.Signature.CreatePublicKeyVerify:output_type -> tink_testing_api.CreationResponse
+	44, // 116: tink_testing_api.Signature.Sign:output_type -> tink_testing_api.SignatureSignResponse
+	46, // 117: tink_testing_api.Signature.Verify:output_type -> tink_testing_api.SignatureVerifyResponse
+	22, // 118: tink_testing_api.SignPrehash.CreatePrehash:output_type -> tink_testing_api.CreationResponse
+	22, // 119: tink_testing_api.SignPrehash.CreatePrehashSigner:output_type -> tink_testing_api.CreationResponse
+	48, // 120: tink_testing_api.SignPrehash.ComputePrehash:output_type -> tink_testing_api.ComputePrehashResponse
+	50, // 121: tink_testing_api.SignPrehash.SignPrehash:output_type -> tink_testing_api.SignPrehashResponse
+	22, // 122: tink_testing_api.PrfSet.Create:output_type -> tink_testing_api.CreationResponse
+	52, // 123: tink_testing_api.PrfSet.KeyIds:output_type -> tink_testing_api.PrfSetKeyIdsResponse
+	54, // 124: tink_testing_api.PrfSet.Compute:output_type -> tink_testing_api.PrfSetComputeResponse
+	22, // 125: tink_testing_api.Jwt.CreateJwtMac:output_type -> tink_testing_api.CreationResponse
+	22, // 126: tink_testing_api.Jwt.CreateJwtPublicKeySign:output_type -> tink_testing_api.CreationResponse
+	22, // 127: tink_testing_api.Jwt.CreateJwtPublicKeyVerify:output_type -> tink_testing_api.CreationResponse
+	59, // 128: tink_testing_api.Jwt.ComputeMacAndEncode:output_type -> tink_testing_api.JwtSignResponse
+	61, // 129: tink_testing_api.Jwt.VerifyMacAndDecode:output_type -> tink_testing_api.JwtVerifyResponse
+	59, // 130: tink_testing_api.Jwt.PublicKeySignAndEncode:output_type -> tink_testing_api.JwtSignResponse
+	61, // 131: tink_testing_api.Jwt.PublicKeyVerifyAndDecode:output_type -> tink_testing_api.JwtVerifyResponse
+	63, // 132: tink_testing_api.Jwt.ToJwkSet:output_type -> tink_testing_api.JwtToJwkSetResponse
+	65, // 133: tink_testing_api.Jwt.FromJwkSet:output_type -> tink_testing_api.JwtFromJwkSetResponse
+	22, // 134: tink_testing_api.KeysetDeriver.Create:output_type -> tink_testing_api.CreationResponse
+	67, // 135: tink_testing_api.KeysetDeriver.DeriveKeyset:output_type -> tink_testing_api.DeriveKeysetResponse
+	90, // [90:136] is the sub-list for method output_type
+	44, // [44:90] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_go_protos_testing_api_proto_init() }
@@ -5988,7 +6328,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PrfSetKeyIdsRequest); i {
+			switch v := v.(*ComputePrehashRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6000,7 +6340,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PrfSetKeyIdsResponse); i {
+			switch v := v.(*ComputePrehashResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6012,7 +6352,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PrfSetComputeRequest); i {
+			switch v := v.(*SignPrehashRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6024,7 +6364,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PrfSetComputeResponse); i {
+			switch v := v.(*SignPrehashResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6036,7 +6376,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtClaimValue); i {
+			switch v := v.(*PrfSetKeyIdsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6048,7 +6388,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtToken); i {
+			switch v := v.(*PrfSetKeyIdsResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6060,7 +6400,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtValidator); i {
+			switch v := v.(*PrfSetComputeRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6072,7 +6412,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtSignRequest); i {
+			switch v := v.(*PrfSetComputeResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6084,7 +6424,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtSignResponse); i {
+			switch v := v.(*JwtClaimValue); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6096,7 +6436,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtVerifyRequest); i {
+			switch v := v.(*JwtToken); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6108,7 +6448,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtVerifyResponse); i {
+			switch v := v.(*JwtValidator); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6120,7 +6460,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtToJwkSetRequest); i {
+			switch v := v.(*JwtSignRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6132,7 +6472,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtToJwkSetResponse); i {
+			switch v := v.(*JwtSignResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6144,7 +6484,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtFromJwkSetRequest); i {
+			switch v := v.(*JwtVerifyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6156,7 +6496,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*JwtFromJwkSetResponse); i {
+			switch v := v.(*JwtVerifyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6168,7 +6508,7 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeriveKeysetRequest); i {
+			switch v := v.(*JwtToJwkSetRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6180,7 +6520,19 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DeriveKeysetResponse); i {
+			switch v := v.(*JwtToJwkSetResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_go_protos_testing_api_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JwtFromJwkSetRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -6192,6 +6544,42 @@ func file_go_protos_testing_api_proto_init() {
 			}
 		}
 		file_go_protos_testing_api_proto_msgTypes[62].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*JwtFromJwkSetResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_go_protos_testing_api_proto_msgTypes[63].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeriveKeysetRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_go_protos_testing_api_proto_msgTypes[64].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeriveKeysetResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_go_protos_testing_api_proto_msgTypes[66].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PrfSetKeyIdsResponse_Output); i {
 			case 0:
 				return &v.state
@@ -6273,14 +6661,22 @@ func file_go_protos_testing_api_proto_init() {
 		(*SignatureSignResponse_Err)(nil),
 	}
 	file_go_protos_testing_api_proto_msgTypes[45].OneofWrappers = []interface{}{
+		(*ComputePrehashResponse_Prehash)(nil),
+		(*ComputePrehashResponse_Err)(nil),
+	}
+	file_go_protos_testing_api_proto_msgTypes[47].OneofWrappers = []interface{}{
+		(*SignPrehashResponse_Signature)(nil),
+		(*SignPrehashResponse_Err)(nil),
+	}
+	file_go_protos_testing_api_proto_msgTypes[49].OneofWrappers = []interface{}{
 		(*PrfSetKeyIdsResponse_Output_)(nil),
 		(*PrfSetKeyIdsResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[47].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[51].OneofWrappers = []interface{}{
 		(*PrfSetComputeResponse_Output)(nil),
 		(*PrfSetComputeResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[48].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[52].OneofWrappers = []interface{}{
 		(*JwtClaimValue_NullValue)(nil),
 		(*JwtClaimValue_NumberValue)(nil),
 		(*JwtClaimValue_StringValue)(nil),
@@ -6288,23 +6684,23 @@ func file_go_protos_testing_api_proto_init() {
 		(*JwtClaimValue_JsonObjectValue)(nil),
 		(*JwtClaimValue_JsonArrayValue)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[52].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[56].OneofWrappers = []interface{}{
 		(*JwtSignResponse_SignedCompactJwt)(nil),
 		(*JwtSignResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[54].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[58].OneofWrappers = []interface{}{
 		(*JwtVerifyResponse_VerifiedJwt)(nil),
 		(*JwtVerifyResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[56].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[60].OneofWrappers = []interface{}{
 		(*JwtToJwkSetResponse_JwkSet)(nil),
 		(*JwtToJwkSetResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[58].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[62].OneofWrappers = []interface{}{
 		(*JwtFromJwkSetResponse_Keyset)(nil),
 		(*JwtFromJwkSetResponse_Err)(nil),
 	}
-	file_go_protos_testing_api_proto_msgTypes[60].OneofWrappers = []interface{}{
+	file_go_protos_testing_api_proto_msgTypes[64].OneofWrappers = []interface{}{
 		(*DeriveKeysetResponse_DerivedKeyset)(nil),
 		(*DeriveKeysetResponse_Err)(nil),
 	}
@@ -6314,9 +6710,9 @@ func file_go_protos_testing_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_go_protos_testing_api_proto_rawDesc,
 			NumEnums:      3,
-			NumMessages:   64,
+			NumMessages:   68,
 			NumExtensions: 0,
-			NumServices:   11,
+			NumServices:   12,
 		},
 		GoTypes:           file_go_protos_testing_api_proto_goTypes,
 		DependencyIndexes: file_go_protos_testing_api_proto_depIdxs,

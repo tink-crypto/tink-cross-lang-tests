@@ -56,6 +56,7 @@ func main() {
 	pbgrpc.RegisterMacServer(server, &services.MacService{})
 	pbgrpc.RegisterPrfSetServer(server, &services.PrfSetService{})
 	pbgrpc.RegisterSignatureServer(server, &services.SignatureService{})
+	pbgrpc.RegisterSignPrehashServer(server, &services.SignPrehashService{})
 	pbgrpc.RegisterStreamingAeadServer(server, &services.StreamingAEADService{})
 	server.Serve(lis)
 }

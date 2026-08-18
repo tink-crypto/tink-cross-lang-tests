@@ -1589,6 +1589,219 @@ var Signature_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
+	SignPrehash_CreatePrehash_FullMethodName       = "/tink_testing_api.SignPrehash/CreatePrehash"
+	SignPrehash_CreatePrehashSigner_FullMethodName = "/tink_testing_api.SignPrehash/CreatePrehashSigner"
+	SignPrehash_ComputePrehash_FullMethodName      = "/tink_testing_api.SignPrehash/ComputePrehash"
+	SignPrehash_SignPrehash_FullMethodName         = "/tink_testing_api.SignPrehash/SignPrehash"
+)
+
+// SignPrehashClient is the client API for SignPrehash service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type SignPrehashClient interface {
+	// Creates a Prehash object without using it.
+	CreatePrehash(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error)
+	// Creates a PrehashSigner object without using it.
+	CreatePrehashSigner(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error)
+	// Computes prehash for data. The client must call "CreatePrehash" first to see
+	// if creation succeeds before calling this.
+	ComputePrehash(ctx context.Context, in *ComputePrehashRequest, opts ...grpc.CallOption) (*ComputePrehashResponse, error)
+	// Signs prehash. The client must call "CreatePrehashSigner" first to see if
+	// creation succeeds before calling this.
+	SignPrehash(ctx context.Context, in *SignPrehashRequest, opts ...grpc.CallOption) (*SignPrehashResponse, error)
+}
+
+type signPrehashClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewSignPrehashClient(cc grpc.ClientConnInterface) SignPrehashClient {
+	return &signPrehashClient{cc}
+}
+
+func (c *signPrehashClient) CreatePrehash(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error) {
+	out := new(CreationResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_CreatePrehash_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signPrehashClient) CreatePrehashSigner(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error) {
+	out := new(CreationResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_CreatePrehashSigner_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signPrehashClient) ComputePrehash(ctx context.Context, in *ComputePrehashRequest, opts ...grpc.CallOption) (*ComputePrehashResponse, error) {
+	out := new(ComputePrehashResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_ComputePrehash_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signPrehashClient) SignPrehash(ctx context.Context, in *SignPrehashRequest, opts ...grpc.CallOption) (*SignPrehashResponse, error) {
+	out := new(SignPrehashResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_SignPrehash_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SignPrehashServer is the server API for SignPrehash service.
+// All implementations must embed UnimplementedSignPrehashServer
+// for forward compatibility
+type SignPrehashServer interface {
+	// Creates a Prehash object without using it.
+	CreatePrehash(context.Context, *CreationRequest) (*CreationResponse, error)
+	// Creates a PrehashSigner object without using it.
+	CreatePrehashSigner(context.Context, *CreationRequest) (*CreationResponse, error)
+	// Computes prehash for data. The client must call "CreatePrehash" first to see
+	// if creation succeeds before calling this.
+	ComputePrehash(context.Context, *ComputePrehashRequest) (*ComputePrehashResponse, error)
+	// Signs prehash. The client must call "CreatePrehashSigner" first to see if
+	// creation succeeds before calling this.
+	SignPrehash(context.Context, *SignPrehashRequest) (*SignPrehashResponse, error)
+	mustEmbedUnimplementedSignPrehashServer()
+}
+
+// UnimplementedSignPrehashServer must be embedded to have forward compatible implementations.
+type UnimplementedSignPrehashServer struct {
+}
+
+func (UnimplementedSignPrehashServer) CreatePrehash(context.Context, *CreationRequest) (*CreationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePrehash not implemented")
+}
+func (UnimplementedSignPrehashServer) CreatePrehashSigner(context.Context, *CreationRequest) (*CreationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePrehashSigner not implemented")
+}
+func (UnimplementedSignPrehashServer) ComputePrehash(context.Context, *ComputePrehashRequest) (*ComputePrehashResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComputePrehash not implemented")
+}
+func (UnimplementedSignPrehashServer) SignPrehash(context.Context, *SignPrehashRequest) (*SignPrehashResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignPrehash not implemented")
+}
+func (UnimplementedSignPrehashServer) mustEmbedUnimplementedSignPrehashServer() {}
+
+// UnsafeSignPrehashServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SignPrehashServer will
+// result in compilation errors.
+type UnsafeSignPrehashServer interface {
+	mustEmbedUnimplementedSignPrehashServer()
+}
+
+func RegisterSignPrehashServer(s grpc.ServiceRegistrar, srv SignPrehashServer) {
+	s.RegisterService(&SignPrehash_ServiceDesc, srv)
+}
+
+func _SignPrehash_CreatePrehash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).CreatePrehash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_CreatePrehash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).CreatePrehash(ctx, req.(*CreationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignPrehash_CreatePrehashSigner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).CreatePrehashSigner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_CreatePrehashSigner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).CreatePrehashSigner(ctx, req.(*CreationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignPrehash_ComputePrehash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComputePrehashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).ComputePrehash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_ComputePrehash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).ComputePrehash(ctx, req.(*ComputePrehashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignPrehash_SignPrehash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignPrehashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).SignPrehash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_SignPrehash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).SignPrehash(ctx, req.(*SignPrehashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// SignPrehash_ServiceDesc is the grpc.ServiceDesc for SignPrehash service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var SignPrehash_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "tink_testing_api.SignPrehash",
+	HandlerType: (*SignPrehashServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreatePrehash",
+			Handler:    _SignPrehash_CreatePrehash_Handler,
+		},
+		{
+			MethodName: "CreatePrehashSigner",
+			Handler:    _SignPrehash_CreatePrehashSigner_Handler,
+		},
+		{
+			MethodName: "ComputePrehash",
+			Handler:    _SignPrehash_ComputePrehash_Handler,
+		},
+		{
+			MethodName: "SignPrehash",
+			Handler:    _SignPrehash_SignPrehash_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "go/protos/testing_api.proto",
+}
+
+const (
 	PrfSet_Create_FullMethodName  = "/tink_testing_api.PrfSet/Create"
 	PrfSet_KeyIds_FullMethodName  = "/tink_testing_api.PrfSet/KeyIds"
 	PrfSet_Compute_FullMethodName = "/tink_testing_api.PrfSet/Compute"
