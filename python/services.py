@@ -694,6 +694,42 @@ class SignatureServicer(testing_api_pb2_grpc.SignatureServicer):
       return testing_api_pb2.SignatureVerifyResponse(err=str(e))
 
 
+class SignPrehashServicer(testing_api_pb2_grpc.SignPrehashServicer):
+  """A service for testing SignPrehash."""
+
+  def CreatePrehash(
+      self,
+      request: testing_api_pb2.CreationRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.CreationResponse:
+    """Creates a Prehash without using it. Currently unimplemented in Python."""
+    return testing_api_pb2.CreationResponse(err='Unimplemented in Python')
+
+  def CreatePrehashSigner(
+      self,
+      request: testing_api_pb2.CreationRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.CreationResponse:
+    """Creates a PrehashSigner. Unimplemented in Python."""
+    return testing_api_pb2.CreationResponse(err='Unimplemented in Python')
+
+  def ComputePrehash(
+      self,
+      request: testing_api_pb2.ComputePrehashRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.ComputePrehashResponse:
+    """Computes a prehash. Currently unimplemented in Python."""
+    return testing_api_pb2.ComputePrehashResponse(err='Unimplemented in Python')
+
+  def SignPrehash(
+      self,
+      request: testing_api_pb2.SignPrehashRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.SignPrehashResponse:
+    """Signs a prehash. Currently unimplemented in Python."""
+    return testing_api_pb2.SignPrehashResponse(err='Unimplemented in Python')
+
+
 class PrfSetServicer(testing_api_pb2_grpc.PrfSetServicer):
   """A service for testing PrfSet."""
 

@@ -992,6 +992,50 @@ class ServicesTest(absltest.TestCase):
     self.assertEqual(dec_response.WhichOneof('result'), 'err')
     self.assertNotEmpty(dec_response.err)
 
+  def test_sign_prehash_create_prehash_unimplemented(self):
+    sign_prehash_servicer = services.SignPrehashServicer()
+    request = testing_api_pb2.CreationRequest(
+        annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=b'some keyset'
+        )
+    )
+    response = sign_prehash_servicer.CreatePrehash(request, self._ctx)
+    self.assertEqual(response.err, 'Unimplemented in Python')
+
+  def test_sign_prehash_create_prehash_signer_unimplemented(self):
+    sign_prehash_servicer = services.SignPrehashServicer()
+    request = testing_api_pb2.CreationRequest(
+        annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=b'some keyset'
+        )
+    )
+    response = sign_prehash_servicer.CreatePrehashSigner(request, self._ctx)
+    self.assertEqual(response.err, 'Unimplemented in Python')
+
+  def test_sign_prehash_compute_prehash_unimplemented(self):
+    sign_prehash_servicer = services.SignPrehashServicer()
+    request = testing_api_pb2.ComputePrehashRequest(
+        public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=b'some keyset'
+        ),
+        data=b'some data',
+    )
+    response = sign_prehash_servicer.ComputePrehash(request, self._ctx)
+    self.assertEqual(response.WhichOneof('result'), 'err')
+    self.assertEqual(response.err, 'Unimplemented in Python')
+
+  def test_sign_prehash_sign_prehash_unimplemented(self):
+    sign_prehash_servicer = services.SignPrehashServicer()
+    request = testing_api_pb2.SignPrehashRequest(
+        private_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=b'some keyset'
+        ),
+        prehash=b'some prehash',
+    )
+    response = sign_prehash_servicer.SignPrehash(request, self._ctx)
+    self.assertEqual(response.WhichOneof('result'), 'err')
+    self.assertEqual(response.err, 'Unimplemented in Python')
+
 
 if __name__ == '__main__':
   absltest.main()

@@ -76,6 +76,8 @@ def main(unused_argv):
       services.HybridServicer(), server)
   testing_api_pb2_grpc.add_SignatureServicer_to_server(
       services.SignatureServicer(), server)
+  testing_api_pb2_grpc.add_SignPrehashServicer_to_server(
+      services.SignPrehashServicer(), server)
   testing_api_pb2_grpc.add_StreamingAeadServicer_to_server(
       services.StreamingAeadServicer(), server)
   testing_api_pb2_grpc.add_JwtServicer_to_server(jwt_service.JwtServicer(),
