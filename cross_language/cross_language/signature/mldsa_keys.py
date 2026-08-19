@@ -256,3 +256,29 @@ def mldsa_public_keys() -> Iterator[test_key.TestKey]:
         output_prefix_type=output_prefix_type,
         valid=valid,
     )
+
+
+def external_mu_mldsa_private_keys() -> Iterator[test_key.TestKey]:
+  """Returns private test keys for External Mu ML-DSA (WITH_ID_REQUIREMENT)."""
+  for name, valid, key_proto in _proto_keys():
+    yield test_key.TestKey(
+        test_name=f'{name} WITH_ID_REQUIREMENT',
+        type_url=_PRIVATE_TYPE_URL,
+        serialized_value=key_proto.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
+        output_prefix_type=tink_pb2.OutputPrefixType.WITH_ID_REQUIREMENT,
+        valid=valid,
+    )
+
+
+def external_mu_mldsa_public_keys() -> Iterator[test_key.TestKey]:
+  """Returns public test keys for External Mu ML-DSA (WITH_ID_REQUIREMENT)."""
+  for name, valid, key_proto in _proto_keys():
+    yield test_key.TestKey(
+        test_name=f'{name} WITH_ID_REQUIREMENT',
+        type_url=_PUBLIC_TYPE_URL,
+        serialized_value=key_proto.public_key.SerializeToString(),
+        key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
+        output_prefix_type=tink_pb2.OutputPrefixType.WITH_ID_REQUIREMENT,
+        valid=valid,
+    )

@@ -53,6 +53,7 @@ py_test(
         ":_primitives",
         requirement("absl-py"),
         ":testing_api_python_library",
+        "@tink_py//tink:tink_python",
         "@tink_py//tink/jwt",
     ],
 )
@@ -85,9 +86,11 @@ py_test(
     srcs_version = "PY3",
     tags = ["notsan"],
     deps = [
+        ":_primitives",
         ":testing_api_python_library",
         ":testing_servers",
         requirement("absl-py"),
+        "//cross_language/signature:mldsa_keys",
         "//cross_language/util/test_keys",
         "@org_python_pypi_portpicker//:portpicker",
         "@tink_py//tink/aead",

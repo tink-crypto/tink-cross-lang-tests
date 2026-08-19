@@ -419,6 +419,66 @@ class PublicKeyVerify(tink_signature.PublicKeyVerify):
       raise tink.TinkError(response.err)
 
 
+class Prehash:
+  """Implements computing prehash using a prehash service stub."""
+
+  def __init__(self, lang: str, stub: testing_api_pb2_grpc.SignPrehashStub,
+               public_handle: bytes, annotations: Optional[Dict[str,
+                                                                str]]) -> None:
+    self.lang = lang
+    self._stub = stub
+    self._public_handle = public_handle
+    self._annotations = annotations
+    creation_response = self._stub.CreatePrehash(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=self._public_handle,
+                annotations=self._annotations)))
+    if creation_response.err:
+      raise tink.TinkError(creation_response.err)
+
+  def compute_prehash(self, data: bytes) -> bytes:
+    request = testing_api_pb2.ComputePrehashRequest(
+        public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=self._public_handle,
+            annotations=self._annotations),
+        data=data)
+    response = self._stub.ComputePrehash(request)
+    if response.err:
+      raise tink.TinkError(response.err)
+    return response.prehash
+
+
+class PrehashSigner:
+  """Implements prehash signing using a prehash service stub."""
+
+  def __init__(self, lang: str, stub: testing_api_pb2_grpc.SignPrehashStub,
+               private_handle: bytes, annotations: Optional[Dict[str,
+                                                                 str]]) -> None:
+    self.lang = lang
+    self._stub = stub
+    self._private_handle = private_handle
+    self._annotations = annotations
+    creation_response = self._stub.CreatePrehashSigner(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=self._private_handle,
+                annotations=self._annotations)))
+    if creation_response.err:
+      raise tink.TinkError(creation_response.err)
+
+  def sign_prehash(self, prehash: bytes) -> bytes:
+    request = testing_api_pb2.SignPrehashRequest(
+        private_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=self._private_handle,
+            annotations=self._annotations),
+        prehash=prehash)
+    response = self._stub.SignPrehash(request)
+    if response.err:
+      raise tink.TinkError(response.err)
+    return response.signature
+
+
 class _Prf(prf.Prf):
   """Implements a Prf from a PrfSet service stub."""
 

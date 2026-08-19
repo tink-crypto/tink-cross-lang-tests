@@ -33,6 +33,8 @@ from tink import streaming_aead
 
 from tink.proto import prf_based_deriver_pb2
 from tink.proto import tink_pb2
+from cross_language.signature import mldsa_keys
+from cross_language.util import _primitives
 from cross_language.util import key_util
 from cross_language.util import test_keys
 from cross_language.util import testing_servers
@@ -416,6 +418,44 @@ class TestingServersTest(parameterized.TestCase):
     with self.assertRaises(tink.TinkError):
       keyset_deriver = testing_servers.keyset_deriver(lang, b'invalid')
       keyset_deriver.derive_keyset(b'salt')
+
+  def test_sign_prehash_stub(self):
+    for lang in testing_servers.LANGUAGES:
+      stub = testing_servers._ts.sign_prehash_stub(lang)
+      self.assertIsNotNone(stub)
+
+  @parameterized.parameters(['cc', 'go'])
+  def test_prehash_and_prehash_signer(self, lang):
+    key = next(mldsa_keys.external_mu_mldsa_private_keys())
+    private_keyset = key.as_serialized_keyset()
+    public_keyset = testing_servers.public_keyset(lang, private_keyset)
+    prehasher = testing_servers.remote_primitive(
+        lang, public_keyset, _primitives.Prehash
+    )
+    signer = testing_servers.remote_primitive(
+        lang, private_keyset, _primitives.PrehashSigner
+    )
+    verifier = testing_servers.remote_primitive(
+        lang, public_keyset, signature.PublicKeyVerify
+    )
+    message = b'The quick brown fox jumps over the lazy dog'
+    prehash = prehasher.compute_prehash(message)
+    sig = signer.sign_prehash(prehash)
+    verifier.verify(sig, message)
+
+  @parameterized.parameters(['java', 'python'])
+  def test_prehash_and_prehash_signer_unsupported(self, lang):
+    key = next(mldsa_keys.external_mu_mldsa_private_keys())
+    private_keyset = key.as_serialized_keyset()
+    public_keyset = testing_servers.public_keyset('cc', private_keyset)
+    with self.assertRaises(tink.TinkError):
+      testing_servers.remote_primitive(
+          lang, public_keyset, _primitives.Prehash
+      )
+    with self.assertRaises(tink.TinkError):
+      testing_servers.remote_primitive(
+          lang, private_keyset, _primitives.PrehashSigner
+      )
 
 
 if __name__ == '__main__':

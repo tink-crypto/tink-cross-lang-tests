@@ -14,8 +14,10 @@
 """Tests for tink.testing.cross_language.cross_language.util._primitives."""
 
 import datetime
-from absl.testing import absltest
+from unittest import mock
 
+from absl.testing import absltest
+import tink
 from tink import jwt
 
 from cross_language.util import _primitives
@@ -127,6 +129,109 @@ class PrimitivesTest(absltest.TestCase):
     expected = testing_api_pb2.JwtValidator()
     expected.clock_skew.seconds = 0
     self.assertEqual(proto, expected)
+
+  def test_prehash_compute_prehash(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehash.return_value = testing_api_pb2.CreationResponse()
+    mock_stub.ComputePrehash.return_value = (
+        testing_api_pb2.ComputePrehashResponse(prehash=b'prehash_bytes')
+    )
+    annotations = {'key': 'val'}
+    prehasher = _primitives.Prehash(
+        'cc', mock_stub, b'public_keyset', annotations=annotations
+    )
+    mock_stub.CreatePrehash.assert_called_once_with(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'public_keyset', annotations=annotations
+            )
+        )
+    )
+    res = prehasher.compute_prehash(b'message_data')
+    self.assertEqual(res, b'prehash_bytes')
+    mock_stub.ComputePrehash.assert_called_once_with(
+        testing_api_pb2.ComputePrehashRequest(
+            public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'public_keyset', annotations=annotations
+            ),
+            data=b'message_data',
+        )
+    )
+
+  def test_prehash_create_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehash.return_value = testing_api_pb2.CreationResponse(
+        err='creation_failed'
+    )
+    with self.assertRaises(tink.TinkError):
+      _primitives.Prehash('cc', mock_stub, b'public_keyset', annotations=None)
+
+  def test_prehash_compute_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehash.return_value = testing_api_pb2.CreationResponse()
+    mock_stub.ComputePrehash.return_value = (
+        testing_api_pb2.ComputePrehashResponse(err='compute_failed')
+    )
+    prehasher = _primitives.Prehash(
+        'cc', mock_stub, b'public_keyset', annotations=None
+    )
+    with self.assertRaises(tink.TinkError):
+      prehasher.compute_prehash(b'message_data')
+
+  def test_prehash_signer_sign_prehash(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehashSigner.return_value = (
+        testing_api_pb2.CreationResponse()
+    )
+    mock_stub.SignPrehash.return_value = testing_api_pb2.SignPrehashResponse(
+        signature=b'signature_bytes'
+    )
+    annotations = {'key': 'val'}
+    signer = _primitives.PrehashSigner(
+        'cc', mock_stub, b'private_keyset', annotations=annotations
+    )
+    mock_stub.CreatePrehashSigner.assert_called_once_with(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'private_keyset', annotations=annotations
+            )
+        )
+    )
+    res = signer.sign_prehash(b'prehash_bytes')
+    self.assertEqual(res, b'signature_bytes')
+    mock_stub.SignPrehash.assert_called_once_with(
+        testing_api_pb2.SignPrehashRequest(
+            private_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'private_keyset', annotations=annotations
+            ),
+            prehash=b'prehash_bytes',
+        )
+    )
+
+  def test_prehash_signer_create_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehashSigner.return_value = (
+        testing_api_pb2.CreationResponse(err='creation_failed')
+    )
+    with self.assertRaises(tink.TinkError):
+      _primitives.PrehashSigner(
+          'cc', mock_stub, b'private_keyset', annotations=None
+      )
+
+  def test_prehash_signer_sign_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreatePrehashSigner.return_value = (
+        testing_api_pb2.CreationResponse()
+    )
+    mock_stub.SignPrehash.return_value = testing_api_pb2.SignPrehashResponse(
+        err='sign_failed'
+    )
+    signer = _primitives.PrehashSigner(
+        'cc', mock_stub, b'private_keyset', annotations=None
+    )
+    with self.assertRaises(tink.TinkError):
+      signer.sign_prehash(b'prehash_bytes')
+
 
 if __name__ == '__main__':
   absltest.main()

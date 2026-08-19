@@ -187,6 +187,7 @@ class _TestingServers():
     self._hybrid_stub = {}
     self._mac_stub = {}
     self._signature_stub = {}
+    self._sign_prehash_stub = {}
     self._prf_stub = {}
     self._jwt_stub = {}
     self._keyset_deriver_stub = {}
@@ -240,6 +241,8 @@ class _TestingServers():
       self._mac_stub[lang] = testing_api_pb2_grpc.MacStub(self._channel[lang])
       self._signature_stub[lang] = testing_api_pb2_grpc.SignatureStub(
           self._channel[lang])
+      self._sign_prehash_stub[lang] = testing_api_pb2_grpc.SignPrehashStub(
+          self._channel[lang])
       self._prf_stub[lang] = testing_api_pb2_grpc.PrfSetStub(
           self._channel[lang])
       self._jwt_stub[lang] = testing_api_pb2_grpc.JwtStub(self._channel[lang])
@@ -277,6 +280,9 @@ class _TestingServers():
 
   def signature_stub(self, lang) -> testing_api_pb2_grpc.SignatureStub:
     return self._signature_stub[lang]
+
+  def sign_prehash_stub(self, lang) -> testing_api_pb2_grpc.SignPrehashStub:
+    return self._sign_prehash_stub[lang]
 
   def prf_stub(self, lang) -> testing_api_pb2_grpc.PrfSetStub:
     return self._prf_stub[lang]
@@ -442,6 +448,12 @@ def remote_primitive(lang: str, keyset: bytes, primitive_class: Type[P]) -> P:
   if primitive_class == tink.signature.PublicKeyVerify:
     return _primitives.PublicKeyVerify(lang, _ts.signature_stub(lang), keyset,
                                        None)
+  if primitive_class == _primitives.Prehash:
+    return _primitives.Prehash(lang, _ts.sign_prehash_stub(lang), keyset, None)
+  if primitive_class == _primitives.PrehashSigner:
+    return _primitives.PrehashSigner(
+        lang, _ts.sign_prehash_stub(lang), keyset, None
+    )
   if primitive_class == tink.prf.PrfSet:
     return _primitives.PrfSet(lang, _ts.prf_stub(lang), keyset, None)
   if primitive_class == tink.jwt.JwtMac:
