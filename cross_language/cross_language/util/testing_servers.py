@@ -80,7 +80,7 @@ _TESTING_SERVERS_ROOT = 'tink_base/testing'
 
 
 def _get_resource_path(path: str) -> str:
-  return Runfiles.Create().Rlocation(path)
+  return Runfiles.Create().Rlocation(path)  # pyrefly: ignore[no-matching-overload]
 
 
 def _root_path() -> str:
@@ -327,7 +327,7 @@ class _TestingServers():
       print('=' * length)
       print()
 
-_ts: _TestingServers = None
+_ts: _TestingServers = None  # pyrefly: ignore[bad-assignment]
 
 
 def start(output_files_prefix: str) -> None:
@@ -429,24 +429,24 @@ def remote_primitive(lang: str, keyset: bytes, primitive_class: Type[P]) -> P:
   """
 
   if primitive_class == tink.aead.Aead:
-    return _primitives.Aead(lang, _ts.aead_stub(lang), keyset, None)
+    return _primitives.Aead(lang, _ts.aead_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.daead.DeterministicAead:
-    return _primitives.DeterministicAead(lang, _ts.daead_stub(lang), keyset,
+    return _primitives.DeterministicAead(lang, _ts.daead_stub(lang), keyset,  # pyrefly: ignore[bad-return]
                                          None)
   if primitive_class == tink.streaming_aead.StreamingAead:
-    return _primitives.StreamingAead(lang, _ts.streaming_aead_stub(lang),
+    return _primitives.StreamingAead(lang, _ts.streaming_aead_stub(lang),  # pyrefly: ignore[bad-return]
                                      keyset)
   if primitive_class == tink.hybrid.HybridDecrypt:
-    return _primitives.HybridDecrypt(lang, _ts.hybrid_stub(lang), keyset, None)
+    return _primitives.HybridDecrypt(lang, _ts.hybrid_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.hybrid.HybridEncrypt:
-    return _primitives.HybridEncrypt(lang, _ts.hybrid_stub(lang), keyset, None)
+    return _primitives.HybridEncrypt(lang, _ts.hybrid_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.mac.Mac:
-    return _primitives.Mac(lang, _ts.mac_stub(lang), keyset, None)
+    return _primitives.Mac(lang, _ts.mac_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.signature.PublicKeySign:
-    return _primitives.PublicKeySign(lang, _ts.signature_stub(lang), keyset,
+    return _primitives.PublicKeySign(lang, _ts.signature_stub(lang), keyset,  # pyrefly: ignore[bad-return]
                                      None)
   if primitive_class == tink.signature.PublicKeyVerify:
-    return _primitives.PublicKeyVerify(lang, _ts.signature_stub(lang), keyset,
+    return _primitives.PublicKeyVerify(lang, _ts.signature_stub(lang), keyset,  # pyrefly: ignore[bad-return]
                                        None)
   if primitive_class == _primitives.Prehash:
     return _primitives.Prehash(lang, _ts.sign_prehash_stub(lang), keyset, None)
@@ -455,11 +455,11 @@ def remote_primitive(lang: str, keyset: bytes, primitive_class: Type[P]) -> P:
         lang, _ts.sign_prehash_stub(lang), keyset, None
     )
   if primitive_class == tink.prf.PrfSet:
-    return _primitives.PrfSet(lang, _ts.prf_stub(lang), keyset, None)
+    return _primitives.PrfSet(lang, _ts.prf_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.jwt.JwtMac:
-    return _primitives.JwtMac(lang, _ts.jwt_stub(lang), keyset)
+    return _primitives.JwtMac(lang, _ts.jwt_stub(lang), keyset)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.jwt.JwtPublicKeySign:
-    return _primitives.JwtPublicKeySign(lang, _ts.jwt_stub(lang), keyset)
+    return _primitives.JwtPublicKeySign(lang, _ts.jwt_stub(lang), keyset)  # pyrefly: ignore[bad-return]
   if primitive_class == tink.jwt.JwtPublicKeyVerify:
-    return _primitives.JwtPublicKeyVerify(lang, _ts.jwt_stub(lang), keyset)
+    return _primitives.JwtPublicKeyVerify(lang, _ts.jwt_stub(lang), keyset)  # pyrefly: ignore[bad-return]
   raise ValueError('Unsupported P in remote_primitive: ' + str(primitive_class))

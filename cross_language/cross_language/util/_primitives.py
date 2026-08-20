@@ -550,7 +550,7 @@ class PrfSet(prf.PrfSet):
 
   def primary(self) -> prf.Prf:
     self._initialize_key_ids()
-    return self._prfs[self._primary_key_id]
+    return self._prfs[self._primary_key_id]  # pyrefly: ignore[unsupported-operation]
 
 
 def split_datetime(dt: datetime.datetime) -> Tuple[int, int]:
@@ -671,12 +671,12 @@ def jwt_validator_to_proto(
   """Converts a jwt.JwtValidator into a proto JwtValidator."""
   proto_validator = testing_api_pb2.JwtValidator()
   if validator.has_expected_type_header():
-    proto_validator.expected_type_header.value = validator.expected_type_header(
+    proto_validator.expected_type_header.value = validator.expected_type_header(  # pyrefly: ignore[bad-assignment]
     )
   if validator.has_expected_issuer():
-    proto_validator.expected_issuer.value = validator.expected_issuer()
+    proto_validator.expected_issuer.value = validator.expected_issuer()  # pyrefly: ignore[bad-assignment]
   if validator.has_expected_audience():
-    proto_validator.expected_audience.value = validator.expected_audience()
+    proto_validator.expected_audience.value = validator.expected_audience()  # pyrefly: ignore[bad-assignment]
   proto_validator.ignore_type_header = validator.ignore_type_header()
   proto_validator.ignore_issuer = validator.ignore_issuer()
   proto_validator.ignore_audience = validator.ignore_audiences()
@@ -686,7 +686,7 @@ def jwt_validator_to_proto(
       validator.expect_issued_in_the_past())
   proto_validator.clock_skew.seconds = validator.clock_skew().seconds
   if validator.has_fixed_now():
-    seconds, nanos = split_datetime(validator.fixed_now())
+    seconds, nanos = split_datetime(validator.fixed_now())  # pyrefly: ignore[bad-argument-type]
     proto_validator.now.seconds = seconds
     proto_validator.now.nanos = nanos
   return proto_validator

@@ -64,7 +64,7 @@ class DeterministicAeadTest(parameterized.TestCase):
       else:
         ciphertext = p.encrypt_deterministically(plaintext, associated_data)
     for p2 in supported_daeads:
-      output = p2.decrypt_deterministically(ciphertext, associated_data)
+      output = p2.decrypt_deterministically(ciphertext, associated_data)  # pyrefly: ignore[bad-argument-type]
       self.assertEqual(output, plaintext)
 
   @parameterized.parameters(
@@ -92,7 +92,7 @@ class DeterministicAeadTest(parameterized.TestCase):
       else:
         ciphertext = p.encrypt_deterministically(plaintext, associated_data)
     for p2 in supported_daeads:
-      output = p2.decrypt_deterministically(ciphertext, associated_data)
+      output = p2.decrypt_deterministically(ciphertext, associated_data)  # pyrefly: ignore[bad-argument-type]
       self.assertEqual(output, plaintext)
 
 
