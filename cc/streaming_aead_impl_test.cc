@@ -16,13 +16,17 @@
 
 #include "streaming_aead_impl.h"
 
+#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "absl/memory/memory.h"
+#include "absl/base/no_destructor.h"
+#include "absl/log/check.h"
+#include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/keyset_handle.h"
@@ -33,9 +37,9 @@ namespace crypto {
 namespace tink {
 namespace {
 
-using ::crypto::tink::StreamingAeadKeyTemplates;
 using ::crypto::tink::BinaryKeysetWriter;
 using ::crypto::tink::CleartextKeysetHandle;
+using ::crypto::tink::StreamingAeadKeyTemplates;
 
 using ::testing::Eq;
 using ::testing::IsEmpty;
@@ -49,21 +53,25 @@ using ::tink_testing_api::StreamingAeadEncryptResponse;
 using crypto::tink::KeysetHandle;
 using google::crypto::tink::KeyTemplate;
 
-std::string ValidKeyset() {
-  const KeyTemplate& key_template =
-      StreamingAeadKeyTemplates::Aes128GcmHkdf4KB();
-  auto handle_result = KeysetHandle::GenerateNew(
-      key_template, crypto::tink::KeyGenConfigStreamingAead2026());
-  EXPECT_TRUE(handle_result.ok());
-  std::stringbuf keyset;
-  auto writer_result =
-      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
-  EXPECT_TRUE(writer_result.ok());
+const std::string& ValidKeyset() {
+  static const absl::NoDestructor<std::string> keyset([]() {
+    const KeyTemplate& key_template =
+        StreamingAeadKeyTemplates::Aes128GcmHkdf4KB();
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle_result =
+        KeysetHandle::GenerateNew(
+            key_template, crypto::tink::KeyGenConfigStreamingAead2026());
+    CHECK_OK(handle_result.status());
+    std::stringbuf keyset_buf;
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer_result =
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset_buf));
+    CHECK_OK(writer_result.status());
 
-  auto status = CleartextKeysetHandle::Write(writer_result.value().get(),
-                                             *handle_result.value());
-  EXPECT_TRUE(status.ok());
-  return keyset.str();
+    absl::Status status = CleartextKeysetHandle::Write(
+        writer_result.value().get(), *handle_result.value());
+    CHECK_OK(status);
+    return keyset_buf.str();
+  }());
+  return *keyset;
 }
 
 class StreamingAeadImplTest : public ::testing::Test {};

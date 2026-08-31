@@ -23,8 +23,9 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/base/no_destructor.h"
 #include "absl/log/check.h"
-#include "absl/memory/memory.h"
+#include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
@@ -49,33 +50,45 @@ using ::tink_testing_api::SignatureVerifyRequest;
 using ::tink_testing_api::SignatureVerifyResponse;
 
 using crypto::tink::KeysetHandle;
-using google::crypto::tink::KeyTemplate;
 
 std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   std::stringbuf keyset;
-  auto writer_result =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer_result =
       BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   EXPECT_TRUE(writer_result.ok());
-  auto status =
+  absl::Status status =
       CleartextKeysetHandle::Write(writer_result.value().get(), keyset_handle);
   EXPECT_TRUE(status.ok());
   return keyset.str();
+}
+
+struct TestKeysets {
+  std::string private_keyset;
+  std::string public_keyset;
+};
+
+const TestKeysets& GetTestKeysets() {
+  static const absl::NoDestructor<TestKeysets> keysets([]() {
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNew(SignatureKeyTemplates::EcdsaP256(),
+                                  crypto::tink::KeyGenConfigSignature2026());
+    CHECK_OK(handle);
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> pub_handle =
+        (*handle)->GetPublicKeysetHandle(
+            crypto::tink::KeyGenConfigSignature2026());
+    CHECK_OK(pub_handle);
+    return TestKeysets{KeysetBytes(**handle), KeysetBytes(**pub_handle)};
+  }());
+  return *keysets;
 }
 
 using SignatureImplTest = ::testing::Test;
 
 TEST_F(SignatureImplTest, CreatePublicKeySignSuccess) {
   tink_testing_api::SignatureImpl signature;
-  const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      KeysetHandle::GenerateNew(key_template,
-                                crypto::tink::KeyGenConfigSignature2026());
-  ASSERT_TRUE(private_keyset_handle.status().ok())
-      << private_keyset_handle.status();
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**private_keyset_handle));
+      GetTestKeysets().private_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(signature.CreatePublicKeySign(nullptr, &request, &response).ok());
@@ -95,21 +108,9 @@ TEST_F(SignatureImplTest, CreatePublicKeySignFailure) {
 
 TEST_F(SignatureImplTest, CreatePublicKeyVerifySuccess) {
   tink_testing_api::SignatureImpl signature;
-  const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      KeysetHandle::GenerateNew(key_template,
-                                crypto::tink::KeyGenConfigSignature2026());
-  ASSERT_TRUE(private_keyset_handle.status().ok())
-      << private_keyset_handle.status();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_keyset_handle =
-      (*private_keyset_handle)
-          ->GetPublicKeysetHandle(crypto::tink::KeyGenConfigSignature2026());
-  ASSERT_TRUE(public_keyset_handle.status().ok())
-      << public_keyset_handle.status();
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**public_keyset_handle));
+      GetTestKeysets().public_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(
@@ -131,18 +132,11 @@ TEST_F(SignatureImplTest, CreatePublicKeyVerifyFailure) {
 
 TEST_F(SignatureImplTest, SignVerifySuccess) {
   tink_testing_api::SignatureImpl signature;
-  const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  auto private_handle_result = KeysetHandle::GenerateNew(
-      key_template, crypto::tink::KeyGenConfigSignature2026());
-  EXPECT_TRUE(private_handle_result.ok());
-  auto public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle(
-          crypto::tink::KeyGenConfigSignature2026());
-  EXPECT_TRUE(public_handle_result.ok());
+  const TestKeysets& test_keysets = GetTestKeysets();
 
   SignatureSignRequest sign_request;
   sign_request.mutable_private_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*private_handle_result.value()));
+      test_keysets.private_keyset);
   sign_request.set_data("some data");
   SignatureSignResponse sign_response;
 
@@ -151,7 +145,7 @@ TEST_F(SignatureImplTest, SignVerifySuccess) {
 
   SignatureVerifyRequest verify_request;
   verify_request.mutable_public_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*public_handle_result.value()));
+      test_keysets.public_keyset);
   verify_request.set_signature(sign_response.signature());
   verify_request.set_data("some data");
   SignatureVerifyResponse verify_response;
@@ -175,18 +169,11 @@ TEST_F(SignatureImplTest, SignBadKeysetFail) {
 
 TEST_F(SignatureImplTest, VerifyBadCiphertextFail) {
   tink_testing_api::SignatureImpl signature;
-  const KeyTemplate& key_template = SignatureKeyTemplates::EcdsaP256();
-  auto private_handle_result = KeysetHandle::GenerateNew(
-      key_template, crypto::tink::KeyGenConfigSignature2026());
-  EXPECT_TRUE(private_handle_result.ok());
-  auto public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle(
-          crypto::tink::KeyGenConfigSignature2026());
-  EXPECT_TRUE(public_handle_result.ok());
+  const TestKeysets& test_keysets = GetTestKeysets();
 
   SignatureVerifyRequest verify_request;
   verify_request.mutable_public_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*public_handle_result.value()));
+      test_keysets.public_keyset);
   verify_request.set_signature("bad signature");
   verify_request.set_data("some data");
   SignatureVerifyResponse verify_response;

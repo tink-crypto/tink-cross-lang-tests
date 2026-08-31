@@ -23,7 +23,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "absl/status/status_matchers.h"
+#include "absl/base/no_destructor.h"
+#include "absl/log/check.h"
 #include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
@@ -35,8 +36,6 @@
 namespace crypto {
 namespace tink {
 namespace {
-
-using ::absl_testing::IsOk;
 
 using ::crypto::tink::BinaryKeysetWriter;
 using ::crypto::tink::CleartextKeysetHandle;
@@ -67,36 +66,37 @@ std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   return keyset.str();
 }
 
-absl::StatusOr<std::unique_ptr<KeysetHandle>> PrivateKeysetHandle() {
-  absl::StatusOr<MlDsaParameters> parameters = MlDsaParameters::Create(
-      MlDsaParameters::Instance::kMlDsa65,
-      MlDsaParameters::Variant::kNoPrefixWithPrehashId);
-  if (!parameters.status().ok()) return parameters.status();
+struct TestKeysets {
+  std::string private_keyset;
+  std::string public_keyset;
+};
 
-  return KeysetHandle::GenerateNewFromParameters(
-      *parameters, crypto::tink::KeyGenConfigSignature2026());
-}
-
-absl::StatusOr<std::unique_ptr<KeysetHandle>> PublicKeysetHandle(
-    const KeysetHandle& private_handle) {
-  return private_handle.GetPublicKeysetHandle(
-      crypto::tink::KeyGenConfigSignature2026());
+const TestKeysets& GetTestKeysets() {
+  static const absl::NoDestructor<TestKeysets> keysets([]() {
+    absl::StatusOr<MlDsaParameters> parameters = MlDsaParameters::Create(
+        MlDsaParameters::Instance::kMlDsa65,
+        MlDsaParameters::Variant::kNoPrefixWithPrehashId);
+    CHECK_OK(parameters.status());
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNewFromParameters(
+            *parameters, crypto::tink::KeyGenConfigSignature2026());
+    CHECK_OK(handle.status());
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> pub_handle =
+        (*handle)->GetPublicKeysetHandle(
+            crypto::tink::KeyGenConfigSignature2026());
+    CHECK_OK(pub_handle.status());
+    return TestKeysets{KeysetBytes(**handle), KeysetBytes(**pub_handle)};
+  }());
+  return *keysets;
 }
 
 using SignPrehashImplTest = ::testing::Test;
 
 TEST_F(SignPrehashImplTest, CreatePrehashSuccess) {
   SignPrehashImpl service;
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      PrivateKeysetHandle();
-  ASSERT_THAT(private_keyset_handle, IsOk());
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_keyset_handle =
-      PublicKeysetHandle(**private_keyset_handle);
-  ASSERT_THAT(public_keyset_handle, IsOk());
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**public_keyset_handle));
+      GetTestKeysets().public_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(service.CreatePrehash(nullptr, &request, &response).ok());
@@ -116,13 +116,9 @@ TEST_F(SignPrehashImplTest, CreatePrehashFailure) {
 
 TEST_F(SignPrehashImplTest, CreatePrehashSignerSuccess) {
   SignPrehashImpl service;
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      PrivateKeysetHandle();
-  ASSERT_THAT(private_keyset_handle, IsOk());
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**private_keyset_handle));
+      GetTestKeysets().private_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(service.CreatePrehashSigner(nullptr, &request, &response).ok());
@@ -142,16 +138,11 @@ TEST_F(SignPrehashImplTest, CreatePrehashSignerFailure) {
 
 TEST_F(SignPrehashImplTest, ComputeAndSignPrehashSuccess) {
   SignPrehashImpl service;
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_handle =
-      PrivateKeysetHandle();
-  ASSERT_THAT(private_handle, IsOk());
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_handle =
-      PublicKeysetHandle(**private_handle);
-  ASSERT_THAT(public_handle, IsOk());
+  const TestKeysets& test_keysets = GetTestKeysets();
 
   ComputePrehashRequest compute_request;
   compute_request.mutable_public_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**public_handle));
+      test_keysets.public_keyset);
   compute_request.set_data("some data to prehash");
   ComputePrehashResponse compute_response;
 
@@ -163,7 +154,7 @@ TEST_F(SignPrehashImplTest, ComputeAndSignPrehashSuccess) {
 
   SignPrehashRequest sign_request;
   sign_request.mutable_private_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**private_handle));
+      test_keysets.private_keyset);
   sign_request.set_prehash(compute_response.prehash());
   SignPrehashResponse sign_response;
 

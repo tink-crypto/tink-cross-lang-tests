@@ -23,8 +23,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/base/no_destructor.h"
 #include "absl/log/check.h"
-#include "absl/memory/memory.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
@@ -59,18 +59,22 @@ using ::tink_testing_api::JwtValidator;
 using ::tink_testing_api::JwtVerifyRequest;
 using ::tink_testing_api::JwtVerifyResponse;
 
-std::string ValidKeyset() {
-  const KeyTemplate& key_template = ::crypto::tink::JwtHs256Template();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfigJwtMac2026());
-  CHECK_OK(handle.status());
-  std::stringbuf keyset;
-  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
-  CHECK_OK(writer.status());
-  absl::Status status = CleartextKeysetHandle::Write((*writer).get(), **handle);
-  CHECK_OK(status);
-  return keyset.str();
+const std::string& ValidKeyset() {
+  static const absl::NoDestructor<std::string> keyset([]() {
+    const KeyTemplate& key_template = ::crypto::tink::JwtHs256Template();
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNew(key_template, KeyGenConfigJwtMac2026());
+    CHECK_OK(handle.status());
+    std::stringbuf keyset_buf;
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset_buf));
+    CHECK_OK(writer.status());
+    absl::Status status =
+        CleartextKeysetHandle::Write((*writer).get(), **handle);
+    CHECK_OK(status);
+    return keyset_buf.str();
+  }());
+  return *keyset;
 }
 
 class JwtImplMacTest : public ::testing::Test {};
@@ -195,9 +199,13 @@ TEST_F(JwtImplMacTest, VerifyWithWrongIssuerFails) {
   EXPECT_THAT(verify_response.err(), Not(IsEmpty()));
 }
 
-class JwtImplSignatureTest : public ::testing::Test {
- protected:
-  void SetUp() override {
+struct JwtSignatureTestKeysets {
+  std::string private_keyset;
+  std::string public_keyset;
+};
+
+const JwtSignatureTestKeysets& GetJwtSignatureTestKeysets() {
+  static const absl::NoDestructor<JwtSignatureTestKeysets> keysets([]() {
     const KeyTemplate& key_template = ::crypto::tink::JwtEs256Template();
     absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
         KeysetHandle::GenerateNew(key_template,
@@ -208,9 +216,7 @@ class JwtImplSignatureTest : public ::testing::Test {
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
         BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
     CHECK_OK(writer.status());
-
     CHECK_OK(CleartextKeysetHandle::Write((*writer).get(), **handle));
-    private_keyset_ = keyset.str();
 
     absl::StatusOr<std::unique_ptr<KeysetHandle>> pub_handle =
         (*handle)->GetPublicKeysetHandle(
@@ -220,9 +226,19 @@ class JwtImplSignatureTest : public ::testing::Test {
     absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> pub_writer =
         BinaryKeysetWriter::New(std::make_unique<std::ostream>(&pub_keyset));
     CHECK_OK(pub_writer.status());
-
     CHECK_OK(CleartextKeysetHandle::Write((*pub_writer).get(), **pub_handle));
-    public_keyset_ = pub_keyset.str();
+
+    return JwtSignatureTestKeysets{keyset.str(), pub_keyset.str()};
+  }());
+  return *keysets;
+}
+
+class JwtImplSignatureTest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    const JwtSignatureTestKeysets& test_keysets = GetJwtSignatureTestKeysets();
+    private_keyset_ = test_keysets.private_keyset;
+    public_keyset_ = test_keysets.public_keyset;
   }
   std::string private_keyset_;
   std::string public_keyset_;

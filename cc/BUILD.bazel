@@ -110,6 +110,10 @@ cc_test(
     deps = [
         ":aead_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/status",
+        "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
         "@tink_cc//tink:cleartext_keyset_handle",
@@ -140,6 +144,8 @@ cc_test(
     deps = [
         ":deterministic_aead_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
@@ -176,6 +182,8 @@ cc_test(
     deps = [
         ":streaming_aead_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
@@ -208,6 +216,8 @@ cc_test(
     deps = [
         ":mac_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
@@ -241,6 +251,9 @@ cc_test(
     deps = [
         ":hybrid_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
@@ -272,6 +285,9 @@ cc_test(
     deps = [
         ":signature_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
         "@tink_cc//tink:binary_keyset_writer",
@@ -303,6 +319,8 @@ cc_test(
     deps = [
         ":sign_prehash_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status:status_matchers",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
@@ -335,6 +353,8 @@ cc_test(
     deps = [
         ":prf_set_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",
@@ -380,6 +400,8 @@ cc_test(
     deps = [
         ":jwt_impl",
         ":testing_api_cpp_library",
+        "@abseil-cpp//absl/base:no_destructor",
+        "@abseil-cpp//absl/log:check",
         "@abseil-cpp//absl/status",
         "@abseil-cpp//absl/status:statusor",
         "@googletest//:gtest_main",

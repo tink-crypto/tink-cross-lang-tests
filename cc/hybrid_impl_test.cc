@@ -23,8 +23,9 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/base/no_destructor.h"
 #include "absl/log/check.h"
-#include "absl/memory/memory.h"
+#include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "tink/binary_keyset_writer.h"
 #include "tink/cleartext_keyset_handle.h"
@@ -50,33 +51,45 @@ using ::tink_testing_api::HybridEncryptRequest;
 using ::tink_testing_api::HybridEncryptResponse;
 
 using crypto::tink::KeysetHandle;
-using google::crypto::tink::KeyTemplate;
 
 std::string KeysetBytes(const KeysetHandle& keyset_handle) {
   std::stringbuf keyset;
-  auto writer_result =
+  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer_result =
       BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   EXPECT_TRUE(writer_result.ok());
-  auto status =
+  absl::Status status =
       CleartextKeysetHandle::Write(writer_result.value().get(), keyset_handle);
   EXPECT_TRUE(status.ok());
   return keyset.str();
+}
+
+struct TestKeysets {
+  std::string private_keyset;
+  std::string public_keyset;
+};
+
+const TestKeysets& GetTestKeysets() {
+  static const absl::NoDestructor<TestKeysets> keysets([]() {
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNew(
+            HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
+            KeyGenConfig2026());
+    CHECK_OK(handle);
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> pub_handle =
+        (*handle)->GetPublicKeysetHandle(KeyGenConfig2026());
+    CHECK_OK(pub_handle);
+    return TestKeysets{KeysetBytes(**handle), KeysetBytes(**pub_handle)};
+  }());
+  return *keysets;
 }
 
 using HybridImplTest = ::testing::Test;
 
 TEST_F(HybridImplTest, CreateHybridDecryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
-  const KeyTemplate& key_template =
-      HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
-  ASSERT_TRUE(private_keyset_handle.status().ok())
-      << private_keyset_handle.status();
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**private_keyset_handle));
+      GetTestKeysets().private_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(hybrid.CreateHybridDecrypt(nullptr, &request, &response).ok());
@@ -96,20 +109,9 @@ TEST_F(HybridImplTest, CreateHybridDecryptFailure) {
 
 TEST_F(HybridImplTest, CreateHybridEncryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
-  const KeyTemplate& key_template =
-      HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> private_keyset_handle =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
-  ASSERT_TRUE(private_keyset_handle.status().ok())
-      << private_keyset_handle.status();
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_keyset_handle =
-      (*private_keyset_handle)->GetPublicKeysetHandle(KeyGenConfig2026());
-  ASSERT_TRUE(public_keyset_handle.status().ok())
-      << public_keyset_handle.status();
-
   CreationRequest request;
   request.mutable_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(**public_keyset_handle));
+      GetTestKeysets().public_keyset);
   CreationResponse response;
 
   EXPECT_TRUE(hybrid.CreateHybridEncrypt(nullptr, &request, &response).ok());
@@ -129,18 +131,11 @@ TEST_F(HybridImplTest, CreateHybridEncryptFailure) {
 
 TEST_F(HybridImplTest, EncryptDecryptSuccess) {
   tink_testing_api::HybridImpl hybrid;
-  const KeyTemplate& key_template =
-      HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  auto private_handle_result =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
-  CHECK_OK(private_handle_result.status());
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> public_handle_result =
-      private_handle_result.value()->GetPublicKeysetHandle(KeyGenConfig2026());
-  EXPECT_TRUE(public_handle_result.ok());
+  const TestKeysets& test_keysets = GetTestKeysets();
 
   HybridEncryptRequest enc_request;
   enc_request.mutable_public_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*public_handle_result.value()));
+      test_keysets.public_keyset);
   enc_request.set_plaintext("Plain text");
   enc_request.set_context_info("context");
   HybridEncryptResponse enc_response;
@@ -150,7 +145,7 @@ TEST_F(HybridImplTest, EncryptDecryptSuccess) {
 
   HybridDecryptRequest dec_request;
   dec_request.mutable_private_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*private_handle_result.value()));
+      test_keysets.private_keyset);
   dec_request.set_ciphertext(enc_response.ciphertext());
   dec_request.set_context_info("context");
   HybridDecryptResponse dec_response;
@@ -175,15 +170,11 @@ TEST_F(HybridImplTest, EncryptBadKeysetFail) {
 
 TEST_F(HybridImplTest, DecryptBadCiphertextFail) {
   tink_testing_api::HybridImpl hybrid;
-  const KeyTemplate& key_template =
-      HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm();
-  auto private_handle_result =
-      KeysetHandle::GenerateNew(key_template, KeyGenConfig2026());
-  EXPECT_TRUE(private_handle_result.ok());
+  const TestKeysets& test_keysets = GetTestKeysets();
 
   HybridDecryptRequest dec_request;
   dec_request.mutable_private_annotated_keyset()->set_serialized_keyset(
-      KeysetBytes(*private_handle_result.value()));
+      test_keysets.private_keyset);
   dec_request.set_ciphertext("bad ciphertext");
   dec_request.set_context_info("context");
   HybridDecryptResponse dec_response;
