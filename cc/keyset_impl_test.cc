@@ -25,7 +25,8 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "absl/memory/memory.h"
+#include "absl/base/no_destructor.h"
+#include "absl/log/check.h"
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "tink/aead/aead_key_templates.h"
@@ -97,44 +98,36 @@ TEST_F(KeysetImplTest, GenerateFail) {
 }
 
 absl::StatusOr<std::string> AeadKeyset() {
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-      KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm(),
-                                crypto::tink::KeyGenConfig2026());
-  if (!handle.ok()) {
-    return handle.status();
-  }
-  std::stringbuf keyset;
-  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
-  if (!writer.ok()) {
-    return writer.status();
-  }
-  absl::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
-  if (!status.ok()) {
-    return status;
-  }
-  return keyset.str();
+  static const absl::NoDestructor<std::string> keyset([]() {
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNew(AeadKeyTemplates::Aes128Gcm(),
+                                  crypto::tink::KeyGenConfig2026());
+    CHECK_OK(handle);
+    std::stringbuf buf;
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&buf));
+    CHECK_OK(writer);
+    CHECK_OK(CleartextKeysetHandle::Write(writer->get(), **handle));
+    return buf.str();
+  }());
+  return *keyset;
 }
 
 absl::StatusOr<std::string> ValidPrivateKeyset() {
-  absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
-      KeysetHandle::GenerateNew(
-          HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
-          crypto::tink::KeyGenConfig2026());
-  if (!handle.ok()) {
-    return handle.status();
-  }
-  std::stringbuf keyset;
-  absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
-      BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
-  if (!writer.ok()) {
-    return writer.status();
-  }
-  absl::Status status = CleartextKeysetHandle::Write(writer->get(), **handle);
-  if (!status.ok()) {
-    return status;
-  }
-  return keyset.str();
+  static const absl::NoDestructor<std::string> keyset([]() {
+    absl::StatusOr<std::unique_ptr<KeysetHandle>> handle =
+        KeysetHandle::GenerateNew(
+            HybridKeyTemplates::EciesP256HkdfHmacSha256Aes128Gcm(),
+            crypto::tink::KeyGenConfig2026());
+    CHECK_OK(handle);
+    std::stringbuf buf;
+    absl::StatusOr<std::unique_ptr<BinaryKeysetWriter>> writer =
+        BinaryKeysetWriter::New(std::make_unique<std::ostream>(&buf));
+    CHECK_OK(writer);
+    CHECK_OK(CleartextKeysetHandle::Write(writer->get(), **handle));
+    return buf.str();
+  }());
+  return *keyset;
 }
 
 TEST_F(KeysetImplTest, PublicSuccess) {
