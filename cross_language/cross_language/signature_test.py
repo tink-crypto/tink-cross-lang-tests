@@ -63,7 +63,7 @@ class SignatureTest(parameterized.TestCase):
         supported_langs[0], private_keyset
     )
     supported_verifiers = {}
-    for lang in supported_verifiers:
+    for lang in supported_langs:
       supported_verifiers[lang] = testing_servers.remote_primitive(
           lang, public_keyset, signature.PublicKeyVerify
       )
