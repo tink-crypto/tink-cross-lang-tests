@@ -28,6 +28,7 @@ import com.google.crypto.tink.prf.PrfConfig;
 import com.google.crypto.tink.signature.MlDsaSignKeyManager;
 import com.google.crypto.tink.signature.SignatureConfig;
 import com.google.crypto.tink.signature.SlhDsaSignKeyManager;
+import com.google.crypto.tink.signature.internal.CompositeMlDsaProtoSerialization;
 import com.google.crypto.tink.streamingaead.StreamingAeadConfig;
 import io.grpc.ServerBuilder;
 import java.io.IOException;
@@ -81,6 +82,7 @@ public final class TestingServer {
     SignatureConfig.register();
     MlDsaSignKeyManager.registerPair();
     SlhDsaSignKeyManager.registerPair();
+    CompositeMlDsaProtoSerialization.register();
     StreamingAeadConfig.register();
     Kms.register(gcpKeyUri, gcpCredentialsPath, awsKeyUri, awsCredentialsPath, hcvaultToken);
 

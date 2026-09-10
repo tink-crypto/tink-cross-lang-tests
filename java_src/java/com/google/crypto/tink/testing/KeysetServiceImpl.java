@@ -28,6 +28,7 @@ import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkJsonProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoParametersFormat;
+import com.google.crypto.tink.signature.CompositeMlDsaParameters;
 import com.google.crypto.tink.testing.proto.KeysetFromJsonRequest;
 import com.google.crypto.tink.testing.proto.KeysetFromJsonResponse;
 import com.google.crypto.tink.testing.proto.KeysetGenerateRequest;
@@ -48,24 +49,83 @@ import com.google.crypto.tink.testing.proto.KeysetWriterType;
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Implement a gRPC Keyset Testing service. */
 public final class KeysetServiceImpl extends KeysetImplBase {
 
-  public KeysetServiceImpl() throws GeneralSecurityException {
+  private static final Map<String, Parameters> COMPOSITE_ML_DSA_PARAMETERS =
+      createCompositeMlDsaParameters();
+
+  private static Map<String, Parameters> createCompositeMlDsaParameters() {
+    Map<String, Parameters> params = new HashMap<>();
+    try {
+      params.put(
+          "COMPOSITE_MLDSA_65_ED25519",
+          CompositeMlDsaParameters.builder()
+              .setMlDsaInstance(CompositeMlDsaParameters.MlDsaInstance.ML_DSA_65)
+              .setClassicalAlgorithm(CompositeMlDsaParameters.ClassicalAlgorithm.ED25519)
+              .setVariant(CompositeMlDsaParameters.Variant.TINK)
+              .build());
+      params.put(
+          "COMPOSITE_MLDSA_65_ECDSA_P256",
+          CompositeMlDsaParameters.builder()
+              .setMlDsaInstance(CompositeMlDsaParameters.MlDsaInstance.ML_DSA_65)
+              .setClassicalAlgorithm(CompositeMlDsaParameters.ClassicalAlgorithm.ECDSA_P256)
+              .setVariant(CompositeMlDsaParameters.Variant.TINK)
+              .build());
+      params.put(
+          "COMPOSITE_MLDSA_87_ECDSA_P384",
+          CompositeMlDsaParameters.builder()
+              .setMlDsaInstance(CompositeMlDsaParameters.MlDsaInstance.ML_DSA_87)
+              .setClassicalAlgorithm(CompositeMlDsaParameters.ClassicalAlgorithm.ECDSA_P384)
+              .setVariant(CompositeMlDsaParameters.Variant.TINK)
+              .build());
+      params.put(
+          "COMPOSITE_MLDSA_65_RSA3072_PKCS1",
+          CompositeMlDsaParameters.builder()
+              .setMlDsaInstance(CompositeMlDsaParameters.MlDsaInstance.ML_DSA_65)
+              .setClassicalAlgorithm(CompositeMlDsaParameters.ClassicalAlgorithm.RSA3072_PKCS1)
+              .setVariant(CompositeMlDsaParameters.Variant.TINK)
+              .build());
+      params.put(
+          "COMPOSITE_MLDSA_87_RSA4096_PSS",
+          CompositeMlDsaParameters.builder()
+              .setMlDsaInstance(CompositeMlDsaParameters.MlDsaInstance.ML_DSA_87)
+              .setClassicalAlgorithm(CompositeMlDsaParameters.ClassicalAlgorithm.RSA4096_PSS)
+              .setVariant(CompositeMlDsaParameters.Variant.TINK)
+              .build());
+    } catch (GeneralSecurityException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+    return Collections.unmodifiableMap(params);
   }
+
+  public KeysetServiceImpl() throws GeneralSecurityException {}
 
   @Override
   public void getTemplate(
       KeysetTemplateRequest request, StreamObserver<KeysetTemplateResponse> responseObserver) {
     KeysetTemplateResponse response;
     try {
-      KeyTemplate template = KeyTemplates.get(request.getTemplateName());
-      response =
-          KeysetTemplateResponse.newBuilder()
-              .setKeyTemplate(
-                  ByteString.copyFrom(TinkProtoParametersFormat.serialize(template.toParameters())))
-              .build();
+      if (COMPOSITE_ML_DSA_PARAMETERS.containsKey(request.getTemplateName())) {
+        Parameters parameters = COMPOSITE_ML_DSA_PARAMETERS.get(request.getTemplateName());
+        response =
+            KeysetTemplateResponse.newBuilder()
+                .setKeyTemplate(
+                    ByteString.copyFrom(TinkProtoParametersFormat.serialize(parameters)))
+                .build();
+      } else {
+        KeyTemplate template = KeyTemplates.get(request.getTemplateName());
+        response =
+            KeysetTemplateResponse.newBuilder()
+                .setKeyTemplate(
+                    ByteString.copyFrom(
+                        TinkProtoParametersFormat.serialize(template.toParameters())))
+                .build();
+      }
     } catch (GeneralSecurityException e) {
       response = KeysetTemplateResponse.newBuilder().setErr(e.toString()).build();
     }

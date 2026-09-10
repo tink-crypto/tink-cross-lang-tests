@@ -84,6 +84,7 @@ java_library(
         "@tink_java//src/main/java/com/google/crypto/tink/jwt:verified_jwt",
         "@tink_java//src/main/java/com/google/crypto/tink/keyderivation:keyset_deriver",
         "@tink_java//src/main/java/com/google/crypto/tink/prf:prf_set",
+        "@tink_java//src/main/java/com/google/crypto/tink/signature:composite_ml_dsa_parameters",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config_2026",
         "@tink_java//src/main/java/com/google/crypto/tink/tinkkey:secret_key_access",
     ],
@@ -134,6 +135,7 @@ java_binary(
         "@tink_java//src/main/java/com/google/crypto/tink/signature:ml_dsa_sign_key_manager",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:signature_config",
         "@tink_java//src/main/java/com/google/crypto/tink/signature:slh_dsa_sign_key_manager",
+        "@tink_java//src/main/java/com/google/crypto/tink/signature/internal:composite_ml_dsa_proto_serialization",
         "@tink_java//src/main/java/com/google/crypto/tink/streamingaead:streaming_aead_config",
     ],
 )
