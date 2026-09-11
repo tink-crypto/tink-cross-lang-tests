@@ -56,7 +56,7 @@ import java.util.Map;
 /** Implement a gRPC Keyset Testing service. */
 public final class KeysetServiceImpl extends KeysetImplBase {
 
-  private static final Map<String, Parameters> COMPOSITE_ML_DSA_PARAMETERS =
+  private static final Map<String, Parameters> compositeMlDsaParameters =
       createCompositeMlDsaParameters();
 
   private static Map<String, Parameters> createCompositeMlDsaParameters() {
@@ -110,8 +110,8 @@ public final class KeysetServiceImpl extends KeysetImplBase {
       KeysetTemplateRequest request, StreamObserver<KeysetTemplateResponse> responseObserver) {
     KeysetTemplateResponse response;
     try {
-      if (COMPOSITE_ML_DSA_PARAMETERS.containsKey(request.getTemplateName())) {
-        Parameters parameters = COMPOSITE_ML_DSA_PARAMETERS.get(request.getTemplateName());
+      if (compositeMlDsaParameters.containsKey(request.getTemplateName())) {
+        Parameters parameters = compositeMlDsaParameters.get(request.getTemplateName());
         response =
             KeysetTemplateResponse.newBuilder()
                 .setKeyTemplate(
