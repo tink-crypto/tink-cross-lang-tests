@@ -32,21 +32,21 @@
 #include "tink/aead/aead_key_templates.h"
 #include "tink/binary_keyset_reader.h"
 #include "tink/binary_keyset_writer.h"
+#include "absl/status/status_matchers.h"
 #include "tink/cleartext_keyset_handle.h"
 #include "tink/config/key_gen_config_2026.h"
 #include "tink/hybrid/hybrid_key_templates.h"
 #include "tink/keyset_handle.h"
-#include "tink/util/test_matchers.h"
 namespace crypto {
 namespace tink {
 namespace {
 
+using ::absl_testing::IsOk;
 using ::crypto::tink::AeadKeyTemplates;
 using ::crypto::tink::BinaryKeysetReader;
 using ::crypto::tink::BinaryKeysetWriter;
 using ::crypto::tink::CleartextKeysetHandle;
 using ::crypto::tink::HybridKeyTemplates;
-using ::crypto::tink::test::IsOk;
 using ::google::crypto::tink::KeyTemplate;
 using ::testing::Eq;
 using ::testing::IsEmpty;

@@ -20,15 +20,15 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/status/status_matchers.h"
 #include "tink/keyderivation/key_derivation_config.h"
-#include "tink/util/test_matchers.h"
 #include "proto/tink.pb.h"
 
 namespace crypto {
 namespace tink {
 namespace {
 
-using ::crypto::tink::test::IsOk;
+using ::absl_testing::IsOk;
 using ::google::crypto::tink::KeyData;
 using ::google::crypto::tink::Keyset;
 using ::testing::IsEmpty;
