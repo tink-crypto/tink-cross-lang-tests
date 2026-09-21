@@ -992,49 +992,117 @@ class ServicesTest(absltest.TestCase):
     self.assertEqual(dec_response.WhichOneof('result'), 'err')
     self.assertNotEmpty(dec_response.err)
 
-  def test_sign_prehash_create_prehash_unimplemented(self):
+  def test_sign_prehash_create_prehash(self):
+    keyset_servicer = services.KeysetServicer()
+    sign_prehash_servicer = services.SignPrehashServicer()
+
+    template = signature.signature_key_templates.ML_DSA_65.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    gen_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(gen_response.WhichOneof('result'), 'keyset')
+    pub_request = testing_api_pb2.KeysetPublicRequest(
+        private_keyset=gen_response.keyset
+    )
+    pub_response = keyset_servicer.Public(pub_request, self._ctx)
+    self.assertEqual(pub_response.WhichOneof('result'), 'public_keyset')
+
+    creation_request = testing_api_pb2.CreationRequest(
+        annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=pub_response.public_keyset
+        )
+    )
+    creation_response = sign_prehash_servicer.CreatePrehash(
+        creation_request, self._ctx
+    )
+    self.assertEmpty(creation_response.err)
+
+  def test_sign_prehash_create_prehash_bad_keyset(self):
     sign_prehash_servicer = services.SignPrehashServicer()
     request = testing_api_pb2.CreationRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=b'some keyset'
+            serialized_keyset=b'invalid keyset'
         )
     )
     response = sign_prehash_servicer.CreatePrehash(request, self._ctx)
-    self.assertEqual(response.err, 'Unimplemented in Python')
+    self.assertNotEmpty(response.err)
 
-  def test_sign_prehash_create_prehash_signer_unimplemented(self):
+  def test_sign_prehash_create_prehash_signer(self):
+    keyset_servicer = services.KeysetServicer()
+    sign_prehash_servicer = services.SignPrehashServicer()
+
+    template = signature.signature_key_templates.ML_DSA_65.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    gen_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(gen_response.WhichOneof('result'), 'keyset')
+
+    creation_request = testing_api_pb2.CreationRequest(
+        annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=gen_response.keyset
+        )
+    )
+    creation_response = sign_prehash_servicer.CreatePrehashSigner(
+        creation_request, self._ctx
+    )
+    self.assertEmpty(creation_response.err)
+
+  def test_sign_prehash_create_prehash_signer_bad_keyset(self):
     sign_prehash_servicer = services.SignPrehashServicer()
     request = testing_api_pb2.CreationRequest(
         annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=b'some keyset'
+            serialized_keyset=b'invalid keyset'
         )
     )
     response = sign_prehash_servicer.CreatePrehashSigner(request, self._ctx)
-    self.assertEqual(response.err, 'Unimplemented in Python')
+    self.assertNotEmpty(response.err)
 
-  def test_sign_prehash_compute_prehash_unimplemented(self):
+  def test_sign_prehash_compute_and_sign(self):
+    keyset_servicer = services.KeysetServicer()
     sign_prehash_servicer = services.SignPrehashServicer()
-    request = testing_api_pb2.ComputePrehashRequest(
+    signature_servicer = services.SignatureServicer()
+
+    template = signature.signature_key_templates.ML_DSA_65.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    gen_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(gen_response.WhichOneof('result'), 'keyset')
+    private_keyset = gen_response.keyset
+
+    pub_request = testing_api_pb2.KeysetPublicRequest(
+        private_keyset=private_keyset
+    )
+    pub_response = keyset_servicer.Public(pub_request, self._ctx)
+    self.assertEqual(pub_response.WhichOneof('result'), 'public_keyset')
+    public_keyset = pub_response.public_keyset
+
+    data = b'message to be prehashed and signed'
+    compute_request = testing_api_pb2.ComputePrehashRequest(
         public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=b'some keyset'
+            serialized_keyset=public_keyset
         ),
-        data=b'some data',
+        data=data,
     )
-    response = sign_prehash_servicer.ComputePrehash(request, self._ctx)
-    self.assertEqual(response.WhichOneof('result'), 'err')
-    self.assertEqual(response.err, 'Unimplemented in Python')
+    compute_response = sign_prehash_servicer.ComputePrehash(
+        compute_request, self._ctx
+    )
+    self.assertEqual(compute_response.WhichOneof('result'), 'prehash')
 
-  def test_sign_prehash_sign_prehash_unimplemented(self):
-    sign_prehash_servicer = services.SignPrehashServicer()
-    request = testing_api_pb2.SignPrehashRequest(
+    sign_request = testing_api_pb2.SignPrehashRequest(
         private_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
-            serialized_keyset=b'some keyset'
+            serialized_keyset=private_keyset
         ),
-        prehash=b'some prehash',
+        prehash=compute_response.prehash,
     )
-    response = sign_prehash_servicer.SignPrehash(request, self._ctx)
-    self.assertEqual(response.WhichOneof('result'), 'err')
-    self.assertEqual(response.err, 'Unimplemented in Python')
+    sign_response = sign_prehash_servicer.SignPrehash(sign_request, self._ctx)
+    self.assertEqual(sign_response.WhichOneof('result'), 'signature')
+
+    verify_request = testing_api_pb2.SignatureVerifyRequest(
+        public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=public_keyset
+        ),
+        signature=sign_response.signature,
+        data=data,
+    )
+    verify_response = signature_servicer.Verify(verify_request, self._ctx)
+    self.assertEmpty(verify_response.err)
 
 
 if __name__ == '__main__':

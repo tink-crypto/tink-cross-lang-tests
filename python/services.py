@@ -702,32 +702,64 @@ class SignPrehashServicer(testing_api_pb2_grpc.SignPrehashServicer):
       request: testing_api_pb2.CreationRequest,
       context: grpc.ServicerContext,
   ) -> testing_api_pb2.CreationResponse:
-    """Creates a Prehash without using it. Currently unimplemented in Python."""
-    return testing_api_pb2.CreationResponse(err='Unimplemented in Python')
+    """Creates a Prehash without using it."""
+    try:
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
+      keyset_handle.primitive(signature.Prehash)
+      return testing_api_pb2.CreationResponse()
+    except tink.TinkError as e:
+      return testing_api_pb2.CreationResponse(err=str(e))
 
   def CreatePrehashSigner(
       self,
       request: testing_api_pb2.CreationRequest,
       context: grpc.ServicerContext,
   ) -> testing_api_pb2.CreationResponse:
-    """Creates a PrehashSigner. Unimplemented in Python."""
-    return testing_api_pb2.CreationResponse(err='Unimplemented in Python')
+    """Creates a SignPrehash."""
+    try:
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.annotated_keyset.serialized_keyset, secret_key_access.TOKEN
+      )
+      keyset_handle.primitive(signature.SignPrehash)
+      return testing_api_pb2.CreationResponse()
+    except tink.TinkError as e:
+      return testing_api_pb2.CreationResponse(err=str(e))
 
   def ComputePrehash(
       self,
       request: testing_api_pb2.ComputePrehashRequest,
       context: grpc.ServicerContext,
   ) -> testing_api_pb2.ComputePrehashResponse:
-    """Computes a prehash. Currently unimplemented in Python."""
-    return testing_api_pb2.ComputePrehashResponse(err='Unimplemented in Python')
+    """Computes a prehash."""
+    try:
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.public_annotated_keyset.serialized_keyset,
+          secret_key_access.TOKEN,
+      )
+      p = keyset_handle.primitive(signature.Prehash)
+      prehash = p.compute(request.data)
+      return testing_api_pb2.ComputePrehashResponse(prehash=prehash)
+    except tink.TinkError as e:
+      return testing_api_pb2.ComputePrehashResponse(err=str(e))
 
   def SignPrehash(
       self,
       request: testing_api_pb2.SignPrehashRequest,
       context: grpc.ServicerContext,
   ) -> testing_api_pb2.SignPrehashResponse:
-    """Signs a prehash. Currently unimplemented in Python."""
-    return testing_api_pb2.SignPrehashResponse(err='Unimplemented in Python')
+    """Signs a prehash."""
+    try:
+      keyset_handle = tink.proto_keyset_format.parse(
+          request.private_annotated_keyset.serialized_keyset,
+          secret_key_access.TOKEN,
+      )
+      p = keyset_handle.primitive(signature.SignPrehash)
+      sig = p.sign(request.prehash)
+      return testing_api_pb2.SignPrehashResponse(signature=sig)
+    except tink.TinkError as e:
+      return testing_api_pb2.SignPrehashResponse(err=str(e))
 
 
 class PrfSetServicer(testing_api_pb2_grpc.PrfSetServicer):

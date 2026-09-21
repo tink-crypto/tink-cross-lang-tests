@@ -38,8 +38,8 @@ def tearDownModule():
 
 
 # Languages that support External Mu ML-DSA (Prehash and SignPrehash).
-SUPPORTED_LANGUAGES = ['cc', 'go']
-UNSUPPORTED_LANGUAGES = ['java', 'python']
+SUPPORTED_LANGUAGES = ['cc', 'go', 'python']
+UNSUPPORTED_LANGUAGES = ['java']
 
 
 class ExternalMuMlDsaConsistencyTest(absltest.TestCase):

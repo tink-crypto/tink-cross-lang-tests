@@ -424,7 +424,7 @@ class TestingServersTest(parameterized.TestCase):
       stub = testing_servers._ts.sign_prehash_stub(lang)
       self.assertIsNotNone(stub)
 
-  @parameterized.parameters(['cc', 'go'])
+  @parameterized.parameters(['cc', 'go', 'python'])
   def test_prehash_and_prehash_signer(self, lang):
     key = next(mldsa_keys.external_mu_mldsa_private_keys())
     private_keyset = key.as_serialized_keyset()
@@ -443,7 +443,7 @@ class TestingServersTest(parameterized.TestCase):
     sig = signer.sign_prehash(prehash)
     verifier.verify(sig, message)
 
-  @parameterized.parameters(['java', 'python'])
+  @parameterized.parameters(['java'])
   def test_prehash_and_prehash_signer_unsupported(self, lang):
     key = next(mldsa_keys.external_mu_mldsa_private_keys())
     private_keyset = key.as_serialized_keyset()
