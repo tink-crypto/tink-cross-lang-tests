@@ -571,5 +571,79 @@ class JwtTest(parameterized.TestCase):
     with self.assertRaises(tink.TinkError):
       jwt_mac.verify_mac_and_decode(token, EMPTY_VALIDATOR)
 
+  @parameterized.parameters(SUPPORTED_LANGUAGES)
+  def test_verify_rejects_non_zero_trailing_pad_bits_in_signature(self, lang):
+    # 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk' is 43 characters (32 bytes).
+    # The last char 'k' (index 36, binary 100100) has 2 unused pad bits (00).
+    # Changing 'k' to 'l' (index 37, binary 100101) flips an unused pad bit.
+    validator = jwt.new_validator(
+        expected_type_header='JWT',
+        expected_issuer='joe',
+        fixed_now=datetime.datetime.fromtimestamp(
+            1300819379, datetime.timezone.utc
+        ),
+    )
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
+    verified_jwt = jwt_mac.verify_mac_and_decode(EXAMPLE_TOKEN, validator)
+    self.assertEqual(verified_jwt.issuer(), 'joe')
+
+    for c in ('l', 'm', 'n'):
+      with self.assertRaises(tink.TinkError):
+        jwt_mac.verify_mac_and_decode(EXAMPLE_TOKEN[:-1] + c, validator)
+
+  @parameterized.parameters(SUPPORTED_LANGUAGES)
+  def test_verify_rejects_non_zero_trailing_pad_bits_in_payload(self, lang):
+    jwt_mac = testing_servers.remote_primitive(lang, _keyset(), jwt.JwtMac)
+    # '{"jti":"123"}' is 13 bytes. Canonical base64 is 'eyJqdGkiOiIxMjMifQ'.
+    # 'Q' (010000) has 4 unused zero pad bits.
+    # 'R' (010001) has a non-zero trailing pad bit.
+    valid_payload = b'eyJqdGkiOiIxMjMifQ'
+    invalid_payload = b'eyJqdGkiOiIxMjMifR'
+    header_b64 = _base64_encode(b'{"alg":"HS256"}')
+
+    valid_unsigned = header_b64 + b'.' + valid_payload
+    assert MAC is not None
+    valid_token = (
+        valid_unsigned + b'.' + _base64_encode(MAC.compute_mac(valid_unsigned))
+    ).decode('utf8')
+    verified_jwt = jwt_mac.verify_mac_and_decode(valid_token, EMPTY_VALIDATOR)
+    self.assertEqual(verified_jwt.jwt_id(), '123')
+
+    invalid_unsigned = header_b64 + b'.' + invalid_payload
+    invalid_token = (
+        invalid_unsigned
+        + b'.'
+        + _base64_encode(MAC.compute_mac(invalid_unsigned))
+    ).decode('utf8')
+    with self.assertRaises(tink.TinkError):
+      jwt_mac.verify_mac_and_decode(invalid_token, EMPTY_VALIDATOR)
+
+    # '{"jti":"1234"}' is 14 bytes. Canonical base64 is 'eyJqdGkiOiIxMjM0In0'.
+    # '0' (110100) has 2 unused zero pad bits.
+    # '1' (110101) has a non-zero trailing pad bit.
+    valid_payload_2 = b'eyJqdGkiOiIxMjM0In0'
+    invalid_payload_2 = b'eyJqdGkiOiIxMjM0In1'
+
+    valid_unsigned_2 = header_b64 + b'.' + valid_payload_2
+    valid_token_2 = (
+        valid_unsigned_2
+        + b'.'
+        + _base64_encode(MAC.compute_mac(valid_unsigned_2))
+    ).decode('utf8')
+    verified_jwt_2 = jwt_mac.verify_mac_and_decode(
+        valid_token_2, EMPTY_VALIDATOR
+    )
+    self.assertEqual(verified_jwt_2.jwt_id(), '1234')
+
+    invalid_unsigned_2 = header_b64 + b'.' + invalid_payload_2
+    invalid_token_2 = (
+        invalid_unsigned_2
+        + b'.'
+        + _base64_encode(MAC.compute_mac(invalid_unsigned_2))
+    ).decode('utf8')
+    with self.assertRaises(tink.TinkError):
+      jwt_mac.verify_mac_and_decode(invalid_token_2, EMPTY_VALIDATOR)
+
+
 if __name__ == '__main__':
   absltest.main()
