@@ -407,7 +407,7 @@ class PublicKeyVerify(tink_signature.PublicKeyVerify):
     if creation_response.err:
       raise tink.TinkError(creation_response.err)
 
-  def verify(self, signature: bytes, data: bytes) -> None:  # pytype: disable=signature-mismatch  # overriding-return-type-checks
+  def verify(self, signature: bytes, data: bytes) -> None:  # pyrefly: ignore[bad-override]
     request = testing_api_pb2.SignatureVerifyRequest(
         public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
             serialized_keyset=self._public_handle,
