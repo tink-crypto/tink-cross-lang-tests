@@ -19,6 +19,7 @@ package com.google.crypto.tink.testing;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import com.google.crypto.tink.Aead;
+import com.google.crypto.tink.Configuration;
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeyTemplates;
@@ -28,6 +29,7 @@ import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkJsonProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoParametersFormat;
+import com.google.crypto.tink.config.TinkConfig2026;
 import com.google.crypto.tink.signature.CompositeMlDsaParameters;
 import com.google.crypto.tink.testing.proto.KeysetFromJsonRequest;
 import com.google.crypto.tink.testing.proto.KeysetFromJsonResponse;
@@ -103,29 +105,33 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     return Collections.unmodifiableMap(params);
   }
 
-  public KeysetServiceImpl() throws GeneralSecurityException {}
+  private final Configuration config;
+
+  public KeysetServiceImpl(Configuration config) {
+    this.config = config;
+  }
+
+  public KeysetServiceImpl() throws GeneralSecurityException {
+    this(TinkConfig2026.get());
+  }
 
   @Override
   public void getTemplate(
       KeysetTemplateRequest request, StreamObserver<KeysetTemplateResponse> responseObserver) {
     KeysetTemplateResponse response;
     try {
+      Parameters parameters;
       if (compositeMlDsaParameters.containsKey(request.getTemplateName())) {
-        Parameters parameters = compositeMlDsaParameters.get(request.getTemplateName());
-        response =
-            KeysetTemplateResponse.newBuilder()
-                .setKeyTemplate(
-                    ByteString.copyFrom(TinkProtoParametersFormat.serialize(parameters)))
-                .build();
+        parameters = compositeMlDsaParameters.get(request.getTemplateName());
       } else {
         KeyTemplate template = KeyTemplates.get(request.getTemplateName());
-        response =
-            KeysetTemplateResponse.newBuilder()
-                .setKeyTemplate(
-                    ByteString.copyFrom(
-                        TinkProtoParametersFormat.serialize(template.toParameters())))
-                .build();
+        parameters = template.toParameters();
       }
+      response =
+          KeysetTemplateResponse.newBuilder()
+              .setKeyTemplate(
+                  ByteString.copyFrom(TinkProtoParametersFormat.serialize(parameters, config)))
+              .build();
     } catch (GeneralSecurityException e) {
       response = KeysetTemplateResponse.newBuilder().setErr(e.toString()).build();
     }
@@ -133,18 +139,35 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     responseObserver.onCompleted();
   }
 
+  private static byte[] generateKeyset(byte[] template, Configuration config)
+      throws GeneralSecurityException {
+    Parameters parameters = TinkProtoParametersFormat.parse(template, RegistryConfiguration.get());
+    KeysetHandle keysetHandle;
+    try {
+      keysetHandle = KeysetHandle.generateNew(parameters, RegistryConfiguration.get());
+    } catch (GeneralSecurityException e) {
+      if (e.getMessage() != null
+          && e.getMessage().startsWith("No key manager found for key type")) {
+        parameters = TinkProtoParametersFormat.parse(template, config);
+        keysetHandle = KeysetHandle.generateNew(parameters, config);
+        return TinkProtoKeysetFormat.serializeKeyset(
+            keysetHandle, InsecureSecretKeyAccess.get(), config);
+      }
+      throw e;
+    }
+    return TinkProtoKeysetFormat.serializeKeyset(
+        keysetHandle, InsecureSecretKeyAccess.get(), RegistryConfiguration.get());
+  }
+
   @Override
   public void generate(
       KeysetGenerateRequest request, StreamObserver<KeysetGenerateResponse> responseObserver) {
     KeysetGenerateResponse response;
     try {
-      Parameters parameters = TinkProtoParametersFormat.parse(request.getTemplate().toByteArray());
-      KeysetHandle keysetHandle = KeysetHandle.generateNew(parameters);
-      byte[] serializedPublicKeyset =
-          TinkProtoKeysetFormat.serializeKeyset(keysetHandle, InsecureSecretKeyAccess.get());
+      byte[] serializedKeyset = generateKeyset(request.getTemplate().toByteArray(), config);
       response =
           KeysetGenerateResponse.newBuilder()
-              .setKeyset(ByteString.copyFrom(serializedPublicKeyset))
+              .setKeyset(ByteString.copyFrom(serializedKeyset))
               .build();
     } catch (GeneralSecurityException e) {
       response = KeysetGenerateResponse.newBuilder().setErr(e.toString()).build();
@@ -153,17 +176,23 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     responseObserver.onCompleted();
   }
 
+  private static byte[] getPublicKeyset(byte[] privateKeyset, Configuration config)
+      throws GeneralSecurityException {
+    KeysetHandle privateKeysetHandle =
+        TinkProtoKeysetFormat.parseKeyset(
+            privateKeyset, InsecureSecretKeyAccess.get(), config);
+    KeysetHandle publicKeysetHandle = privateKeysetHandle.getPublicKeysetHandle();
+    return TinkProtoKeysetFormat.serializeKeyset(
+        publicKeysetHandle, InsecureSecretKeyAccess.get(), config);
+  }
+
   @Override
   public void public_(
       KeysetPublicRequest request, StreamObserver<KeysetPublicResponse> responseObserver) {
     KeysetPublicResponse response;
     try {
-      KeysetHandle privateKeysetHandle =
-          TinkProtoKeysetFormat.parseKeyset(
-              request.getPrivateKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      KeysetHandle publicKeysetHandle = privateKeysetHandle.getPublicKeysetHandle();
       byte[] serializedPublicKeyset =
-          TinkProtoKeysetFormat.serializeKeyset(publicKeysetHandle, InsecureSecretKeyAccess.get());
+          getPublicKeyset(request.getPrivateKeyset().toByteArray(), config);
       response =
           KeysetPublicResponse.newBuilder()
               .setPublicKeyset(ByteString.copyFrom(serializedPublicKeyset))
@@ -175,16 +204,20 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     responseObserver.onCompleted();
   }
 
+  private static String keysetToJson(byte[] keyset, Configuration config)
+      throws GeneralSecurityException {
+    KeysetHandle keysetHandle =
+        TinkProtoKeysetFormat.parseKeyset(keyset, InsecureSecretKeyAccess.get(), config);
+    return TinkJsonProtoKeysetFormat.serializeKeyset(
+        keysetHandle, config, InsecureSecretKeyAccess.get());
+  }
+
   @Override
   public void toJson(
       KeysetToJsonRequest request, StreamObserver<KeysetToJsonResponse> responseObserver) {
     KeysetToJsonResponse response;
     try {
-      KeysetHandle keysetHandle =
-          TinkProtoKeysetFormat.parseKeyset(
-              request.getKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      String jsonKeyset =
-          TinkJsonProtoKeysetFormat.serializeKeyset(keysetHandle, InsecureSecretKeyAccess.get());
+      String jsonKeyset = keysetToJson(request.getKeyset().toByteArray(), config);
       response = KeysetToJsonResponse.newBuilder().setJsonKeyset(jsonKeyset).build();
     } catch (GeneralSecurityException e) {
       response = KeysetToJsonResponse.newBuilder().setErr(e.toString()).build();
@@ -193,25 +226,50 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     responseObserver.onCompleted();
   }
 
+  private static byte[] keysetFromJson(String jsonKeyset, Configuration config)
+      throws GeneralSecurityException {
+    KeysetHandle keysetHandle =
+        TinkJsonProtoKeysetFormat.parseKeyset(
+            jsonKeyset, config, InsecureSecretKeyAccess.get());
+    return TinkProtoKeysetFormat.serializeKeyset(
+        keysetHandle, InsecureSecretKeyAccess.get(), config);
+  }
+
   @Override
   public void fromJson(
       KeysetFromJsonRequest request, StreamObserver<KeysetFromJsonResponse> responseObserver) {
     KeysetFromJsonResponse response;
     try {
-      KeysetHandle keysetHandle =
-          TinkJsonProtoKeysetFormat.parseKeyset(
-              request.getJsonKeyset(), InsecureSecretKeyAccess.get());
-      byte[] serializeKeyset =
-          TinkProtoKeysetFormat.serializeKeyset(keysetHandle, InsecureSecretKeyAccess.get());
+      byte[] serializedKeyset = keysetFromJson(request.getJsonKeyset(), config);
       response =
           KeysetFromJsonResponse.newBuilder()
-              .setKeyset(ByteString.copyFrom(serializeKeyset))
+              .setKeyset(ByteString.copyFrom(serializedKeyset))
               .build();
     } catch (GeneralSecurityException e) {
       response = KeysetFromJsonResponse.newBuilder().setErr(e.toString()).build();
     }
     responseObserver.onNext(response);
     responseObserver.onCompleted();
+  }
+
+  private static byte[] readEncryptedKeyset(
+      KeysetReadEncryptedRequest request, Aead masterAead, Configuration config)
+      throws GeneralSecurityException {
+    byte[] associatedData = request.getAssociatedData().getValue().toByteArray();
+    KeysetHandle keysetHandle;
+    if (request.getKeysetReaderType() == KeysetReaderType.KEYSET_READER_BINARY) {
+      keysetHandle =
+          TinkProtoKeysetFormat.parseEncryptedKeyset(
+              request.getEncryptedKeyset().toByteArray(), masterAead, associatedData, config);
+    } else if (request.getKeysetReaderType() == KeysetReaderType.KEYSET_READER_JSON) {
+      keysetHandle =
+          TinkJsonProtoKeysetFormat.parseEncryptedKeyset(
+              request.getEncryptedKeyset().toStringUtf8(), masterAead, associatedData, config);
+    } else {
+      throw new IllegalArgumentException("unknown keyset reader type");
+    }
+    return TinkProtoKeysetFormat.serializeKeyset(
+        keysetHandle, InsecureSecretKeyAccess.get(), config);
   }
 
   @Override
@@ -223,28 +281,12 @@ public final class KeysetServiceImpl extends KeysetImplBase {
       // get masterAead
       KeysetHandle masterKeysetHandle =
           TinkProtoKeysetFormat.parseKeyset(
-              request.getMasterKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      Aead masterAead = masterKeysetHandle.getPrimitive(RegistryConfiguration.get(), Aead.class);
+              request.getMasterKeyset().toByteArray(),
+              InsecureSecretKeyAccess.get(),
+              config);
+      Aead masterAead = masterKeysetHandle.getPrimitive(config, Aead.class);
 
-      // read encrypted keyset to keysetHandle
-      byte[] associatedData = request.getAssociatedData().getValue().toByteArray();
-
-      KeysetHandle keysetHandle;
-      if (request.getKeysetReaderType() == KeysetReaderType.KEYSET_READER_BINARY) {
-        keysetHandle =
-            TinkProtoKeysetFormat.parseEncryptedKeyset(
-                request.getEncryptedKeyset().toByteArray(), masterAead, associatedData);
-      } else if (request.getKeysetReaderType() == KeysetReaderType.KEYSET_READER_JSON) {
-        keysetHandle =
-            TinkJsonProtoKeysetFormat.parseEncryptedKeyset(
-                request.getEncryptedKeyset().toStringUtf8(), masterAead, associatedData);
-      } else {
-        throw new IllegalArgumentException("unknown keyset reader type");
-      }
-
-      // get keyset from keysetHandle
-      byte[] keyset =
-          TinkProtoKeysetFormat.serializeKeyset(keysetHandle, InsecureSecretKeyAccess.get());
+      byte[] keyset = readEncryptedKeyset(request, masterAead, config);
       response =
           KeysetReadEncryptedResponse.newBuilder().setKeyset(ByteString.copyFrom(keyset)).build();
     } catch (GeneralSecurityException e) {
@@ -252,6 +294,25 @@ public final class KeysetServiceImpl extends KeysetImplBase {
     }
     responseObserver.onNext(response);
     responseObserver.onCompleted();
+  }
+
+  private static byte[] writeEncryptedKeyset(
+      KeysetWriteEncryptedRequest request, Aead masterAead, Configuration config)
+      throws GeneralSecurityException {
+    KeysetHandle keysetHandle =
+        TinkProtoKeysetFormat.parseKeyset(
+            request.getKeyset().toByteArray(), InsecureSecretKeyAccess.get(), config);
+    byte[] associatedData = request.getAssociatedData().getValue().toByteArray();
+    if (request.getKeysetWriterType() == KeysetWriterType.KEYSET_WRITER_BINARY) {
+      return TinkProtoKeysetFormat.serializeEncryptedKeyset(
+          keysetHandle, masterAead, associatedData, config);
+    } else if (request.getKeysetWriterType() == KeysetWriterType.KEYSET_WRITER_JSON) {
+      return TinkJsonProtoKeysetFormat.serializeEncryptedKeyset(
+              keysetHandle, masterAead, associatedData, config)
+          .getBytes(UTF_8);
+    } else {
+      throw new IllegalArgumentException("unknown keyset writer type");
+    }
   }
 
   @Override
@@ -263,29 +324,12 @@ public final class KeysetServiceImpl extends KeysetImplBase {
       // get masterAead
       KeysetHandle masterKeysetHandle =
           TinkProtoKeysetFormat.parseKeyset(
-              request.getMasterKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-      Aead masterAead = masterKeysetHandle.getPrimitive(RegistryConfiguration.get(), Aead.class);
+              request.getMasterKeyset().toByteArray(),
+              InsecureSecretKeyAccess.get(),
+              config);
+      Aead masterAead = masterKeysetHandle.getPrimitive(config, Aead.class);
 
-      // get keysetHandle
-      KeysetHandle keysetHandle =
-          TinkProtoKeysetFormat.parseKeyset(
-              request.getKeyset().toByteArray(), InsecureSecretKeyAccess.get());
-
-      // write keysetHandle as encrypted keyset
-      byte[] associatedData = request.getAssociatedData().getValue().toByteArray();
-      byte[] keyset;
-      if (request.getKeysetWriterType() == KeysetWriterType.KEYSET_WRITER_BINARY) {
-        keyset =
-            TinkProtoKeysetFormat.serializeEncryptedKeyset(
-                keysetHandle, masterAead, associatedData);
-      } else if (request.getKeysetWriterType() == KeysetWriterType.KEYSET_WRITER_JSON) {
-        keyset =
-            TinkJsonProtoKeysetFormat.serializeEncryptedKeyset(
-                    keysetHandle, masterAead, associatedData)
-                .getBytes(UTF_8);
-      } else {
-        throw new IllegalArgumentException("unknown keyset writer type");
-      }
+      byte[] keyset = writeEncryptedKeyset(request, masterAead, config);
       response =
           KeysetWriteEncryptedResponse.newBuilder()
               .setEncryptedKeyset(ByteString.copyFrom(keyset))

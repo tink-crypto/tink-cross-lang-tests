@@ -18,7 +18,7 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.HybridDecrypt;
 import com.google.crypto.tink.HybridEncrypt;
-import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.hybrid.HybridConfig2026;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.HybridDecryptRequest;
@@ -38,21 +38,23 @@ public final class HybridServiceImpl extends HybridImplBase {
   @Override
   public void createHybridEncrypt(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, HybridEncrypt.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, HybridEncrypt.class, HybridConfig2026.get());
   }
 
   @Override
   public void createHybridDecrypt(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, HybridDecrypt.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, HybridDecrypt.class, HybridConfig2026.get());
   }
 
 
   private HybridEncryptResponse encrypt(HybridEncryptRequest request)
       throws GeneralSecurityException {
     HybridEncrypt hybridEncrypt =
-        Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), HybridEncrypt.class);
+        Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset(), HybridConfig2026.get())
+            .getPrimitive(HybridConfig2026.get(), HybridEncrypt.class);
     try {
       byte[] ciphertext =
           hybridEncrypt.encrypt(
@@ -80,8 +82,8 @@ public final class HybridServiceImpl extends HybridImplBase {
   private HybridDecryptResponse decrypt(HybridDecryptRequest request)
       throws GeneralSecurityException {
     HybridDecrypt hybridDecrypt =
-        Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), HybridDecrypt.class);
+        Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset(), HybridConfig2026.get())
+            .getPrimitive(HybridConfig2026.get(), HybridDecrypt.class);
     try {
       byte[] plaintext =
           hybridDecrypt.decrypt(

@@ -18,11 +18,13 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.aead.AeadConfig2026;
 import com.google.crypto.tink.testing.proto.AeadDecryptRequest;
 import com.google.crypto.tink.testing.proto.AeadDecryptResponse;
 import com.google.crypto.tink.testing.proto.AeadEncryptRequest;
 import com.google.crypto.tink.testing.proto.AeadEncryptResponse;
 import com.google.crypto.tink.testing.proto.AeadGrpc.AeadImplBase;
+import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.protobuf.ByteString;
@@ -34,15 +36,32 @@ public final class AeadServiceImpl extends AeadImplBase {
 
   public AeadServiceImpl() throws GeneralSecurityException {}
 
+  private static Aead getAead(AnnotatedKeyset annotatedKeyset) throws GeneralSecurityException {
+    try {
+      return Util.parseBinaryProtoKeyset(annotatedKeyset, AeadConfig2026.get())
+          .getPrimitive(AeadConfig2026.get(), Aead.class);
+    } catch (GeneralSecurityException e) {
+      // Legacy KMS keys (KmsAeadKey and KmsEnvelopeAeadKey) are not in AeadConfig2026.
+      return Util.parseBinaryProtoKeyset(annotatedKeyset, RegistryConfiguration.get())
+          .getPrimitive(RegistryConfiguration.get(), Aead.class);
+    }
+  }
+
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, Aead.class);
+    try {
+      Aead unused = getAead(request.getAnnotatedKeyset());
+    } catch (GeneralSecurityException e) {
+      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
+      responseObserver.onCompleted();
+      return;
+    }
+    responseObserver.onNext(CreationResponse.getDefaultInstance());
+    responseObserver.onCompleted();
   }
 
   AeadEncryptResponse encrypt(AeadEncryptRequest request) throws GeneralSecurityException {
-    Aead aead =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), Aead.class);
+    Aead aead = getAead(request.getAnnotatedKeyset());
     try {
       byte[] ciphertext =
           aead.encrypt(
@@ -69,9 +88,7 @@ public final class AeadServiceImpl extends AeadImplBase {
   }
 
   AeadDecryptResponse decrypt(AeadDecryptRequest request) throws GeneralSecurityException {
-    Aead aead =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), Aead.class);
+    Aead aead = getAead(request.getAnnotatedKeyset());
     try {
       byte[] plaintext =
           aead.decrypt(

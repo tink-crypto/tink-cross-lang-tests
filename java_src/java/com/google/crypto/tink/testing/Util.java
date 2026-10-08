@@ -19,7 +19,6 @@ package com.google.crypto.tink.testing;
 import com.google.crypto.tink.Configuration;
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.internal.MonitoringAnnotations;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
@@ -32,32 +31,19 @@ import java.security.GeneralSecurityException;
  * Utility functions for implementing Services.
  */
 final class Util {
-  static KeysetHandle parseBinaryProtoKeyset(AnnotatedKeyset annotatedKeyset)
+  static KeysetHandle parseBinaryProtoKeyset(
+      AnnotatedKeyset annotatedKeyset, Configuration configuration)
       throws GeneralSecurityException {
     KeysetHandle handle =
         TinkProtoKeysetFormat.parseKeyset(
-            annotatedKeyset.getSerializedKeyset().toByteArray(), InsecureSecretKeyAccess.get());
+            annotatedKeyset.getSerializedKeyset().toByteArray(),
+            InsecureSecretKeyAccess.get(),
+            configuration);
     return KeysetHandle.newBuilder(handle)
         .addAnnotations(
             MonitoringAnnotations.class,
             MonitoringAnnotations.newBuilder().addAll(annotatedKeyset.getAnnotationsMap()).build())
         .build();
-  }
-
-  /**
-   * Responds to a "create" request for a specific class. This method should be avoided, in favor of
-   * the function below.
-   */
-  static void createPrimitiveForRpc(
-      CreationRequest request,
-      StreamObserver<CreationResponse> responseObserver,
-      Class<?> primitiveClass) {
-    try {
-      createPrimitiveForRpc(request, responseObserver, primitiveClass, RegistryConfiguration.get());
-    } catch (GeneralSecurityException e) {
-      responseObserver.onNext(CreationResponse.newBuilder().setErr(e.toString()).build());
-      responseObserver.onCompleted();
-    }
   }
 
   /** Responds to a "create" request for a specific class using a custom configuration */
@@ -67,7 +53,8 @@ final class Util {
       Class<?> primitiveClass,
       Configuration configuration) {
     try {
-      KeysetHandle keysetHandle = parseBinaryProtoKeyset(request.getAnnotatedKeyset());
+      KeysetHandle keysetHandle =
+          parseBinaryProtoKeyset(request.getAnnotatedKeyset(), configuration);
       // We create to check if there is an exception thrown.
       Object unused = keysetHandle.getPrimitive(configuration, primitiveClass);
     } catch (GeneralSecurityException e) {

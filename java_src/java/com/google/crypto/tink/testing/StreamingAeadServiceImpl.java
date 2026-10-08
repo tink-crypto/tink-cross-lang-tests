@@ -16,8 +16,8 @@
 
 package com.google.crypto.tink.testing;
 
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.StreamingAead;
+import com.google.crypto.tink.streamingaead.StreamingAeadConfig2026;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.StreamingAeadDecryptRequest;
@@ -41,15 +41,16 @@ public final class StreamingAeadServiceImpl extends StreamingAeadImplBase {
 
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, StreamingAead.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, StreamingAead.class, StreamingAeadConfig2026.get());
   }
 
   private StreamingAeadEncryptResponse encrypt(StreamingAeadEncryptRequest request)
       throws GeneralSecurityException {
     try {
       StreamingAead streamingAead =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), StreamingAead.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), StreamingAeadConfig2026.get())
+              .getPrimitive(StreamingAeadConfig2026.get(), StreamingAead.class);
 
       ByteArrayOutputStream ciphertextStream = new ByteArrayOutputStream();
       try (OutputStream encryptingStream =
@@ -84,8 +85,8 @@ public final class StreamingAeadServiceImpl extends StreamingAeadImplBase {
       throws GeneralSecurityException {
     try {
       StreamingAead streamingAead =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), StreamingAead.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), StreamingAeadConfig2026.get())
+              .getPrimitive(StreamingAeadConfig2026.get(), StreamingAead.class);
 
       InputStream ciphertextStream = request.getCiphertext().newInput();
       InputStream decryptingStream = streamingAead.newDecryptingStream(

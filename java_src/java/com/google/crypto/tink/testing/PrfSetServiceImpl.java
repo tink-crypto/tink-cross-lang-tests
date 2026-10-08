@@ -16,8 +16,8 @@
 
 package com.google.crypto.tink.testing;
 
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.prf.Prf;
+import com.google.crypto.tink.prf.PrfConfig2026;
 import com.google.crypto.tink.prf.PrfSet;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
@@ -39,15 +39,15 @@ public final class PrfSetServiceImpl extends PrfSetImplBase {
 
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, PrfSet.class);
+    Util.createPrimitiveForRpc(request, responseObserver, PrfSet.class, PrfConfig2026.get());
   }
 
   private PrfSetKeyIdsResponse keyIds(
       PrfSetKeyIdsRequest request) throws GeneralSecurityException {
     try {
       PrfSet prfSet =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), PrfSet.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), PrfConfig2026.get())
+              .getPrimitive(PrfConfig2026.get(), PrfSet.class);
       PrfSetKeyIdsResponse.Output output = PrfSetKeyIdsResponse.Output.newBuilder()
           .setPrimaryKeyId(prfSet.getPrimaryId())
           .addAllKeyId(prfSet.getPrfs().keySet())
@@ -75,8 +75,8 @@ public final class PrfSetServiceImpl extends PrfSetImplBase {
       throws GeneralSecurityException {
     try {
       PrfSet prfSet =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), PrfSet.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), PrfConfig2026.get())
+              .getPrimitive(PrfConfig2026.get(), PrfSet.class);
       Map<Integer, Prf> prfs = prfSet.getPrfs();
       if (!prfs.containsKey(request.getKeyId())) {
         return PrfSetComputeResponse.newBuilder().setErr("Unknown Key ID.").build();

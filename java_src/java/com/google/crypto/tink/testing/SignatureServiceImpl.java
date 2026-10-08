@@ -53,7 +53,8 @@ public final class SignatureServiceImpl extends SignatureImplBase {
   private SignatureSignResponse sign(SignatureSignRequest request) throws GeneralSecurityException {
     try {
       PublicKeySign signer =
-          Util.parseBinaryProtoKeyset(request.getPrivateAnnotatedKeyset())
+          Util.parseBinaryProtoKeyset(
+                  request.getPrivateAnnotatedKeyset(), SignatureConfig2026.get())
               .getPrimitive(SignatureConfig2026.get(), PublicKeySign.class);
       byte[] signatureValue = signer.sign(request.getData().toByteArray());
       return SignatureSignResponse.newBuilder().setSignature(ByteString.copyFrom(signatureValue)).build();
@@ -77,7 +78,8 @@ public final class SignatureServiceImpl extends SignatureImplBase {
       throws GeneralSecurityException {
     try {
       PublicKeyVerify verifier =
-          Util.parseBinaryProtoKeyset(request.getPublicAnnotatedKeyset())
+          Util.parseBinaryProtoKeyset(
+                  request.getPublicAnnotatedKeyset(), SignatureConfig2026.get())
               .getPrimitive(SignatureConfig2026.get(), PublicKeyVerify.class);
       verifier.verify(request.getSignature().toByteArray(), request.getData().toByteArray());
       return SignatureVerifyResponse.getDefaultInstance();

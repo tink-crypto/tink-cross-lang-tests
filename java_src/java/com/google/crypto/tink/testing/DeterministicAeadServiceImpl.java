@@ -17,7 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.DeterministicAead;
-import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.daead.DeterministicAeadConfig2026;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
 import com.google.crypto.tink.testing.proto.DeterministicAeadDecryptRequest;
@@ -36,14 +36,16 @@ public final class DeterministicAeadServiceImpl extends DeterministicAeadImplBas
 
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, DeterministicAead.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, DeterministicAead.class, DeterministicAeadConfig2026.get());
   }
 
   private DeterministicAeadEncryptResponse encryptDeterministically(
       DeterministicAeadEncryptRequest request) throws GeneralSecurityException {
     DeterministicAead daead =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), DeterministicAead.class);
+        Util.parseBinaryProtoKeyset(
+                request.getAnnotatedKeyset(), DeterministicAeadConfig2026.get())
+            .getPrimitive(DeterministicAeadConfig2026.get(), DeterministicAead.class);
     try {
       byte[] ciphertext =
           daead.encryptDeterministically(
@@ -72,8 +74,9 @@ public final class DeterministicAeadServiceImpl extends DeterministicAeadImplBas
   private DeterministicAeadDecryptResponse decryptDeterministically(
       DeterministicAeadDecryptRequest request) throws GeneralSecurityException {
     DeterministicAead daead =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), DeterministicAead.class);
+        Util.parseBinaryProtoKeyset(
+                request.getAnnotatedKeyset(), DeterministicAeadConfig2026.get())
+            .getPrimitive(DeterministicAeadConfig2026.get(), DeterministicAead.class);
     try {
       byte[] plaintext =
           daead.decryptDeterministically(

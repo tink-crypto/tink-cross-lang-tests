@@ -22,9 +22,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertThrows;
 
 import com.google.crypto.tink.TinkProtoParametersFormat;
-import com.google.crypto.tink.config.TinkConfig;
 import com.google.crypto.tink.hybrid.EciesAeadHkdfPrivateKeyManager;
-import com.google.crypto.tink.signature.EcdsaSignKeyManager;
+import com.google.crypto.tink.hybrid.HybridConfig;
+import com.google.crypto.tink.signature.PredefinedSignatureParameters;
+import com.google.crypto.tink.signature.SignatureConfig2026;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
 import com.google.crypto.tink.testing.proto.ComputePrehashRequest;
 import com.google.crypto.tink.testing.proto.ComputePrehashResponse;
@@ -35,11 +36,17 @@ import com.google.crypto.tink.testing.proto.HybridDecryptResponse;
 import com.google.crypto.tink.testing.proto.HybridEncryptRequest;
 import com.google.crypto.tink.testing.proto.HybridEncryptResponse;
 import com.google.crypto.tink.testing.proto.HybridGrpc;
+import com.google.crypto.tink.testing.proto.KeysetFromJsonRequest;
+import com.google.crypto.tink.testing.proto.KeysetFromJsonResponse;
 import com.google.crypto.tink.testing.proto.KeysetGenerateRequest;
 import com.google.crypto.tink.testing.proto.KeysetGenerateResponse;
 import com.google.crypto.tink.testing.proto.KeysetGrpc;
 import com.google.crypto.tink.testing.proto.KeysetPublicRequest;
 import com.google.crypto.tink.testing.proto.KeysetPublicResponse;
+import com.google.crypto.tink.testing.proto.KeysetTemplateRequest;
+import com.google.crypto.tink.testing.proto.KeysetTemplateResponse;
+import com.google.crypto.tink.testing.proto.KeysetToJsonRequest;
+import com.google.crypto.tink.testing.proto.KeysetToJsonResponse;
 import com.google.crypto.tink.testing.proto.SignPrehashGrpc;
 import com.google.crypto.tink.testing.proto.SignPrehashRequest;
 import com.google.crypto.tink.testing.proto.SignPrehashResponse;
@@ -53,6 +60,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
+import java.security.Security;
+import org.conscrypt.Conscrypt;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +79,9 @@ public final class AsymmetricTestingServicesTest {
 
   @Before
   public void setUp() throws Exception {
-    TinkConfig.register();
+    Conscrypt.checkAvailability();
+    Security.addProvider(Conscrypt.newProvider());
+    HybridConfig.register();
     String serverName = InProcessServerBuilder.generateName();
     server =
         InProcessServerBuilder.forName(serverName)
@@ -313,7 +324,8 @@ public final class AsymmetricTestingServicesTest {
   @Test
   public void publicKeySignCreateKeyset_success() throws Exception {
     byte[] template =
-        TinkProtoParametersFormat.serialize(EcdsaSignKeyManager.ecdsaP256Template().toParameters());
+        TinkProtoParametersFormat.serialize(
+            PredefinedSignatureParameters.ECDSA_P256, SignatureConfig2026.get());
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     CreationResponse response =
@@ -344,7 +356,8 @@ public final class AsymmetricTestingServicesTest {
   @Test
   public void publicKeyVerifyCreateKeyset_success() throws Exception {
     byte[] template =
-        TinkProtoParametersFormat.serialize(EcdsaSignKeyManager.ecdsaP256Template().toParameters());
+        TinkProtoParametersFormat.serialize(
+            PredefinedSignatureParameters.ECDSA_P256, SignatureConfig2026.get());
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] privateKeyset = keysetResponse.getKeyset().toByteArray();
@@ -408,7 +421,8 @@ public final class AsymmetricTestingServicesTest {
   @Test
   public void signatureSignVerify_success() throws Exception {
     byte[] template =
-        TinkProtoParametersFormat.serialize(EcdsaSignKeyManager.ecdsaP256Template().toParameters());
+        TinkProtoParametersFormat.serialize(
+            PredefinedSignatureParameters.ECDSA_P256, SignatureConfig2026.get());
     byte[] data = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
 
     KeysetGenerateResponse genResponse = generateKeyset(keysetStub, template);
@@ -429,6 +443,68 @@ public final class AsymmetricTestingServicesTest {
   }
 
   @Test
+  public void compositeMlDsaSignVerify_success() throws Exception {
+    KeysetTemplateResponse templateResponse =
+        keysetStub.getTemplate(
+            KeysetTemplateRequest.newBuilder()
+                .setTemplateName("COMPOSITE_MLDSA_65_ED25519")
+                .build());
+    assertThat(templateResponse.getErr()).isEmpty();
+    byte[] template = templateResponse.getKeyTemplate().toByteArray();
+    byte[] data = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
+
+    KeysetGenerateResponse genResponse = generateKeyset(keysetStub, template);
+    assertThat(genResponse.getErr()).isEmpty();
+    byte[] privateKeyset = genResponse.getKeyset().toByteArray();
+
+    KeysetPublicResponse pubResponse = publicKeyset(keysetStub, privateKeyset);
+    assertThat(pubResponse.getErr()).isEmpty();
+    byte[] publicKeyset = pubResponse.getPublicKeyset().toByteArray();
+
+    CreationResponse createSignResponse =
+        signatureStub.createPublicKeySign(
+            CreationRequest.newBuilder()
+                .setAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom(privateKeyset))
+                        .build())
+                .build());
+    assertThat(createSignResponse.getErr()).isEmpty();
+
+    CreationResponse createVerifyResponse =
+        signatureStub.createPublicKeyVerify(
+            CreationRequest.newBuilder()
+                .setAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFrom(publicKeyset))
+                        .build())
+                .build());
+    assertThat(createVerifyResponse.getErr()).isEmpty();
+
+    SignatureSignResponse signResponse = signatureSign(signatureStub, privateKeyset, data);
+    assertThat(signResponse.getErr()).isEmpty();
+    byte[] signature = signResponse.getSignature().toByteArray();
+
+    SignatureVerifyResponse verifyResponse =
+        signatureVerify(signatureStub, publicKeyset, signature, data);
+    assertThat(verifyResponse.getErr()).isEmpty();
+
+    KeysetToJsonResponse toJsonResponse =
+        keysetStub.toJson(
+            KeysetToJsonRequest.newBuilder()
+                .setKeyset(ByteString.copyFrom(privateKeyset))
+                .build());
+    assertThat(toJsonResponse.getErr()).isEmpty();
+    KeysetFromJsonResponse fromJsonResponse =
+        keysetStub.fromJson(
+            KeysetFromJsonRequest.newBuilder()
+                .setJsonKeyset(toJsonResponse.getJsonKeyset())
+                .build());
+    assertThat(fromJsonResponse.getErr()).isEmpty();
+    assertThat(fromJsonResponse.getKeyset().toByteArray()).isEqualTo(privateKeyset);
+  }
+
+  @Test
   public void signatureSign_failsOnBadKeyset() throws Exception {
     byte[] badKeyset = "bad keyset".getBytes(UTF_8);
     byte[] data = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
@@ -440,7 +516,8 @@ public final class AsymmetricTestingServicesTest {
   @Test
   public void signatureVerify_failsOnBadSignature() throws Exception {
     byte[] template =
-        TinkProtoParametersFormat.serialize(EcdsaSignKeyManager.ecdsaP256Template().toParameters());
+        TinkProtoParametersFormat.serialize(
+            PredefinedSignatureParameters.ECDSA_P256, SignatureConfig2026.get());
     byte[] data = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
 
     KeysetGenerateResponse genResponse = generateKeyset(keysetStub, template);
@@ -459,7 +536,8 @@ public final class AsymmetricTestingServicesTest {
   @Test
   public void signatureVerify_failsOnBadKeyset() throws Exception {
     byte[] template =
-        TinkProtoParametersFormat.serialize(EcdsaSignKeyManager.ecdsaP256Template().toParameters());
+        TinkProtoParametersFormat.serialize(
+            PredefinedSignatureParameters.ECDSA_P256, SignatureConfig2026.get());
     byte[] data = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
 
     KeysetGenerateResponse genResponse = generateKeyset(keysetStub, template);

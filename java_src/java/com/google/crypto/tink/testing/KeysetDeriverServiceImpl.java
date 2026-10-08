@@ -16,10 +16,11 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.Configuration;
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
+import com.google.crypto.tink.config.TinkConfig2026;
 import com.google.crypto.tink.keyderivation.KeysetDeriver;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
@@ -33,22 +34,31 @@ import java.security.GeneralSecurityException;
 /** Implements a gRPC Testing service for Keyset Derivation. */
 public final class KeysetDeriverServiceImpl extends KeysetDeriverImplBase {
 
-  public KeysetDeriverServiceImpl() throws GeneralSecurityException {}
+  private final Configuration config;
+
+  public KeysetDeriverServiceImpl(Configuration config) {
+    this.config = config;
+  }
+
+  public KeysetDeriverServiceImpl() throws GeneralSecurityException {
+    this(TinkConfig2026.get());
+  }
 
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, KeysetDeriver.class);
+    Util.createPrimitiveForRpc(request, responseObserver, KeysetDeriver.class, config);
   }
 
   private DeriveKeysetResponse deriveKeyset(DeriveKeysetRequest request)
       throws GeneralSecurityException {
     KeysetDeriver deriver =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), KeysetDeriver.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), config)
+            .getPrimitive(config, KeysetDeriver.class);
     try {
       KeysetHandle derivedKeysetHandle = deriver.deriveKeyset(request.getSalt().toByteArray());
       byte[] serializedDerivedKeyset =
-          TinkProtoKeysetFormat.serializeKeyset(derivedKeysetHandle, InsecureSecretKeyAccess.get());
+          TinkProtoKeysetFormat.serializeKeyset(
+              derivedKeysetHandle, InsecureSecretKeyAccess.get(), config);
       return DeriveKeysetResponse.newBuilder()
           .setDerivedKeyset(ByteString.copyFrom(serializedDerivedKeyset))
           .build();

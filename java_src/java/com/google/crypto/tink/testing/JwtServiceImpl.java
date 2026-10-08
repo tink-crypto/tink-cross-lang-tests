@@ -18,15 +18,13 @@ package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.InsecureSecretKeyAccess;
 import com.google.crypto.tink.KeysetHandle;
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.jwt.JwkSetConverter;
+import com.google.crypto.tink.jwt.JwtConfig2026;
 import com.google.crypto.tink.jwt.JwtInvalidException;
 import com.google.crypto.tink.jwt.JwtMac;
-import com.google.crypto.tink.jwt.JwtMacConfig;
 import com.google.crypto.tink.jwt.JwtPublicKeySign;
 import com.google.crypto.tink.jwt.JwtPublicKeyVerify;
-import com.google.crypto.tink.jwt.JwtSignatureConfig;
 import com.google.crypto.tink.jwt.JwtValidator;
 import com.google.crypto.tink.jwt.RawJwt;
 import com.google.crypto.tink.jwt.VerifiedJwt;
@@ -59,27 +57,26 @@ import java.util.Map;
 /** Implements a gRPC JWT Testing service. */
 public final class JwtServiceImpl extends JwtImplBase {
 
-  public JwtServiceImpl() throws GeneralSecurityException {
-    JwtMacConfig.register();
-    JwtSignatureConfig.register();
-  }
+  public JwtServiceImpl() throws GeneralSecurityException {}
 
   @Override
   public void createJwtMac(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, JwtMac.class);
+    Util.createPrimitiveForRpc(request, responseObserver, JwtMac.class, JwtConfig2026.get());
   }
 
   @Override
   public void createJwtPublicKeySign(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, JwtPublicKeySign.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, JwtPublicKeySign.class, JwtConfig2026.get());
   }
 
   @Override
   public void createJwtPublicKeyVerify(
       CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, JwtPublicKeyVerify.class);
+    Util.createPrimitiveForRpc(
+        request, responseObserver, JwtPublicKeyVerify.class, JwtConfig2026.get());
   }
 
   private Instant timestampToInstant(Timestamp t) {
@@ -153,8 +150,8 @@ public final class JwtServiceImpl extends JwtImplBase {
   private JwtSignResponse computeMacAndEncode(JwtSignRequest request)
       throws GeneralSecurityException {
     JwtMac jwtMac =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), JwtMac.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), JwtConfig2026.get())
+            .getPrimitive(JwtConfig2026.get(), JwtMac.class);
     try {
       RawJwt rawJwt = convertJwtTokenToRawJwt(request.getRawJwt());
       String signedCompactJwt = jwtMac.computeMacAndEncode(rawJwt);
@@ -179,8 +176,8 @@ public final class JwtServiceImpl extends JwtImplBase {
   private JwtSignResponse publicKeySignAndEncode(JwtSignRequest request)
       throws GeneralSecurityException {
     JwtPublicKeySign signer =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), JwtPublicKeySign.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), JwtConfig2026.get())
+            .getPrimitive(JwtConfig2026.get(), JwtPublicKeySign.class);
     try {
       RawJwt rawJwt = convertJwtTokenToRawJwt(request.getRawJwt());
       String signedCompactJwt = signer.signAndEncode(rawJwt);
@@ -313,8 +310,8 @@ public final class JwtServiceImpl extends JwtImplBase {
   private JwtVerifyResponse verifyMacAndDecode(JwtVerifyRequest request)
       throws GeneralSecurityException {
     JwtMac jwtMac =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), JwtMac.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), JwtConfig2026.get())
+            .getPrimitive(JwtConfig2026.get(), JwtMac.class);
     try {
       JwtValidator validator = convertProtoValidatorToValidator(request.getValidator());
       VerifiedJwt verifiedJwt = jwtMac.verifyMacAndDecode(request.getSignedCompactJwt(), validator);
@@ -341,8 +338,8 @@ public final class JwtServiceImpl extends JwtImplBase {
   private JwtVerifyResponse publicKeyVerifyAndDecode(JwtVerifyRequest request)
       throws GeneralSecurityException {
     JwtPublicKeyVerify verifier =
-        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-            .getPrimitive(RegistryConfiguration.get(), JwtPublicKeyVerify.class);
+        Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), JwtConfig2026.get())
+            .getPrimitive(JwtConfig2026.get(), JwtPublicKeyVerify.class);
     try {
       JwtValidator validator = convertProtoValidatorToValidator(request.getValidator());
       VerifiedJwt verifiedJwt = verifier.verifyAndDecode(request.getSignedCompactJwt(), validator);
@@ -374,7 +371,9 @@ public final class JwtServiceImpl extends JwtImplBase {
     try {
       KeysetHandle keysetHandle =
           TinkProtoKeysetFormat.parseKeyset(
-              request.getKeyset().toByteArray(), InsecureSecretKeyAccess.get());
+              request.getKeyset().toByteArray(),
+              InsecureSecretKeyAccess.get(),
+              JwtConfig2026.get());
       String jwkSet = JwkSetConverter.fromPublicKeysetHandle(keysetHandle);
       response = JwtToJwkSetResponse.newBuilder().setJwkSet(jwkSet).build();
     } catch (GeneralSecurityException | IOException e) {
@@ -392,7 +391,8 @@ public final class JwtServiceImpl extends JwtImplBase {
     try {
       KeysetHandle keysetHandle = JwkSetConverter.toPublicKeysetHandle(request.getJwkSet());
       byte[] serializedKeyset =
-          TinkProtoKeysetFormat.serializeKeyset(keysetHandle, InsecureSecretKeyAccess.get());
+          TinkProtoKeysetFormat.serializeKeyset(
+              keysetHandle, InsecureSecretKeyAccess.get(), JwtConfig2026.get());
       response =
           JwtFromJwkSetResponse.newBuilder()
               .setKeyset(ByteString.copyFrom(serializedKeyset))

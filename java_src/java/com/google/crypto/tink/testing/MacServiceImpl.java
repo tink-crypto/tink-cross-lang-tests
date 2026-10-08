@@ -17,7 +17,7 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.Mac;
-import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.mac.MacConfig2026;
 import com.google.crypto.tink.testing.proto.ComputeMacRequest;
 import com.google.crypto.tink.testing.proto.ComputeMacResponse;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -37,15 +37,15 @@ public final class MacServiceImpl extends MacImplBase {
 
   @Override
   public void create(CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
-    Util.createPrimitiveForRpc(request, responseObserver, Mac.class);
+    Util.createPrimitiveForRpc(request, responseObserver, Mac.class, MacConfig2026.get());
   }
 
   private ComputeMacResponse computeMac(
       ComputeMacRequest request) throws GeneralSecurityException {
     try {
       Mac mac =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), Mac.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), MacConfig2026.get())
+              .getPrimitive(MacConfig2026.get(), Mac.class);
       byte[] macValue = mac.computeMac(request.getData().toByteArray());
       return ComputeMacResponse.newBuilder().setMacValue(ByteString.copyFrom(macValue)).build();
     } catch (GeneralSecurityException e)  {
@@ -68,8 +68,8 @@ public final class MacServiceImpl extends MacImplBase {
   private VerifyMacResponse verifyMac(VerifyMacRequest request) throws GeneralSecurityException {
     try {
       Mac mac =
-          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset())
-              .getPrimitive(RegistryConfiguration.get(), Mac.class);
+          Util.parseBinaryProtoKeyset(request.getAnnotatedKeyset(), MacConfig2026.get())
+              .getPrimitive(MacConfig2026.get(), Mac.class);
       mac.verifyMac(request.getMacValue().toByteArray(), request.getData().toByteArray());
       return VerifyMacResponse.getDefaultInstance();
     } catch (GeneralSecurityException e) {
