@@ -86,7 +86,6 @@ TYPE_STRING = 9
 TYPE_MESSAGE = 11
 TYPE_BYTES = 12
 TYPE_ENUM = 14
-LABEL_REPEATED = 3
 
 TYPE_PREFIX = 'type.googleapis.com/'
 
@@ -252,7 +251,7 @@ def _normalize_and_text_format_message(msg: message.Message,
         _text_format_field(value, fields[1], indent))
     fields = fields[2:]
   for field in fields:
-    if field.label == LABEL_REPEATED:
+    if field.is_repeated:
       for value in getattr(msg, field.name):
         output.append(_text_format_field(value, field, indent))
     else:
