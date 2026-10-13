@@ -17,8 +17,9 @@
 package com.google.crypto.tink.testing;
 
 import com.google.crypto.tink.Aead;
-import com.google.crypto.tink.RegistryConfiguration;
+import com.google.crypto.tink.Configuration;
 import com.google.crypto.tink.aead.AeadConfig2026;
+import com.google.crypto.tink.aead.KmsAeadConfig2026;
 import com.google.crypto.tink.testing.proto.AeadDecryptRequest;
 import com.google.crypto.tink.testing.proto.AeadDecryptResponse;
 import com.google.crypto.tink.testing.proto.AeadEncryptRequest;
@@ -41,9 +42,10 @@ public final class AeadServiceImpl extends AeadImplBase {
       return Util.parseBinaryProtoKeyset(annotatedKeyset, AeadConfig2026.get())
           .getPrimitive(AeadConfig2026.get(), Aead.class);
     } catch (GeneralSecurityException e) {
-      // Legacy KMS keys (KmsAeadKey and KmsEnvelopeAeadKey) are not in AeadConfig2026.
-      return Util.parseBinaryProtoKeyset(annotatedKeyset, RegistryConfiguration.get())
-          .getPrimitive(RegistryConfiguration.get(), Aead.class);
+      // Legacy KMS keys (KmsAeadKey and KmsEnvelopeAeadKey) are in KmsAeadConfig2026.
+      Configuration kmsConfig = KmsAeadConfig2026.getUsingGlobalKmsClients();
+      return Util.parseBinaryProtoKeyset(annotatedKeyset, kmsConfig)
+          .getPrimitive(kmsConfig, Aead.class);
     }
   }
 

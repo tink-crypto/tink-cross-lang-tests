@@ -21,11 +21,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertThrows;
 
-import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.TinkProtoParametersFormat;
-import com.google.crypto.tink.jwt.JwtHmacKeyManager;
-import com.google.crypto.tink.jwt.JwtMacConfig;
-import com.google.crypto.tink.jwt.JwtSignatureConfig;
+import com.google.crypto.tink.jwt.JwtConfig2026;
+import com.google.crypto.tink.jwt.JwtEcdsaParameters;
+import com.google.crypto.tink.jwt.JwtHmacParameters;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
 import com.google.crypto.tink.testing.proto.CreationRequest;
 import com.google.crypto.tink.testing.proto.CreationResponse;
@@ -69,9 +68,6 @@ public final class JwtServiceImplTest {
 
   @Before
   public void setUp() throws Exception {
-    JwtMacConfig.register();
-    JwtSignatureConfig.register();
-
     String serverName = InProcessServerBuilder.generateName();
     server =
         InProcessServerBuilder.forName(serverName)
@@ -89,6 +85,35 @@ public final class JwtServiceImplTest {
   public void tearDown() throws Exception {
     assertThat(channel.shutdown().awaitTermination(5, SECONDS)).isTrue();
     assertThat(server.shutdown().awaitTermination(5, SECONDS)).isTrue();
+  }
+
+  private static byte[] createJwtHs256Template() throws Exception {
+    return TinkProtoParametersFormat.serialize(
+        JwtHmacParameters.builder()
+            .setKeySizeBytes(32)
+            .setAlgorithm(JwtHmacParameters.Algorithm.HS256)
+            .setKidStrategy(JwtHmacParameters.KidStrategy.BASE64_ENCODED_KEY_ID)
+            .build(),
+        JwtConfig2026.get());
+  }
+
+  private static byte[] createJwtHs256RawTemplate() throws Exception {
+    return TinkProtoParametersFormat.serialize(
+        JwtHmacParameters.builder()
+            .setKeySizeBytes(32)
+            .setAlgorithm(JwtHmacParameters.Algorithm.HS256)
+            .setKidStrategy(JwtHmacParameters.KidStrategy.IGNORED)
+            .build(),
+        JwtConfig2026.get());
+  }
+
+  private static byte[] createJwtEs256Template() throws Exception {
+    return TinkProtoParametersFormat.serialize(
+        JwtEcdsaParameters.builder()
+            .setAlgorithm(JwtEcdsaParameters.Algorithm.ES256)
+            .setKidStrategy(JwtEcdsaParameters.KidStrategy.BASE64_ENCODED_KEY_ID)
+            .build(),
+        JwtConfig2026.get());
   }
 
   private static KeysetGenerateResponse generateKeyset(
@@ -133,8 +158,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtMacCreateKeyset_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_HS256").toParameters());
+    byte[] template = createJwtHs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     CreationResponse response =
@@ -163,8 +187,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtComputeVerifyMac_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_HS256").toParameters());
+    byte[] template = createJwtHs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
@@ -209,8 +232,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtEmptyTokenComputeVerifyMac_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(JwtHmacKeyManager.hs256Template().toParameters());
+    byte[] template = createJwtHs256RawTemplate();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
@@ -246,8 +268,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtPublicKeySignCreateKeyset_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_ES256").toParameters());
+    byte[] template = createJwtEs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     CreationResponse response =
@@ -275,8 +296,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtPublicKeyVerifyCreateKeyset_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_ES256").toParameters());
+    byte[] template = createJwtEs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] privateKeyset = keysetResponse.getKeyset().toByteArray();
@@ -309,8 +329,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void publicKeySignVerify_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_ES256").toParameters());
+    byte[] template = createJwtEs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] privateKeyset = keysetResponse.getKeyset().toByteArray();
@@ -376,8 +395,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void verifyFailsWhenExpired() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(JwtHmacKeyManager.hs256Template().toParameters());
+    byte[] template = createJwtHs256RawTemplate();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
@@ -418,8 +436,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void verifyFailsWithWrongAudience() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(JwtHmacKeyManager.hs256Template().toParameters());
+    byte[] template = createJwtHs256RawTemplate();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
@@ -460,8 +477,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void verifyFailsWithWrongKey() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(JwtHmacKeyManager.hs256Template().toParameters());
+    byte[] template = createJwtHs256RawTemplate();
 
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
@@ -507,8 +523,7 @@ public final class JwtServiceImplTest {
 
   @Test
   public void jwtToFromJwt_success() throws Exception {
-    byte[] template =
-        TinkProtoParametersFormat.serialize(KeyTemplates.get("JWT_ES256").toParameters());
+    byte[] template = createJwtEs256Template();
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] privateKeyset = keysetResponse.getKeyset().toByteArray();

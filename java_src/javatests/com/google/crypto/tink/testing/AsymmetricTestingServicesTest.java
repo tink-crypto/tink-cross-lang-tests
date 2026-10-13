@@ -22,8 +22,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertThrows;
 
 import com.google.crypto.tink.TinkProtoParametersFormat;
-import com.google.crypto.tink.hybrid.EciesAeadHkdfPrivateKeyManager;
-import com.google.crypto.tink.hybrid.HybridConfig;
+import com.google.crypto.tink.hybrid.HybridConfig2026;
+import com.google.crypto.tink.hybrid.PredefinedHybridParameters;
 import com.google.crypto.tink.signature.PredefinedSignatureParameters;
 import com.google.crypto.tink.signature.SignatureConfig2026;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
@@ -81,7 +81,6 @@ public final class AsymmetricTestingServicesTest {
   public void setUp() throws Exception {
     Conscrypt.checkAvailability();
     Security.addProvider(Conscrypt.newProvider());
-    HybridConfig.register();
     String serverName = InProcessServerBuilder.generateName();
     server =
         InProcessServerBuilder.forName(serverName)
@@ -125,8 +124,8 @@ public final class AsymmetricTestingServicesTest {
   public void hybridDecryptCreateKeyset_success() throws Exception {
     byte[] template =
         TinkProtoParametersFormat.serialize(
-            EciesAeadHkdfPrivateKeyManager.eciesP256HkdfHmacSha256Aes128GcmTemplate()
-                .toParameters());
+            PredefinedHybridParameters.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,
+            HybridConfig2026.get());
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     CreationResponse response =
@@ -158,8 +157,8 @@ public final class AsymmetricTestingServicesTest {
   public void hybridEncryptCreateKeyset_success() throws Exception {
     byte[] template =
         TinkProtoParametersFormat.serialize(
-            EciesAeadHkdfPrivateKeyManager.eciesP256HkdfHmacSha256Aes128GcmTemplate()
-                .toParameters());
+            PredefinedHybridParameters.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,
+            HybridConfig2026.get());
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] privateKeyset = keysetResponse.getKeyset().toByteArray();
@@ -228,8 +227,8 @@ public final class AsymmetricTestingServicesTest {
   public void hybridGenerateEncryptDecrypt_success() throws Exception {
     byte[] template =
         TinkProtoParametersFormat.serialize(
-            EciesAeadHkdfPrivateKeyManager.eciesP256HkdfHmacSha256Aes128GcmTemplate()
-                .toParameters());
+            PredefinedHybridParameters.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,
+            HybridConfig2026.get());
     byte[] plaintext = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
     byte[] associatedData = "generate_encrypt_decrypt".getBytes(UTF_8);
 
@@ -275,8 +274,8 @@ public final class AsymmetricTestingServicesTest {
   public void hybridDecrypt_errorOnBadCiphertext() throws Exception {
     byte[] template =
         TinkProtoParametersFormat.serialize(
-            EciesAeadHkdfPrivateKeyManager.eciesP256HkdfHmacSha256Aes128GcmTemplate()
-                .toParameters());
+            PredefinedHybridParameters.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,
+            HybridConfig2026.get());
     byte[] badCiphertext = "bad ciphertext".getBytes(UTF_8);
     byte[] contextInfo = "hybrid_decrypt_bad_ciphertext".getBytes(UTF_8);
 
@@ -297,8 +296,8 @@ public final class AsymmetricTestingServicesTest {
   public void hybridDecrypt_failsOnBadKeyset() throws Exception {
     byte[] template =
         TinkProtoParametersFormat.serialize(
-            EciesAeadHkdfPrivateKeyManager.eciesP256HkdfHmacSha256Aes128GcmTemplate()
-                .toParameters());
+            PredefinedHybridParameters.ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM,
+            HybridConfig2026.get());
     byte[] plaintext = "The quick brown fox jumps over the lazy dog".getBytes(UTF_8);
     byte[] contextInfo = "hybrid_decrypt_bad_keyset".getBytes(UTF_8);
 
