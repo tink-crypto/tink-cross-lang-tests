@@ -37,6 +37,25 @@ from cross_language.util import testing_servers
 
 # Test cases that succeed in a language but should fail
 SUCCEEDS_BUT_SHOULD_FAIL = [
+    # TODO(b/573086767): Decide whether *Config2026 key creators in Java should
+    # enforce primitive-level parameter restrictions or whether other languages
+    # should also allow generating keys for any valid Parameters object.
+    ('AesEaxKey(24,12)', 'java'),
+    ('AesEaxKey(24,16)', 'java'),
+    ('AesGcmKey(24)', 'java'),
+    ('AesCtrHmacAeadKey(24,12,16,16,SHA256)', 'java'),
+    ('AesCtrHmacAeadKey(24,16,16,16,SHA256)', 'java'),
+    ('JwtHmacKey(31,HS256,RAW)', 'java'),
+    ('JwtHmacKey(47,HS384,RAW)', 'java'),
+    ('JwtHmacKey(63,HS512,RAW)', 'java'),
+    ('AesCmacKey(16,16)', 'java'),
+    ('AesCmacPrfKey(16)', 'java'),
+    ('HkdfPrfKey(16,SHA256)', 'java'),
+    ('HkdfPrfKey(24,SHA256)', 'java'),
+    ('HkdfPrfKey(32,SHA1)', 'java'),
+    ('HkdfPrfKey(32,SHA224)', 'java'),
+    ('HkdfPrfKey(32,SHA384)', 'java'),
+    ('AesSivKey(32)', 'java'),
 ]
 
 # Test cases that fail in a language but should succeed

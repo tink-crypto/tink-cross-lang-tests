@@ -25,10 +25,10 @@ import com.google.crypto.tink.KeyTemplate;
 import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.Parameters;
-import com.google.crypto.tink.RegistryConfiguration;
 import com.google.crypto.tink.TinkJsonProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoKeysetFormat;
 import com.google.crypto.tink.TinkProtoParametersFormat;
+import com.google.crypto.tink.aead.KmsAeadConfig2026;
 import com.google.crypto.tink.config.TinkConfig2026;
 import com.google.crypto.tink.signature.CompositeMlDsaParameters;
 import com.google.crypto.tink.testing.proto.KeysetFromJsonRequest;
@@ -127,10 +127,17 @@ public final class KeysetServiceImpl extends KeysetImplBase {
         KeyTemplate template = KeyTemplates.get(request.getTemplateName());
         parameters = template.toParameters();
       }
+      byte[] serializedParameters;
+      try {
+        serializedParameters = TinkProtoParametersFormat.serialize(parameters, config);
+      } catch (GeneralSecurityException e) {
+        serializedParameters =
+            TinkProtoParametersFormat.serialize(
+                parameters, KmsAeadConfig2026.getUsingGlobalKmsClients());
+      }
       response =
           KeysetTemplateResponse.newBuilder()
-              .setKeyTemplate(
-                  ByteString.copyFrom(TinkProtoParametersFormat.serialize(parameters, config)))
+              .setKeyTemplate(ByteString.copyFrom(serializedParameters))
               .build();
     } catch (GeneralSecurityException e) {
       response = KeysetTemplateResponse.newBuilder().setErr(e.toString()).build();
@@ -141,22 +148,30 @@ public final class KeysetServiceImpl extends KeysetImplBase {
 
   private static byte[] generateKeyset(byte[] template, Configuration config)
       throws GeneralSecurityException {
-    Parameters parameters = TinkProtoParametersFormat.parse(template, RegistryConfiguration.get());
+    Parameters parameters;
+    try {
+      parameters = TinkProtoParametersFormat.parse(template, config);
+    } catch (GeneralSecurityException e) {
+      parameters =
+          TinkProtoParametersFormat.parse(template, KmsAeadConfig2026.getUsingGlobalKmsClients());
+    }
     KeysetHandle keysetHandle;
     try {
-      keysetHandle = KeysetHandle.generateNew(parameters, RegistryConfiguration.get());
+      keysetHandle = KeysetHandle.generateNew(parameters, config);
+      return TinkProtoKeysetFormat.serializeKeyset(
+          keysetHandle, InsecureSecretKeyAccess.get(), config);
     } catch (GeneralSecurityException e) {
       if (e.getMessage() != null
-          && e.getMessage().startsWith("No key manager found for key type")) {
-        parameters = TinkProtoParametersFormat.parse(template, config);
-        keysetHandle = KeysetHandle.generateNew(parameters, config);
+          && e.getMessage().startsWith("No KeyCreator registered for")) {
+        keysetHandle =
+            KeysetHandle.generateNew(parameters, KmsAeadConfig2026.getUsingGlobalKmsClients());
         return TinkProtoKeysetFormat.serializeKeyset(
-            keysetHandle, InsecureSecretKeyAccess.get(), config);
+            keysetHandle,
+            InsecureSecretKeyAccess.get(),
+            KmsAeadConfig2026.getUsingGlobalKmsClients());
       }
       throw e;
     }
-    return TinkProtoKeysetFormat.serializeKeyset(
-        keysetHandle, InsecureSecretKeyAccess.get(), RegistryConfiguration.get());
   }
 
   @Override
@@ -206,10 +221,22 @@ public final class KeysetServiceImpl extends KeysetImplBase {
 
   private static String keysetToJson(byte[] keyset, Configuration config)
       throws GeneralSecurityException {
-    KeysetHandle keysetHandle =
-        TinkProtoKeysetFormat.parseKeyset(keyset, InsecureSecretKeyAccess.get(), config);
-    return TinkJsonProtoKeysetFormat.serializeKeyset(
-        keysetHandle, config, InsecureSecretKeyAccess.get());
+    try {
+      KeysetHandle keysetHandle =
+          TinkProtoKeysetFormat.parseKeyset(keyset, InsecureSecretKeyAccess.get(), config);
+      return TinkJsonProtoKeysetFormat.serializeKeyset(
+          keysetHandle, config, InsecureSecretKeyAccess.get());
+    } catch (GeneralSecurityException e) {
+      KeysetHandle keysetHandle =
+          TinkProtoKeysetFormat.parseKeyset(
+              keyset,
+              InsecureSecretKeyAccess.get(),
+              KmsAeadConfig2026.getUsingGlobalKmsClients());
+      return TinkJsonProtoKeysetFormat.serializeKeyset(
+          keysetHandle,
+          KmsAeadConfig2026.getUsingGlobalKmsClients(),
+          InsecureSecretKeyAccess.get());
+    }
   }
 
   @Override
@@ -228,11 +255,23 @@ public final class KeysetServiceImpl extends KeysetImplBase {
 
   private static byte[] keysetFromJson(String jsonKeyset, Configuration config)
       throws GeneralSecurityException {
-    KeysetHandle keysetHandle =
-        TinkJsonProtoKeysetFormat.parseKeyset(
-            jsonKeyset, config, InsecureSecretKeyAccess.get());
-    return TinkProtoKeysetFormat.serializeKeyset(
-        keysetHandle, InsecureSecretKeyAccess.get(), config);
+    try {
+      KeysetHandle keysetHandle =
+          TinkJsonProtoKeysetFormat.parseKeyset(
+              jsonKeyset, config, InsecureSecretKeyAccess.get());
+      return TinkProtoKeysetFormat.serializeKeyset(
+          keysetHandle, InsecureSecretKeyAccess.get(), config);
+    } catch (GeneralSecurityException e) {
+      KeysetHandle keysetHandle =
+          TinkJsonProtoKeysetFormat.parseKeyset(
+              jsonKeyset,
+              KmsAeadConfig2026.getUsingGlobalKmsClients(),
+              InsecureSecretKeyAccess.get());
+      return TinkProtoKeysetFormat.serializeKeyset(
+          keysetHandle,
+          InsecureSecretKeyAccess.get(),
+          KmsAeadConfig2026.getUsingGlobalKmsClients());
+    }
   }
 
   @Override

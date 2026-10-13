@@ -112,7 +112,6 @@ public final class TestingServicesTest {
 
   @Before
   public void setUp() throws Exception {
-    TinkConfig.register();
     String serverName = InProcessServerBuilder.generateName();
     server =
         InProcessServerBuilder.forName(serverName)
@@ -165,6 +164,7 @@ public final class TestingServicesTest {
 
   @Test
   public void template_success() throws Exception {
+    TinkConfig.register();
     KeysetTemplateRequest request =
         KeysetTemplateRequest.newBuilder().setTemplateName("AES256_GCM").build();
     KeysetTemplateResponse response = keysetStub.getTemplate(request);
@@ -526,6 +526,13 @@ public final class TestingServicesTest {
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
 
+    KeysetToJsonResponse toJsonResponse = keysetToJson(keysetStub, keyset);
+    assertThat(toJsonResponse.getErr()).isEmpty();
+    KeysetFromJsonResponse fromJsonResponse =
+        keysetFromJson(keysetStub, toJsonResponse.getJsonKeyset());
+    assertThat(fromJsonResponse.getErr()).isEmpty();
+    assertThat(fromJsonResponse.getKeyset().toByteArray()).isEqualTo(keyset);
+
     CreationResponse createResponse =
         aeadStub.create(
             CreationRequest.newBuilder()
@@ -570,6 +577,13 @@ public final class TestingServicesTest {
     KeysetGenerateResponse keysetResponse = generateKeyset(keysetStub, template);
     assertThat(keysetResponse.getErr()).isEmpty();
     byte[] keyset = keysetResponse.getKeyset().toByteArray();
+
+    KeysetToJsonResponse toJsonResponse = keysetToJson(keysetStub, keyset);
+    assertThat(toJsonResponse.getErr()).isEmpty();
+    KeysetFromJsonResponse fromJsonResponse =
+        keysetFromJson(keysetStub, toJsonResponse.getJsonKeyset());
+    assertThat(fromJsonResponse.getErr()).isEmpty();
+    assertThat(fromJsonResponse.getKeyset().toByteArray()).isEqualTo(keyset);
 
     CreationResponse createResponse =
         aeadStub.create(
