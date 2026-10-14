@@ -42,7 +42,9 @@ SUCCEEDS_BUT_SHOULD_FAIL = [
     # languages should also allow generating keys for any valid Parameters
     # object.
     ('AesEaxKey(24,12)', 'java'),
+    ('AesEaxKey(24,12)', 'cc'),
     ('AesEaxKey(24,16)', 'java'),
+    ('AesEaxKey(24,16)', 'cc'),
     ('AesGcmKey(24)', 'java'),
     ('AesGcmKey(24)', 'cc'),
     ('AesCtrHmacAeadKey(24,12,16,16,SHA256)', 'java'),
