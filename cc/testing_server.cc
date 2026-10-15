@@ -18,11 +18,11 @@
 #include <memory>
 #include <string>
 
-// Placeholder for internal base library
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
+// Placeholder for internal base library
 #include <grpc/grpc_security_constants.h>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server.h>
@@ -37,8 +37,8 @@
 #include "keyset_impl.h"
 #include "mac_impl.h"
 #include "metadata_impl.h"
-#include "sign_prehash_impl.h"
 #include "prf_set_impl.h"
+#include "sign_prehash_impl.h"
 #include "signature_impl.h"
 #include "streaming_aead_impl.h"
 
