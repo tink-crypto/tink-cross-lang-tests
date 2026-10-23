@@ -19,6 +19,7 @@ import tink
 
 from cross_language import test_key
 from cross_language import tink_config
+from cross_language.signature import composite_mldsa_keys
 from cross_language.signature import ecdsa_keys
 from cross_language.signature import ed25519_keys
 from cross_language.signature import mldsa_keys
@@ -43,6 +44,8 @@ def signature_private_keys() -> Iterator[test_key.TestKey]:
     yield key
   for key in mldsa_keys.mldsa_private_keys():
     yield key
+  for key in composite_mldsa_keys.composite_mldsa_private_keys():
+    yield key
   for key in slhdsa_keys.slhdsa_private_keys():
     yield key
   for key in rsa_ssa_pss_keys.rsa_ssa_pss_private_keys():
@@ -57,6 +60,8 @@ def signature_public_keys() -> Iterator[test_key.TestKey]:
   for key in ecdsa_keys.ecdsa_public_keys():
     yield key
   for key in mldsa_keys.mldsa_public_keys():
+    yield key
+  for key in composite_mldsa_keys.composite_mldsa_public_keys():
     yield key
   for key in slhdsa_keys.slhdsa_public_keys():
     yield key
