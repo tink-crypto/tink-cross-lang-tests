@@ -110,7 +110,7 @@ def _p521_private_value() -> bytes:
   )
 
 
-def _basic_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
+def basic_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
   return ecdsa_pb2.EcdsaPrivateKey(
       version=0,
       public_key=ecdsa_pb2.EcdsaPublicKey(
@@ -163,7 +163,7 @@ def _padded_p256_key() -> ecdsa_pb2.EcdsaPrivateKey:
   )
 
 
-def _basic_p384_key() -> ecdsa_pb2.EcdsaPrivateKey:
+def basic_p384_key() -> ecdsa_pb2.EcdsaPrivateKey:
   return ecdsa_pb2.EcdsaPrivateKey(
       version=0,
       public_key=ecdsa_pb2.EcdsaPublicKey(
@@ -180,7 +180,7 @@ def _basic_p384_key() -> ecdsa_pb2.EcdsaPrivateKey:
   )
 
 
-def _basic_p521_key() -> ecdsa_pb2.EcdsaPrivateKey:
+def basic_p521_key() -> ecdsa_pb2.EcdsaPrivateKey:
   return ecdsa_pb2.EcdsaPrivateKey(
       version=0,
       public_key=ecdsa_pb2.EcdsaPublicKey(
@@ -228,15 +228,15 @@ def _basic_x25519_key() -> ecdsa_pb2.EcdsaPrivateKey:
 def _wrong_version_keys() -> Iterator[Tuple[str, ecdsa_pb2.EcdsaPrivateKey]]:
   """Yields private keys where not both versions are 0."""
 
-  key = _basic_p256_key()
+  key = basic_p256_key()
   key.version = 1
   yield ('PrivateKey Version 1', key)
 
-  key = _basic_p256_key()
+  key = basic_p256_key()
   key.public_key.version = 1
   yield ('PublicKey Version 1', key)
 
-  key = _basic_p256_key()
+  key = basic_p256_key()
   key.version = 1
   key.public_key.version = 1
   yield ('PrivateKey And PublicKey Version 1', key)
@@ -247,23 +247,23 @@ def _unsupported_hash_function_keys() -> (
 ):
   """Returns keys with unsupported hash functions."""
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.SHA1
   yield ('SHA1 key (invalid)', False, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.SHA224
   yield ('SHA224 key (invalid)', False, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.UNKNOWN_HASH
   yield ('UNKNOWN_HASH key (invalid)', False, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.SHA384
   yield ('P256 & SHA384 (invalid)', False, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.hash_type = common_pb2.HashType.SHA512
   yield ('P256 & SHA512 (invalid)', False, key_proto)
 
@@ -273,19 +273,19 @@ def _vary_signature_encodings() -> (
 ):
   """Returns keys with unsupported signature encodings."""
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.encoding = (
       ecdsa_pb2.EcdsaSignatureEncoding.UNKNOWN_ENCODING
   )
   yield ('UNKNOWN encoding (invalid)', False, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.encoding = (
       ecdsa_pb2.EcdsaSignatureEncoding.IEEE_P1363
   )
   yield ('IEEE_P1363 encoding', True, key_proto)
 
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   key_proto.public_key.params.encoding = (
       ecdsa_pb2.EcdsaSignatureEncoding.DER
   )
@@ -296,7 +296,7 @@ def _proto_keys() -> (
     Iterator[Tuple[str, bool, ecdsa_pb2.EcdsaPrivateKey]]
 ):
   """Returns triples (name, validity, proto) for EcdsaPrivateKey."""
-  key_proto = _basic_p256_key()
+  key_proto = basic_p256_key()
   yield ('Basic P256Key', True, key_proto)
 
   key_proto = _short_p256_key()
@@ -305,10 +305,10 @@ def _proto_keys() -> (
   key_proto = _padded_p256_key()
   yield ('Padded P256Key', True, key_proto)
 
-  key_proto = _basic_p384_key()
+  key_proto = basic_p384_key()
   yield ('Basic P384Key', True, key_proto)
 
-  key_proto = _basic_p521_key()
+  key_proto = basic_p521_key()
   yield ('Basic P521Key', True, key_proto)
 
   key_proto = _basic_x25519_key()
@@ -356,7 +356,7 @@ def ecdsa_private_keys() -> Iterator[test_key.TestKey]:
     yield test_key.TestKey(
         test_name=f'OutputPrefixType={output_prefix_type_name}',
         type_url=_PRIVATE_TYPE_URL,
-        serialized_value=_basic_p256_key().SerializeToString(),
+        serialized_value=basic_p256_key().SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         output_prefix_type=output_prefix_type,
         valid=valid,
@@ -397,7 +397,7 @@ def ecdsa_public_keys() -> Iterator[test_key.TestKey]:
     yield test_key.TestKey(
         test_name=f'OutputPrefixType={output_prefix_type_name}',
         type_url=_PUBLIC_TYPE_URL,
-        serialized_value=_basic_p256_key().public_key.SerializeToString(),
+        serialized_value=basic_p256_key().public_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         output_prefix_type=output_prefix_type,
         valid=valid,

@@ -26,7 +26,7 @@ _PRIVATE_TYPE_URL = 'type.googleapis.com/google.crypto.tink.Ed25519PrivateKey'
 _PUBLIC_TYPE_URL = 'type.googleapis.com/google.crypto.tink.Ed25519PublicKey'
 
 
-def _basic_ed25519_key() -> ed25519_pb2.Ed25519PrivateKey:
+def basic_ed25519_key() -> ed25519_pb2.Ed25519PrivateKey:
   return ed25519_pb2.Ed25519PrivateKey(
       version=0,
       key_value=binascii.unhexlify(
@@ -46,15 +46,15 @@ def _wrong_version_keys() -> (
 ):
   """Yields private keys where not both versions are 0."""
 
-  key = _basic_ed25519_key()
+  key = basic_ed25519_key()
   key.version = 1
   yield ('PrivateKey Version 1', key)
 
-  key = _basic_ed25519_key()
+  key = basic_ed25519_key()
   key.public_key.version = 1
   yield ('PublicKey Version 1', key)
 
-  key = _basic_ed25519_key()
+  key = basic_ed25519_key()
   key.version = 1
   key.public_key.version = 1
   yield ('PrivateKey And PublicKey Version 1', key)
@@ -65,14 +65,14 @@ def ed25519_private_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, TINK',
       type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_ed25519_key().SerializeToString(),
+      serialized_value=basic_ed25519_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       valid=True,
   )
   yield test_key.TestKey(
       test_name='Basic Key, RAW',
       type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_ed25519_key().SerializeToString(),
+      serialized_value=basic_ed25519_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       output_prefix_type=tink_pb2.OutputPrefixType.RAW,
       valid=True,
@@ -80,7 +80,7 @@ def ed25519_private_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, CRUNCHY',
       type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_ed25519_key().SerializeToString(),
+      serialized_value=basic_ed25519_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
       valid=True,
@@ -88,12 +88,12 @@ def ed25519_private_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, LEGACY',
       type_url=_PRIVATE_TYPE_URL,
-      serialized_value=_basic_ed25519_key().SerializeToString(),
+      serialized_value=basic_ed25519_key().SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
       valid=True,
   )
-  key = _basic_ed25519_key()
+  key = basic_ed25519_key()
   # Some bytes are replaced with "ff"
   key.public_key.key_value = binascii.unhexlify(
       'ff42ff1a6dcff1484390b2955bc7376d172eeb72640a54e5b50c95efa2fc6ad8'
@@ -121,14 +121,14 @@ def ed25519_public_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, TINK',
       type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_ed25519_key().public_key.SerializeToString(),
+      serialized_value=basic_ed25519_key().public_key.SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       valid=True,
   )
   yield test_key.TestKey(
       test_name='Basic Key, RAW',
       type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_ed25519_key().public_key.SerializeToString(),
+      serialized_value=basic_ed25519_key().public_key.SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       output_prefix_type=tink_pb2.OutputPrefixType.RAW,
       valid=True,
@@ -136,7 +136,7 @@ def ed25519_public_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, CRUNCHY',
       type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_ed25519_key().public_key.SerializeToString(),
+      serialized_value=basic_ed25519_key().public_key.SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       output_prefix_type=tink_pb2.OutputPrefixType.CRUNCHY,
       valid=True,
@@ -144,7 +144,7 @@ def ed25519_public_keys() -> Iterator[test_key.TestKey]:
   yield test_key.TestKey(
       test_name='Basic Key, LEGACY',
       type_url=_PUBLIC_TYPE_URL,
-      serialized_value=_basic_ed25519_key().public_key.SerializeToString(),
+      serialized_value=basic_ed25519_key().public_key.SerializeToString(),
       key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
       output_prefix_type=tink_pb2.OutputPrefixType.LEGACY,
       valid=True,

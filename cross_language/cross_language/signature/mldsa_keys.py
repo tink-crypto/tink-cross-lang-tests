@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test keys for ML-DSA.
-
-ML-DSA 44 is not yet supported (see b/508191823).
-"""
+"""Test keys for ML-DSA."""
 
 import binascii
 from typing import Iterator, Tuple
@@ -30,6 +27,54 @@ _PUBLIC_TYPE_URL = 'type.googleapis.com/google.crypto.tink.MlDsaPublicKey'
 # The following hardcoded inputs were found in
 # google3/third_party/tink/go/signature/mldsa/key_test.go
 # Test vectors from Go implementation (key_test.go)
+
+
+def _mldsa44_seed() -> bytes:
+  return binascii.unhexlify(
+      'dddaccfaa05b0332b3fd7269c7d42de6cbe370735431f735346ccb6be7ad3174'
+  )
+
+
+def _mldsa44_public_value() -> bytes:
+  return binascii.unhexlify(
+      '6e17b61b6c7881ab6d39ee703ab4ab4888d2134e54bb0195bfd0573c03d60bb8445f3a20'
+      '45029da4fef83f7c55869c46d73dd641bc81baf1e713cdeec5116f24338a565c4a54d9d7'
+      'acf4413ea505e00f294e48b1c7f9a391d2f070a6a741f12c0ed605a3e9ac6bcb5b581970'
+      '3b17dcd331f08d987d50e2aa0df091c1a182ddd5ffd19a2b9ef27a5355d962229aa94513'
+      '97569917e3325b44a7f040f6fbea8e69dbcf42d2d0b7af204368ebed1ba6be5ecb503a8d'
+      '8bd3325dcc8dbf07b64ea9884b114f394cc17dcf4f80c58c1dced81a3f8ef8f201605e5f'
+      '3306d436e9697a68a2b62a3fc5478e7113a070f5aa69385a8076d522652d6926b114838c'
+      'b2e5578edba7488c1cfeabe41fdcf477aecf74755d1a67384c896e22a22f1106e0a16848'
+      '38642afb76c3ebee45f48139fcef99afc885b2a51b519a3d59804b6a1a6a7077edd82705'
+      'd1551bf12a215ef7053b57d2789f532ef1d5736ab088629cc09f536030cdb4b89b2bdf54'
+      '7b874913cc5d62fcf98f1e537e4252315a3768710972a14066f12cc01548bd9de6a59425'
+      'b161d1441d3f6c2abafef11e8f35756d27a7754004e449a95eb698dc66463bfe3b3f8ca4'
+      '7e7340e10b69b42b105b39d9dced186d09595e9d65ce6227c039c8c6c6f9e45d17d5a283'
+      '4b073e4b7cf0f1ce12a9453da2ba3ebb5bc0ffac14243af76517ad7d6fbd319c54391334'
+      'e97d899b04bc91a31adad7cc7a056b5987fbc818075966814776aefca64381b1d3c5d01e'
+      '933dc354f63bb79d9aafec70927972cbf9252b96e2b02770b6c4956021a6e1552ac0258d'
+      '4245e1f9de76e523377d87d57ba7d8f442ab52b86f180040d47b8620feeaed7d543b0f38'
+      'af35127013e5e8a32813f3eb7182ab3b154734b48ffd31fda285873312b59713b59d1bdc'
+      'e3147237b9ccbdd0a9e1394f02c3636b4739d00f2251572d455d8ffb45d43270e42c132f'
+      '96e99cfac1186e4bb27cd0510536d742f7394259207f332a2df9a7740bebf66c03bbe538'
+      '0c0c2daa1c736c4b0c938ed12884464d6f069d9cff3e3e8cc93fea8f5e2c707e53d24f2d'
+      '2a69623a23a456447aad4bbeab468949c8006facd119c0c3ce6f4166495b5d10395d6c55'
+      'adf87a08c379110e0811899eb97fb6168633a487db9ffa3a3dcf6bad9870493731acc4d4'
+      'ba3280c197d7ce2f550294349ff8d5ba196ac50f45f9c6a62fcaede31f9068a90830e89f'
+      '50cd5b11adc90cefc3a33a96e03400346e595866fad098b5e001a3cf7579b45da72aae54'
+      '3c7cfb4a78aded527aa266b98f4ce11038bb50698d02407c4a698bf502d4222c912d9046'
+      '2a4cea4abf2b4434fa0f72687dcad38e43292b843da6273cdf2da4f430253b99bdd39b29'
+      '13416ff13c366387db72738061d3269c4c3bb5518ea53da32112d0681f750772cc517b48'
+      '263e44348a2575c745eb1fa43c44a3c19ae2e2b373c6d048849df1b9f09ea59167b07d86'
+      '11e96d7d297a55ae13ec4f82c825d661607b39b5f820b9be55e5f0b28e28b064f8faf511'
+      '7eb462588e91003c0fed30d313fc4ef996f7598946714e2849580510c1496c91821bf16c'
+      '7329c6cba46a013e40e2a5c0f9e8cd3e6830641ce8013212aa7bea6e9073c138bec6b781'
+      '4458cc16b78b8a84fcee22c18b73976b11b22749bab5852411de427b0abbce118a0f2042'
+      '89ad0983bce87f99dea31e7172774ad3827c85165bf68aee7a983558aaa2792ddbc95bc7'
+      '48d4af646991ceda2b095c0f35bcc0e45e8608f71cfc69fc01170b6f9c7c83adda58d3ef'
+      'cc340a67d54ca9f0099f999cce42947499253bf798b5207c03f3c44c41da57f06ba761e0'
+      '29e1c768f2d77034552e2ae2a67fc956'
+  )
 
 
 def _seed() -> bytes:
@@ -175,7 +220,19 @@ def _mldsa87_public_value() -> bytes:
   )
 
 
-def _basic_p65_key() -> ml_dsa_pb2.MlDsaPrivateKey:
+def basic_p44_key() -> ml_dsa_pb2.MlDsaPrivateKey:
+  return ml_dsa_pb2.MlDsaPrivateKey(
+      version=0,
+      key_value=_mldsa44_seed(),
+      public_key=ml_dsa_pb2.MlDsaPublicKey(
+          version=0,
+          params=ml_dsa_pb2.MlDsaParams(ml_dsa_instance=ml_dsa_pb2.ML_DSA_44),
+          key_value=_mldsa44_public_value(),
+      ),
+  )
+
+
+def basic_p65_key() -> ml_dsa_pb2.MlDsaPrivateKey:
   return ml_dsa_pb2.MlDsaPrivateKey(
       version=0,
       key_value=_seed(),
@@ -187,7 +244,7 @@ def _basic_p65_key() -> ml_dsa_pb2.MlDsaPrivateKey:
   )
 
 
-def _basic_p87_key() -> ml_dsa_pb2.MlDsaPrivateKey:
+def basic_p87_key() -> ml_dsa_pb2.MlDsaPrivateKey:
   return ml_dsa_pb2.MlDsaPrivateKey(
       version=0,
       key_value=_seed(),
@@ -200,8 +257,9 @@ def _basic_p87_key() -> ml_dsa_pb2.MlDsaPrivateKey:
 
 
 def _proto_keys() -> Iterator[Tuple[str, bool, ml_dsa_pb2.MlDsaPrivateKey]]:
-  yield ('Basic ML-DSA-65', True, _basic_p65_key())
-  yield ('Basic ML-DSA-87', True, _basic_p87_key())
+  yield ('Basic ML-DSA-44', True, basic_p44_key())
+  yield ('Basic ML-DSA-65', True, basic_p65_key())
+  yield ('Basic ML-DSA-87', True, basic_p87_key())
 
 
 def _output_prefix_types() -> Iterator[Tuple[tink_pb2.OutputPrefixType, bool]]:
@@ -228,7 +286,7 @@ def mldsa_private_keys() -> Iterator[test_key.TestKey]:
     yield test_key.TestKey(
         test_name=f'OutputPrefixType={output_prefix_type_name}',
         type_url=_PRIVATE_TYPE_URL,
-        serialized_value=_basic_p65_key().SerializeToString(),
+        serialized_value=basic_p65_key().SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PRIVATE,
         output_prefix_type=output_prefix_type,
         valid=valid,
@@ -251,7 +309,7 @@ def mldsa_public_keys() -> Iterator[test_key.TestKey]:
     yield test_key.TestKey(
         test_name=f'OutputPrefixType={output_prefix_type_name}',
         type_url=_PUBLIC_TYPE_URL,
-        serialized_value=_basic_p65_key().public_key.SerializeToString(),
+        serialized_value=basic_p65_key().public_key.SerializeToString(),
         key_material_type=tink_pb2.KeyData.KeyMaterialType.ASYMMETRIC_PUBLIC,
         output_prefix_type=output_prefix_type,
         valid=valid,
