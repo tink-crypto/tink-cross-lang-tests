@@ -29,8 +29,10 @@ from tink import prf
 from tink import signature
 
 from tink.proto import common_pb2
+from tink.proto import composite_ml_dsa_pb2
 from tink.proto import ecdsa_pb2
 from tink.proto import jwt_hmac_pb2
+from tink.proto import ml_dsa_pb2
 from tink.proto import tink_pb2
 from cross_language import tink_config
 from cross_language.util import testing_servers
@@ -381,6 +383,77 @@ def rsa_ssa_pss_test_cases() -> TestCasesType:
                public_exponent))
 
 
+def composite_ml_dsa_test_cases() -> TestCasesType:
+  def _test_case(
+      ml_dsa_instance: ml_dsa_pb2.MlDsaInstance,
+      classical_algorithm: composite_ml_dsa_pb2.CompositeMlDsaClassicalAlgorithm,
+      output_prefix_type: tink_pb2.OutputPrefixType = tink_pb2.TINK,
+      version: int = 0,
+  ) -> Tuple[str, tink_pb2.KeyTemplate]:
+    key_format = composite_ml_dsa_pb2.CompositeMlDsaKeyFormat(
+        version=version,
+        params=composite_ml_dsa_pb2.CompositeMlDsaParams(
+            ml_dsa_instance=ml_dsa_instance,
+            classical_algorithm=classical_algorithm,
+        ),
+    )
+    template = tink_pb2.KeyTemplate(
+        type_url=(
+            'type.googleapis.com/google.crypto.tink.CompositeMlDsaPrivateKey'
+        ),
+        value=key_format.SerializeToString(),
+        output_prefix_type=output_prefix_type,
+    )
+    return (
+        'CompositeMlDsaPrivateKey(%s,%s,%s,v=%d)'
+        % (
+            ml_dsa_pb2.MlDsaInstance.Name(ml_dsa_instance),
+            composite_ml_dsa_pb2.CompositeMlDsaClassicalAlgorithm.Name(
+                classical_algorithm
+            ),
+            tink_pb2.OutputPrefixType.Name(output_prefix_type),
+            version,
+        ),
+        template,
+    )
+
+  # Valid test cases (one per valid MlDsaInstance).
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_44,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P256,
+      tink_pb2.TINK,
+  )
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_65,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ED25519,
+      tink_pb2.TINK,
+  )
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_87,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P384,
+      tink_pb2.RAW,
+  )
+  # Invalid: ML_DSA_UNKNOWN_INSTANCE and LEGACY output prefix are not supported.
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_UNKNOWN_INSTANCE,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P521,
+      tink_pb2.LEGACY,
+  )
+  # Invalid: ECDSA_P521 is not compatible with ML_DSA_65.
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_65,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P521,
+      tink_pb2.TINK,
+  )
+  # Invalid: version must be 0.
+  yield _test_case(
+      ml_dsa_pb2.ML_DSA_87,
+      composite_ml_dsa_pb2.CLASSICAL_ALGORITHM_ECDSA_P384,
+      tink_pb2.RAW,
+      version=1,
+  )
+
+
 def setUpModule():
   aead.register()
   daead.register()
@@ -411,7 +484,8 @@ class KeyGenerationConsistencyTest(parameterized.TestCase):
                       ecies_aead_hkdf_test_cases(),
                       ecdsa_test_cases(),
                       rsa_ssa_pkcs1_test_cases(),
-                      rsa_ssa_pss_test_cases()))
+                      rsa_ssa_pss_test_cases(),
+                      composite_ml_dsa_test_cases()))
   def test_key_generation_consistency(self, name, template):
     supported_langs = tink_config.supported_languages_for_key_type(
         tink_config.key_type_from_type_url(template.type_url))
