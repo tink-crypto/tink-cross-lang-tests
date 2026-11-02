@@ -1,6 +1,6 @@
 module github.com/tink-crypto/tink-cross-lang-tests/go
 
-go 1.26.6
+go 1.26.10
 
 replace github.com/tink-crypto/tink-go/v2 => ../../tink_go
 
