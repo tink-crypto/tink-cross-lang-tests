@@ -18,6 +18,11 @@
 #
 # This is useful for manual local tests.
 
+# Unique hex string of length 20
+echo "================================================================================"
+echo "Tink Script ID: b6b329cd9176cb70b8a7 (to quickly find the script from logs)"
+echo "================================================================================"
+
 set -euo pipefail
 
 readonly DESTINATION_PATH="$1"

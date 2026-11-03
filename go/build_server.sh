@@ -16,6 +16,11 @@
 
 # Simple script to build the testing server.
 
+# Unique hex string of length 20
+echo "================================================================================"
+echo "Tink Script ID: ade473ae8a8919b90cc6 (to quickly find the script from logs)"
+echo "================================================================================"
+
 set -xeuo pipefail
 
 readonly TESTING_SERVER_DIR="$(dirname "${0}")"

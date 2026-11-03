@@ -16,6 +16,11 @@
 
 # Simple script to build the testing server.
 
+# Unique hex string of length 20
+echo "================================================================================"
+echo "Tink Script ID: 5d3c26191b220d50af87 (to quickly find the script from logs)"
+echo "================================================================================"
+
 set -euo pipefail
 
 readonly GCS_URL="https://storage.googleapis.com"
