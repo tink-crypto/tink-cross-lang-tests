@@ -183,3 +183,46 @@ func TestComputeAndSignPrehashSuccess(t *testing.T) {
 		t.Errorf("SignPrehash() response signature is empty, want non-empty")
 	}
 }
+
+func TestCreateChunkedPrehashUnimplemented(t *testing.T) {
+	ctx := context.Background()
+	s := &services.SignPrehashService{}
+
+	privateHandle := privateKeysetHandle(t)
+	publicHandle := publicKeysetHandle(t, privateHandle)
+
+	req := &pb.CreationRequest{
+		AnnotatedKeyset: &pb.AnnotatedKeyset{
+			SerializedKeyset: serializeKeyset(t, publicHandle),
+		},
+	}
+	resp, err := s.CreateChunkedPrehash(ctx, req)
+	if err != nil {
+		t.Fatalf("CreateChunkedPrehash() err = %v, want nil", err)
+	}
+	if resp.GetErr() == "" {
+		t.Errorf("CreateChunkedPrehash() response err is empty, want non-empty")
+	}
+}
+
+func TestComputeChunkedPrehashUnimplemented(t *testing.T) {
+	ctx := context.Background()
+	s := &services.SignPrehashService{}
+
+	privateHandle := privateKeysetHandle(t)
+	publicHandle := publicKeysetHandle(t, privateHandle)
+
+	req := &pb.ComputeChunkedPrehashRequest{
+		PublicAnnotatedKeyset: &pb.AnnotatedKeyset{
+			SerializedKeyset: serializeKeyset(t, publicHandle),
+		},
+		DataChunks: [][]byte{[]byte("some data "), []byte("to prehash")},
+	}
+	resp, err := s.ComputeChunkedPrehash(ctx, req)
+	if err != nil {
+		t.Fatalf("ComputeChunkedPrehash() err = %v, want nil", err)
+	}
+	if resp.GetErr() == "" {
+		t.Errorf("ComputeChunkedPrehash() response err is empty, want non-empty")
+	}
+}

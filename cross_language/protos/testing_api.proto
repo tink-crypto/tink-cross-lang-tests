@@ -388,7 +388,7 @@ service Signature {
   rpc Verify(SignatureVerifyRequest) returns (SignatureVerifyResponse) {}
 }
 
-// Service for Prehash computation and signing.
+// Service for Prehash and ChunkedPrehash computation, and prehash signing.
 service SignPrehash {
   // Creates a Prehash object without using it.
   rpc CreatePrehash(CreationRequest) returns (CreationResponse) {}
@@ -403,6 +403,14 @@ service SignPrehash {
   // creation succeeds before calling this.
   rpc SignPrehash(SignPrehashRequest)
       returns (SignPrehashResponse) {}
+
+  // Creates a ChunkedPrehash object without using it.
+  rpc CreateChunkedPrehash(CreationRequest) returns (CreationResponse) {}
+  // Computes prehash for data passed in chunks. The client must call
+  // "CreateChunkedPrehash" first to see if creation succeeds before calling
+  // this.
+  rpc ComputeChunkedPrehash(ComputeChunkedPrehashRequest)
+      returns (ComputeChunkedPrehashResponse) {}
 }
 
 message SignatureSignRequest {
@@ -447,6 +455,20 @@ message SignPrehashRequest {
 message SignPrehashResponse {
   oneof result {
     bytes signature = 1;
+    string err = 2;
+  }
+}
+
+message ComputeChunkedPrehashRequest {
+  AnnotatedKeyset public_annotated_keyset = 1;
+  // The data to prehash, split into chunks. The chunks are processed in order,
+  // so the result is the prehash of the concatenation of all chunks.
+  repeated bytes data_chunks = 2;
+}
+
+message ComputeChunkedPrehashResponse {
+  oneof result {
+    bytes prehash = 1;
     string err = 2;
   }
 }

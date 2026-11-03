@@ -1589,10 +1589,12 @@ var Signature_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	SignPrehash_CreatePrehash_FullMethodName       = "/tink_testing_api.SignPrehash/CreatePrehash"
-	SignPrehash_CreatePrehashSigner_FullMethodName = "/tink_testing_api.SignPrehash/CreatePrehashSigner"
-	SignPrehash_ComputePrehash_FullMethodName      = "/tink_testing_api.SignPrehash/ComputePrehash"
-	SignPrehash_SignPrehash_FullMethodName         = "/tink_testing_api.SignPrehash/SignPrehash"
+	SignPrehash_CreatePrehash_FullMethodName         = "/tink_testing_api.SignPrehash/CreatePrehash"
+	SignPrehash_CreatePrehashSigner_FullMethodName   = "/tink_testing_api.SignPrehash/CreatePrehashSigner"
+	SignPrehash_ComputePrehash_FullMethodName        = "/tink_testing_api.SignPrehash/ComputePrehash"
+	SignPrehash_SignPrehash_FullMethodName           = "/tink_testing_api.SignPrehash/SignPrehash"
+	SignPrehash_CreateChunkedPrehash_FullMethodName  = "/tink_testing_api.SignPrehash/CreateChunkedPrehash"
+	SignPrehash_ComputeChunkedPrehash_FullMethodName = "/tink_testing_api.SignPrehash/ComputeChunkedPrehash"
 )
 
 // SignPrehashClient is the client API for SignPrehash service.
@@ -1609,6 +1611,12 @@ type SignPrehashClient interface {
 	// Signs prehash. The client must call "CreatePrehashSigner" first to see if
 	// creation succeeds before calling this.
 	SignPrehash(ctx context.Context, in *SignPrehashRequest, opts ...grpc.CallOption) (*SignPrehashResponse, error)
+	// Creates a ChunkedPrehash object without using it.
+	CreateChunkedPrehash(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error)
+	// Computes prehash for data passed in chunks. The client must call
+	// "CreateChunkedPrehash" first to see if creation succeeds before calling
+	// this.
+	ComputeChunkedPrehash(ctx context.Context, in *ComputeChunkedPrehashRequest, opts ...grpc.CallOption) (*ComputeChunkedPrehashResponse, error)
 }
 
 type signPrehashClient struct {
@@ -1655,6 +1663,24 @@ func (c *signPrehashClient) SignPrehash(ctx context.Context, in *SignPrehashRequ
 	return out, nil
 }
 
+func (c *signPrehashClient) CreateChunkedPrehash(ctx context.Context, in *CreationRequest, opts ...grpc.CallOption) (*CreationResponse, error) {
+	out := new(CreationResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_CreateChunkedPrehash_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signPrehashClient) ComputeChunkedPrehash(ctx context.Context, in *ComputeChunkedPrehashRequest, opts ...grpc.CallOption) (*ComputeChunkedPrehashResponse, error) {
+	out := new(ComputeChunkedPrehashResponse)
+	err := c.cc.Invoke(ctx, SignPrehash_ComputeChunkedPrehash_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SignPrehashServer is the server API for SignPrehash service.
 // All implementations must embed UnimplementedSignPrehashServer
 // for forward compatibility
@@ -1669,6 +1695,12 @@ type SignPrehashServer interface {
 	// Signs prehash. The client must call "CreatePrehashSigner" first to see if
 	// creation succeeds before calling this.
 	SignPrehash(context.Context, *SignPrehashRequest) (*SignPrehashResponse, error)
+	// Creates a ChunkedPrehash object without using it.
+	CreateChunkedPrehash(context.Context, *CreationRequest) (*CreationResponse, error)
+	// Computes prehash for data passed in chunks. The client must call
+	// "CreateChunkedPrehash" first to see if creation succeeds before calling
+	// this.
+	ComputeChunkedPrehash(context.Context, *ComputeChunkedPrehashRequest) (*ComputeChunkedPrehashResponse, error)
 	mustEmbedUnimplementedSignPrehashServer()
 }
 
@@ -1687,6 +1719,12 @@ func (UnimplementedSignPrehashServer) ComputePrehash(context.Context, *ComputePr
 }
 func (UnimplementedSignPrehashServer) SignPrehash(context.Context, *SignPrehashRequest) (*SignPrehashResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignPrehash not implemented")
+}
+func (UnimplementedSignPrehashServer) CreateChunkedPrehash(context.Context, *CreationRequest) (*CreationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateChunkedPrehash not implemented")
+}
+func (UnimplementedSignPrehashServer) ComputeChunkedPrehash(context.Context, *ComputeChunkedPrehashRequest) (*ComputeChunkedPrehashResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComputeChunkedPrehash not implemented")
 }
 func (UnimplementedSignPrehashServer) mustEmbedUnimplementedSignPrehashServer() {}
 
@@ -1773,6 +1811,42 @@ func _SignPrehash_SignPrehash_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SignPrehash_CreateChunkedPrehash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).CreateChunkedPrehash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_CreateChunkedPrehash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).CreateChunkedPrehash(ctx, req.(*CreationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignPrehash_ComputeChunkedPrehash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ComputeChunkedPrehashRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignPrehashServer).ComputeChunkedPrehash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignPrehash_ComputeChunkedPrehash_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignPrehashServer).ComputeChunkedPrehash(ctx, req.(*ComputeChunkedPrehashRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SignPrehash_ServiceDesc is the grpc.ServiceDesc for SignPrehash service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1795,6 +1869,14 @@ var SignPrehash_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SignPrehash",
 			Handler:    _SignPrehash_SignPrehash_Handler,
+		},
+		{
+			MethodName: "CreateChunkedPrehash",
+			Handler:    _SignPrehash_CreateChunkedPrehash_Handler,
+		},
+		{
+			MethodName: "ComputeChunkedPrehash",
+			Handler:    _SignPrehash_ComputeChunkedPrehash_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

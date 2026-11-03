@@ -89,3 +89,14 @@ func (s *SignPrehashService) SignPrehash(ctx context.Context, req *pb.SignPrehas
 	return &pb.SignPrehashResponse{
 		Result: &pb.SignPrehashResponse_Signature{Signature: sigValue}}, nil
 }
+
+// CreateChunkedPrehash always fails, since Tink Go does not implement ChunkedPrehash.
+func (s *SignPrehashService) CreateChunkedPrehash(ctx context.Context, req *pb.CreationRequest) (*pb.CreationResponse, error) {
+	return &pb.CreationResponse{Err: "Unimplemented in Go"}, nil
+}
+
+// ComputeChunkedPrehash always fails, since Tink Go does not implement ChunkedPrehash.
+func (s *SignPrehashService) ComputeChunkedPrehash(ctx context.Context, req *pb.ComputeChunkedPrehashRequest) (*pb.ComputeChunkedPrehashResponse, error) {
+	return &pb.ComputeChunkedPrehashResponse{
+		Result: &pb.ComputeChunkedPrehashResponse_Err{Err: "Unimplemented in Go"}}, nil
+}
