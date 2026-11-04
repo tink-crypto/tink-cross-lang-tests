@@ -43,6 +43,8 @@ using ::crypto::tink::CleartextKeysetHandle;
 using ::testing::IsEmpty;
 using ::testing::Not;
 
+using ::tink_testing_api::ComputeChunkedPrehashRequest;
+using ::tink_testing_api::ComputeChunkedPrehashResponse;
 using ::tink_testing_api::ComputePrehashRequest;
 using ::tink_testing_api::ComputePrehashResponse;
 using ::tink_testing_api::CreationRequest;
@@ -156,6 +158,118 @@ TEST_F(SignPrehashImplTest, ComputeAndSignPrehashSuccess) {
   sign_request.mutable_private_annotated_keyset()->set_serialized_keyset(
       test_keysets.private_keyset);
   sign_request.set_prehash(compute_response.prehash());
+  SignPrehashResponse sign_response;
+
+  EXPECT_TRUE(service.SignPrehash(nullptr, &sign_request, &sign_response).ok());
+  EXPECT_THAT(sign_response.err(), IsEmpty());
+  EXPECT_THAT(sign_response.signature(), Not(IsEmpty()));
+}
+
+TEST_F(SignPrehashImplTest, CreateChunkedPrehashSuccess) {
+  SignPrehashImpl service;
+  CreationRequest request;
+  request.mutable_annotated_keyset()->set_serialized_keyset(
+      GetTestKeysets().public_keyset);
+  CreationResponse response;
+
+  EXPECT_TRUE(service.CreateChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), IsEmpty());
+}
+
+TEST_F(SignPrehashImplTest, CreateChunkedPrehashFailure) {
+  SignPrehashImpl service;
+
+  CreationRequest request;
+  request.mutable_annotated_keyset()->set_serialized_keyset("\x80");
+  CreationResponse response;
+
+  EXPECT_TRUE(service.CreateChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), Not(IsEmpty()));
+}
+
+TEST_F(SignPrehashImplTest, ComputeChunkedPrehashMatchesComputePrehash) {
+  SignPrehashImpl service;
+  const TestKeysets& test_keysets = GetTestKeysets();
+
+  ComputePrehashRequest prehash_request;
+  prehash_request.mutable_public_annotated_keyset()->set_serialized_keyset(
+      test_keysets.public_keyset);
+  prehash_request.set_data("some data to prehash");
+  ComputePrehashResponse prehash_response;
+  ASSERT_TRUE(
+      service.ComputePrehash(nullptr, &prehash_request, &prehash_response)
+          .ok());
+  ASSERT_THAT(prehash_response.err(), IsEmpty());
+
+  ComputeChunkedPrehashRequest request;
+  request.mutable_public_annotated_keyset()->set_serialized_keyset(
+      test_keysets.public_keyset);
+  request.add_data_chunks("some ");
+  request.add_data_chunks("");
+  request.add_data_chunks("data to ");
+  request.add_data_chunks("prehash");
+  ComputeChunkedPrehashResponse response;
+
+  EXPECT_TRUE(service.ComputeChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), IsEmpty());
+  EXPECT_EQ(response.prehash(), prehash_response.prehash());
+}
+
+TEST_F(SignPrehashImplTest, ComputeChunkedPrehashNoChunksMatchesEmptyData) {
+  SignPrehashImpl service;
+  const TestKeysets& test_keysets = GetTestKeysets();
+
+  ComputePrehashRequest prehash_request;
+  prehash_request.mutable_public_annotated_keyset()->set_serialized_keyset(
+      test_keysets.public_keyset);
+  prehash_request.set_data("");
+  ComputePrehashResponse prehash_response;
+  ASSERT_TRUE(
+      service.ComputePrehash(nullptr, &prehash_request, &prehash_response)
+          .ok());
+  ASSERT_THAT(prehash_response.err(), IsEmpty());
+
+  ComputeChunkedPrehashRequest request;
+  request.mutable_public_annotated_keyset()->set_serialized_keyset(
+      test_keysets.public_keyset);
+  ComputeChunkedPrehashResponse response;
+
+  EXPECT_TRUE(service.ComputeChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), IsEmpty());
+  EXPECT_EQ(response.prehash(), prehash_response.prehash());
+}
+
+TEST_F(SignPrehashImplTest, ComputeChunkedPrehashFailure) {
+  SignPrehashImpl service;
+
+  ComputeChunkedPrehashRequest request;
+  request.mutable_public_annotated_keyset()->set_serialized_keyset("\x80");
+  request.add_data_chunks("some data to prehash");
+  ComputeChunkedPrehashResponse response;
+
+  EXPECT_TRUE(service.ComputeChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), Not(IsEmpty()));
+}
+
+TEST_F(SignPrehashImplTest, ComputeChunkedPrehashAndSignPrehashSuccess) {
+  SignPrehashImpl service;
+  const TestKeysets& test_keysets = GetTestKeysets();
+
+  ComputeChunkedPrehashRequest request;
+  request.mutable_public_annotated_keyset()->set_serialized_keyset(
+      test_keysets.public_keyset);
+  request.add_data_chunks("some data ");
+  request.add_data_chunks("to prehash");
+  ComputeChunkedPrehashResponse response;
+
+  EXPECT_TRUE(service.ComputeChunkedPrehash(nullptr, &request, &response).ok());
+  EXPECT_THAT(response.err(), IsEmpty());
+  EXPECT_THAT(response.prehash(), Not(IsEmpty()));
+
+  SignPrehashRequest sign_request;
+  sign_request.mutable_private_annotated_keyset()->set_serialized_keyset(
+      test_keysets.private_keyset);
+  sign_request.set_prehash(response.prehash());
   SignPrehashResponse sign_response;
 
   EXPECT_TRUE(service.SignPrehash(nullptr, &sign_request, &sign_response).ok());

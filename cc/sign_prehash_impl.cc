@@ -17,10 +17,13 @@
 #include "sign_prehash_impl.h"
 
 #include <memory>
+#include <string>
 
+#include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
+#include "tink/signature/chunked_prehash.h"
 #include "tink/signature/prehash.h"
 #include "tink/signature/sign_prehash.h"
 #include "create.h"
@@ -76,6 +79,45 @@ namespace tink_testing_api {
     return ::grpc::Status::OK;
   }
   response->set_signature(sign_result.value());
+  return ::grpc::Status::OK;
+}
+
+::grpc::Status SignPrehashImpl::CreateChunkedPrehash(
+    grpc::ServerContext* context, const CreationRequest* request,
+    CreationResponse* response) {
+  return CreatePrimitiveForRpc<crypto::tink::ChunkedPrehash>(request, response);
+}
+
+::grpc::Status SignPrehashImpl::ComputeChunkedPrehash(
+    grpc::ServerContext* context, const ComputeChunkedPrehashRequest* request,
+    ComputeChunkedPrehashResponse* response) {
+  absl::StatusOr<std::unique_ptr<crypto::tink::ChunkedPrehash>> prehash_result =
+      PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::ChunkedPrehash>(
+          request->public_annotated_keyset());
+  if (!prehash_result.ok()) {
+    response->set_err(prehash_result.status().message());
+    return ::grpc::Status::OK;
+  }
+  absl::StatusOr<std::unique_ptr<crypto::tink::ChunkedPrehashComputation>>
+      computation_result = (*prehash_result)->CreateComputation();
+  if (!computation_result.ok()) {
+    response->set_err(computation_result.status().message());
+    return ::grpc::Status::OK;
+  }
+  for (const std::string& chunk : request->data_chunks()) {
+    absl::Status update_status = (*computation_result)->Update(chunk);
+    if (!update_status.ok()) {
+      response->set_err(update_status.message());
+      return ::grpc::Status::OK;
+    }
+  }
+  absl::StatusOr<std::string> compute_result =
+      (*computation_result)->GetPrehash();
+  if (!compute_result.ok()) {
+    response->set_err(compute_result.status().message());
+    return ::grpc::Status::OK;
+  }
+  response->set_prehash(*compute_result);
   return ::grpc::Status::OK;
 }
 

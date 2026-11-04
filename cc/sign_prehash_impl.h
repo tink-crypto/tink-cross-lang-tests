@@ -41,6 +41,14 @@ class SignPrehashImpl final : public SignPrehash::Service {
   grpc::Status SignPrehash(grpc::ServerContext* context,
                            const SignPrehashRequest* request,
                            SignPrehashResponse* response) override;
+
+  grpc::Status CreateChunkedPrehash(grpc::ServerContext* context,
+                                    const CreationRequest* request,
+                                    CreationResponse* response) override;
+
+  grpc::Status ComputeChunkedPrehash(
+      grpc::ServerContext* context, const ComputeChunkedPrehashRequest* request,
+      ComputeChunkedPrehashResponse* response) override;
 };
 
 }  // namespace tink_testing_api
