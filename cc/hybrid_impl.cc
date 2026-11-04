@@ -31,59 +31,59 @@ namespace tink_testing_api {
 
 using ::crypto::tink::util::StatusOr;
 
-::grpc::Status HybridImpl::CreateHybridEncrypt(grpc::ServerContext* context,
-                                               const CreationRequest* request,
-                                               CreationResponse* response) {
+grpc::Status HybridImpl::CreateHybridEncrypt(grpc::ServerContext* context,
+                                             const CreationRequest* request,
+                                             CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::HybridEncrypt>(request, response);
 }
 
-::grpc::Status HybridImpl::CreateHybridDecrypt(grpc::ServerContext* context,
-                                               const CreationRequest* request,
-                                               CreationResponse* response) {
+grpc::Status HybridImpl::CreateHybridDecrypt(grpc::ServerContext* context,
+                                             const CreationRequest* request,
+                                             CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::HybridDecrypt>(request, response);
 }
 
-::grpc::Status HybridImpl::Encrypt(grpc::ServerContext* context,
-                                   const HybridEncryptRequest* request,
-                                   HybridEncryptResponse* response) {
+grpc::Status HybridImpl::Encrypt(grpc::ServerContext* context,
+                                 const HybridEncryptRequest* request,
+                                 HybridEncryptResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::HybridEncrypt>>
       hybrid_encrypt_result =
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridEncrypt>(
               request->public_annotated_keyset());
   if (!hybrid_encrypt_result.ok()) {
     response->set_err(hybrid_encrypt_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto enc_result = hybrid_encrypt_result.value()->Encrypt(
       request->plaintext(), request->context_info());
   if (!enc_result.ok()) {
     response->set_err(enc_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_ciphertext(enc_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 // Decrypts a ciphertext
-::grpc::Status HybridImpl::Decrypt(grpc::ServerContext* context,
-                                   const HybridDecryptRequest* request,
-                                   HybridDecryptResponse* response) {
+grpc::Status HybridImpl::Decrypt(grpc::ServerContext* context,
+                                 const HybridDecryptRequest* request,
+                                 HybridDecryptResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::HybridDecrypt>>
       hybrid_decrypt_result =
           PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::HybridDecrypt>(
               request->private_annotated_keyset());
   if (!hybrid_decrypt_result.ok()) {
     response->set_err(hybrid_decrypt_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto dec_result = hybrid_decrypt_result.value()->Decrypt(
       request->ciphertext(), request->context_info());
   if (!dec_result.ok()) {
     response->set_err(dec_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_plaintext(dec_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

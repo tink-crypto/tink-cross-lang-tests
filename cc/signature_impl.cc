@@ -30,13 +30,13 @@ namespace tink_testing_api {
 
 using ::crypto::tink::util::StatusOr;
 
-::grpc::Status SignatureImpl::CreatePublicKeySign(
-    grpc::ServerContext* context, const CreationRequest* request,
-    CreationResponse* response) {
+grpc::Status SignatureImpl::CreatePublicKeySign(grpc::ServerContext* context,
+                                                const CreationRequest* request,
+                                                CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::PublicKeySign>(request, response);
 }
 
-::grpc::Status SignatureImpl::CreatePublicKeyVerify(
+grpc::Status SignatureImpl::CreatePublicKeyVerify(
     grpc::ServerContext* context, const CreationRequest* request,
     CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::PublicKeyVerify>(request,
@@ -44,43 +44,43 @@ using ::crypto::tink::util::StatusOr;
 }
 
 // Signs a message
-::grpc::Status SignatureImpl::Sign(grpc::ServerContext* context,
-                                   const SignatureSignRequest* request,
-                                   SignatureSignResponse* response) {
+grpc::Status SignatureImpl::Sign(grpc::ServerContext* context,
+                                 const SignatureSignRequest* request,
+                                 SignatureSignResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::PublicKeySign>> signer_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PublicKeySign>(
           request->private_annotated_keyset());
   if (!signer_result.ok()) {
     response->set_err(signer_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto sign_result = signer_result.value()->Sign(request->data());
   if (!sign_result.ok()) {
     response->set_err(sign_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_signature(sign_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 // Verifies a signature
-::grpc::Status SignatureImpl::Verify(grpc::ServerContext* context,
-                                     const SignatureVerifyRequest* request,
-                                     SignatureVerifyResponse* response) {
+grpc::Status SignatureImpl::Verify(grpc::ServerContext* context,
+                                   const SignatureVerifyRequest* request,
+                                   SignatureVerifyResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::PublicKeyVerify>>
       verifier_result = PrimitiveFromSerializedBinaryProtoKeyset<
           crypto::tink::PublicKeyVerify>(request->public_annotated_keyset());
   if (!verifier_result.ok()) {
     response->set_err(verifier_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto status =
       verifier_result.value()->Verify(request->signature(), request->data());
   if (!status.ok()) {
     response->set_err(status.message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

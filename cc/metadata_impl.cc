@@ -26,7 +26,7 @@ grpc::Status MetadataImpl::GetServerInfo(grpc::ServerContext* context,
                                          ServerInfoResponse* response) {
   response->set_language("cc");
   response->set_tink_version(crypto::tink::Version::kTinkVersion);
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

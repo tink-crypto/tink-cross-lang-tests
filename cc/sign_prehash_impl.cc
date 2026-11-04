@@ -30,65 +30,63 @@
 
 namespace tink_testing_api {
 
-::grpc::Status SignPrehashImpl::CreatePrehash(
-    grpc::ServerContext* context, const CreationRequest* request,
-    CreationResponse* response) {
+grpc::Status SignPrehashImpl::CreatePrehash(grpc::ServerContext* context,
+                                            const CreationRequest* request,
+                                            CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::Prehash>(request, response);
 }
 
-::grpc::Status SignPrehashImpl::CreatePrehashSigner(
+grpc::Status SignPrehashImpl::CreatePrehashSigner(
     grpc::ServerContext* context, const CreationRequest* request,
     CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::SignPrehash>(request, response);
 }
 
-::grpc::Status SignPrehashImpl::ComputePrehash(
-    grpc::ServerContext* context,
-    const ComputePrehashRequest* request,
+grpc::Status SignPrehashImpl::ComputePrehash(
+    grpc::ServerContext* context, const ComputePrehashRequest* request,
     ComputePrehashResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::Prehash>> prehash_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Prehash>(
           request->public_annotated_keyset());
   if (!prehash_result.ok()) {
     response->set_err(prehash_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto compute_result = prehash_result.value()->Compute(request->data());
   if (!compute_result.ok()) {
     response->set_err(compute_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_prehash(compute_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
-::grpc::Status SignPrehashImpl::SignPrehash(
-    grpc::ServerContext* context,
-    const SignPrehashRequest* request,
-    SignPrehashResponse* response) {
+grpc::Status SignPrehashImpl::SignPrehash(grpc::ServerContext* context,
+                                          const SignPrehashRequest* request,
+                                          SignPrehashResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::SignPrehash>> signer_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::SignPrehash>(
           request->private_annotated_keyset());
   if (!signer_result.ok()) {
     response->set_err(signer_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto sign_result = signer_result.value()->Sign(request->prehash());
   if (!sign_result.ok()) {
     response->set_err(sign_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_signature(sign_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
-::grpc::Status SignPrehashImpl::CreateChunkedPrehash(
+grpc::Status SignPrehashImpl::CreateChunkedPrehash(
     grpc::ServerContext* context, const CreationRequest* request,
     CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::ChunkedPrehash>(request, response);
 }
 
-::grpc::Status SignPrehashImpl::ComputeChunkedPrehash(
+grpc::Status SignPrehashImpl::ComputeChunkedPrehash(
     grpc::ServerContext* context, const ComputeChunkedPrehashRequest* request,
     ComputeChunkedPrehashResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::ChunkedPrehash>> prehash_result =
@@ -96,29 +94,29 @@ namespace tink_testing_api {
           request->public_annotated_keyset());
   if (!prehash_result.ok()) {
     response->set_err(prehash_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<crypto::tink::ChunkedPrehashComputation>>
       computation_result = (*prehash_result)->CreateComputation();
   if (!computation_result.ok()) {
     response->set_err(computation_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   for (const std::string& chunk : request->data_chunks()) {
     absl::Status update_status = (*computation_result)->Update(chunk);
     if (!update_status.ok()) {
       response->set_err(update_status.message());
-      return ::grpc::Status::OK;
+      return grpc::Status::OK;
     }
   }
   absl::StatusOr<std::string> compute_result =
       (*computation_result)->GetPrehash();
   if (!compute_result.ok()) {
     response->set_err(compute_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_prehash(*compute_result);
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

@@ -37,16 +37,15 @@ using ::crypto::tink::util::IstreamInputStream;
 using ::crypto::tink::util::OstreamOutputStream;
 using ::crypto::tink::util::StatusOr;
 
-::grpc::Status StreamingAeadImpl::Create(grpc::ServerContext* context,
-                                         const CreationRequest* request,
-                                         CreationResponse* response) {
+grpc::Status StreamingAeadImpl::Create(grpc::ServerContext* context,
+                                       const CreationRequest* request,
+                                       CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::StreamingAead>(request, response);
 }
 
 // Encrypts a message
-::grpc::Status StreamingAeadImpl::Encrypt(
-    grpc::ServerContext* context,
-    const StreamingAeadEncryptRequest* request,
+grpc::Status StreamingAeadImpl::Encrypt(
+    grpc::ServerContext* context, const StreamingAeadEncryptRequest* request,
     StreamingAeadEncryptResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::StreamingAead>>
       streaming_aead_result =
@@ -54,7 +53,7 @@ using ::crypto::tink::util::StatusOr;
               request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
     response->set_err(streaming_aead_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
 
   auto ciphertext_stream = std::make_unique<std::stringstream>();
@@ -67,7 +66,7 @@ using ::crypto::tink::util::StatusOr;
           std::move(ciphertext_destination), request->associated_data());
   if (!encrypting_stream_result.ok()) {
     response->set_err(encrypting_stream_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto encrypting_stream = std::move(encrypting_stream_result.value());
 
@@ -81,7 +80,7 @@ using ::crypto::tink::util::StatusOr;
     auto next_result = encrypting_stream->Next(&buffer);
     if (!next_result.ok()) {
       response->set_err(next_result.status().message());
-      return ::grpc::Status::OK;
+      return grpc::Status::OK;
     }
     available_space = next_result.value();
     available_bytes = std::min(available_space, remaining);
@@ -95,17 +94,16 @@ using ::crypto::tink::util::StatusOr;
   auto close_status = encrypting_stream->Close();
   if (!close_status.ok()) {
     response->set_err(close_status.message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
 
   response->set_ciphertext(ciphertext_buf->str());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 // Decrypts a ciphertext
-::grpc::Status StreamingAeadImpl::Decrypt(
-    grpc::ServerContext* context,
-    const StreamingAeadDecryptRequest* request,
+grpc::Status StreamingAeadImpl::Decrypt(
+    grpc::ServerContext* context, const StreamingAeadDecryptRequest* request,
     StreamingAeadDecryptResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::StreamingAead>>
       streaming_aead_result =
@@ -113,7 +111,7 @@ using ::crypto::tink::util::StatusOr;
               request->annotated_keyset());
   if (!streaming_aead_result.ok()) {
     response->set_err(streaming_aead_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
 
   auto ciphertext_stream =
@@ -126,7 +124,7 @@ using ::crypto::tink::util::StatusOr;
           std::move(ciphertext_source), request->associated_data());
   if (!decrypting_stream_result.ok()) {
     response->set_err(decrypting_stream_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto decrypting_stream = std::move(decrypting_stream_result.value());
 
@@ -140,7 +138,7 @@ using ::crypto::tink::util::StatusOr;
     }
     if (!next_result.ok()) {
       response->set_err(next_result.status().message());
-      return ::grpc::Status::OK;
+      return grpc::Status::OK;
     }
     auto read_bytes = next_result.value();
     if (read_bytes > 0) {
@@ -150,7 +148,7 @@ using ::crypto::tink::util::StatusOr;
   }
 
   response->set_plaintext(plaintext);
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

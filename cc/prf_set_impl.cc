@@ -30,56 +30,56 @@ namespace tink_testing_api {
 using ::crypto::tink::util::StatusOr;
 using ::grpc::ServerContext;
 
-::grpc::Status PrfSetImpl::Create(grpc::ServerContext* context,
-                                  const CreationRequest* request,
-                                  CreationResponse* response) {
+grpc::Status PrfSetImpl::Create(grpc::ServerContext* context,
+                                const CreationRequest* request,
+                                CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::PrfSet>(request, response);
 }
 
 // Returns the Key Ids of the Keyset.
-::grpc::Status PrfSetImpl::KeyIds(ServerContext* context,
-                                  const PrfSetKeyIdsRequest* request,
-                                  PrfSetKeyIdsResponse* response) {
+grpc::Status PrfSetImpl::KeyIds(ServerContext* context,
+                                const PrfSetKeyIdsRequest* request,
+                                PrfSetKeyIdsResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
     response->set_err(prf_set_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto* output = response->mutable_output();
   output->set_primary_key_id(prf_set_result.value()->GetPrimaryId());
   for (auto const& item : prf_set_result.value()->GetPrfs()) {
     output->add_key_id(item.first);
   }
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 // Computes the output of one PRF.
-::grpc::Status PrfSetImpl::Compute(ServerContext* context,
-                                   const PrfSetComputeRequest* request,
-                                   PrfSetComputeResponse* response) {
+grpc::Status PrfSetImpl::Compute(ServerContext* context,
+                                 const PrfSetComputeRequest* request,
+                                 PrfSetComputeResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::PrfSet>> prf_set_result =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::PrfSet>(
           request->annotated_keyset());
   if (!prf_set_result.ok()) {
     response->set_err(prf_set_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto prfs = prf_set_result.value()->GetPrfs();
   auto prf_it = prfs.find(request->key_id());
   if (prf_it == prfs.end()) {
     response->set_err("Unknown key ID.");
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   auto compute_result =
       prf_it->second->Compute(request->input_data(), request->output_length());
   if (!compute_result.ok()) {
     response->set_err(compute_result.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_output(compute_result.value());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

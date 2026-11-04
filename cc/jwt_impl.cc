@@ -221,23 +221,23 @@ absl::StatusOr<crypto::tink::JwtValidator> JwtValidatorFromProto(
   return builder.Build();
 }
 
-::grpc::Status JwtImpl::CreateJwtMac(grpc::ServerContext* context,
-                                     const CreationRequest* request,
-                                     CreationResponse* response) {
+grpc::Status JwtImpl::CreateJwtMac(grpc::ServerContext* context,
+                                   const CreationRequest* request,
+                                   CreationResponse* response) {
   return CreatePrimitiveForRpc<JwtMac>(request, response,
                                        tink_testing_api::TestingServerConfig());
 }
 
-::grpc::Status JwtImpl::CreateJwtPublicKeySign(grpc::ServerContext* context,
-                                               const CreationRequest* request,
-                                               CreationResponse* response) {
+grpc::Status JwtImpl::CreateJwtPublicKeySign(grpc::ServerContext* context,
+                                             const CreationRequest* request,
+                                             CreationResponse* response) {
   return CreatePrimitiveForRpc<JwtPublicKeySign>(
       request, response, tink_testing_api::TestingServerConfig());
 }
 
-::grpc::Status JwtImpl::CreateJwtPublicKeyVerify(grpc::ServerContext* context,
-                                                 const CreationRequest* request,
-                                                 CreationResponse* response) {
+grpc::Status JwtImpl::CreateJwtPublicKeyVerify(grpc::ServerContext* context,
+                                               const CreationRequest* request,
+                                               CreationResponse* response) {
   return CreatePrimitiveForRpc<JwtPublicKeyVerify>(
       request, response, tink_testing_api::TestingServerConfig());
 }
@@ -337,54 +337,54 @@ grpc::Status JwtImpl::PublicKeyVerifyAndDecode(grpc::ServerContext* context,
   return grpc::Status::OK;
 }
 
-::grpc::Status JwtImpl::ToJwkSet(grpc::ServerContext* context,
-                                 const JwtToJwkSetRequest* request,
-                                 JwtToJwkSetResponse* response) {
+grpc::Status JwtImpl::ToJwkSet(grpc::ServerContext* context,
+                               const JwtToJwkSetRequest* request,
+                               JwtToJwkSetResponse* response) {
   absl::StatusOr<std::unique_ptr<KeysetReader>> reader =
       BinaryKeysetReader::New(request->keyset());
   if (!reader.ok()) {
     response->set_err(reader.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   absl::StatusOr<std::unique_ptr<::crypto::tink::KeysetHandle>> handle =
       CleartextKeysetHandle::Read(*std::move(reader));
   if (!handle.ok()) {
     response->set_err(handle.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   absl::StatusOr<std::string> jwk_set = JwkSetFromPublicKeysetHandle(**handle);
   if (!jwk_set.ok()) {
     response->set_err(jwk_set.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_jwk_set(*jwk_set);
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
-::grpc::Status JwtImpl::FromJwkSet(grpc::ServerContext* context,
-                                   const JwtFromJwkSetRequest* request,
-                                   JwtFromJwkSetResponse* response) {
+grpc::Status JwtImpl::FromJwkSet(grpc::ServerContext* context,
+                                 const JwtFromJwkSetRequest* request,
+                                 JwtFromJwkSetResponse* response) {
   absl::StatusOr<std::unique_ptr<::crypto::tink::KeysetHandle>> keyset_handle =
       JwkSetToPublicKeysetHandle(request->jwk_set());
   if (!keyset_handle.ok()) {
     response->set_err(keyset_handle.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   std::stringbuf keyset;
   absl::StatusOr<std::unique_ptr<crypto::tink::BinaryKeysetWriter>> writer =
       BinaryKeysetWriter::New(std::make_unique<std::ostream>(&keyset));
   if (!writer.ok()) {
     response->set_err(writer.status().message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   absl::Status status =
       CleartextKeysetHandle::Write(writer->get(), **keyset_handle);
   if (!status.ok()) {
     response->set_err(status.message());
-    return ::grpc::Status::OK;
+    return grpc::Status::OK;
   }
   response->set_keyset(keyset.str());
-  return ::grpc::Status::OK;
+  return grpc::Status::OK;
 }
 
 }  // namespace tink_testing_api

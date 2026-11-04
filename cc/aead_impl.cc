@@ -28,15 +28,15 @@ namespace tink_testing_api {
 
 using ::crypto::tink::util::StatusOr;
 
-::grpc::Status AeadImpl::Create(grpc::ServerContext* context,
-                                const CreationRequest* request,
-                                CreationResponse* response) {
+grpc::Status AeadImpl::Create(grpc::ServerContext* context,
+                              const CreationRequest* request,
+                              CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::Aead>(request, response);
 }
 
-::grpc::Status AeadImpl::Encrypt(grpc::ServerContext* context,
-                                 const AeadEncryptRequest* request,
-                                 AeadEncryptResponse* response) {
+grpc::Status AeadImpl::Encrypt(grpc::ServerContext* context,
+                               const AeadEncryptRequest* request,
+                               AeadEncryptResponse* response) {
   absl::StatusOr<std::unique_ptr<crypto::tink::Aead>> aead =
       PrimitiveFromSerializedBinaryProtoKeyset<crypto::tink::Aead>(
           request->annotated_keyset());

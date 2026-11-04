@@ -46,9 +46,9 @@ using ::crypto::tink::util::Status;
 using ::crypto::tink::util::StatusOr;
 using ::grpc::ServerContext;
 
-::grpc::Status KeysetDeriverImpl::Create(grpc::ServerContext* context,
-                                         const CreationRequest* request,
-                                         CreationResponse* response) {
+grpc::Status KeysetDeriverImpl::Create(grpc::ServerContext* context,
+                                       const CreationRequest* request,
+                                       CreationResponse* response) {
   return CreatePrimitiveForRpc<crypto::tink::KeysetDeriver>(request, response);
 }
 
