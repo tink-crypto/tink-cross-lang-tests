@@ -27,6 +27,8 @@ import com.google.crypto.tink.hybrid.PredefinedHybridParameters;
 import com.google.crypto.tink.signature.PredefinedSignatureParameters;
 import com.google.crypto.tink.signature.SignatureConfig2026;
 import com.google.crypto.tink.testing.proto.AnnotatedKeyset;
+import com.google.crypto.tink.testing.proto.ComputeChunkedPrehashRequest;
+import com.google.crypto.tink.testing.proto.ComputeChunkedPrehashResponse;
 import com.google.crypto.tink.testing.proto.ComputePrehashRequest;
 import com.google.crypto.tink.testing.proto.ComputePrehashResponse;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -599,6 +601,32 @@ public final class AsymmetricTestingServicesTest {
                     AnnotatedKeyset.newBuilder()
                         .setSerializedKeyset(ByteString.copyFrom("some keyset", UTF_8)))
                 .setPrehash(ByteString.copyFrom("some prehash", UTF_8))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
+
+  @Test
+  public void signPrehashCreateChunkedPrehash_returnsError() throws Exception {
+    CreationResponse response =
+        signPrehashStub.createChunkedPrehash(
+            CreationRequest.newBuilder()
+                .setAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFromUtf8("some keyset")))
+                .build());
+    assertThat(response.getErr()).contains("Unimplemented in Java");
+  }
+
+  @Test
+  public void signPrehashComputeChunkedPrehash_returnsError() throws Exception {
+    ComputeChunkedPrehashResponse response =
+        signPrehashStub.computeChunkedPrehash(
+            ComputeChunkedPrehashRequest.newBuilder()
+                .setPublicAnnotatedKeyset(
+                    AnnotatedKeyset.newBuilder()
+                        .setSerializedKeyset(ByteString.copyFromUtf8("some keyset")))
+                .addDataChunks(ByteString.copyFromUtf8("some data "))
+                .addDataChunks(ByteString.copyFromUtf8("to prehash"))
                 .build());
     assertThat(response.getErr()).contains("Unimplemented in Java");
   }

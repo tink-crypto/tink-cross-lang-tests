@@ -761,6 +761,24 @@ class SignPrehashServicer(testing_api_pb2_grpc.SignPrehashServicer):
     except tink.TinkError as e:
       return testing_api_pb2.SignPrehashResponse(err=str(e))
 
+  def CreateChunkedPrehash(
+      self,
+      request: testing_api_pb2.CreationRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.CreationResponse:
+    """Always fails, since Tink Python does not implement ChunkedPrehash."""
+    return testing_api_pb2.CreationResponse(err='Unimplemented in Python')
+
+  def ComputeChunkedPrehash(
+      self,
+      request: testing_api_pb2.ComputeChunkedPrehashRequest,
+      context: grpc.ServicerContext,
+  ) -> testing_api_pb2.ComputeChunkedPrehashResponse:
+    """Always fails, since Tink Python does not implement ChunkedPrehash."""
+    return testing_api_pb2.ComputeChunkedPrehashResponse(
+        err='Unimplemented in Python'
+    )
+
 
 class PrfSetServicer(testing_api_pb2_grpc.PrfSetServicer):
   """A service for testing PrfSet."""

@@ -1104,6 +1104,56 @@ class ServicesTest(absltest.TestCase):
     verify_response = signature_servicer.Verify(verify_request, self._ctx)
     self.assertEmpty(verify_response.err)
 
+  def test_sign_prehash_create_chunked_prehash_unimplemented(self):
+    keyset_servicer = services.KeysetServicer()
+    sign_prehash_servicer = services.SignPrehashServicer()
+
+    template = signature.signature_key_templates.ML_DSA_65.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    gen_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(gen_response.WhichOneof('result'), 'keyset')
+    pub_request = testing_api_pb2.KeysetPublicRequest(
+        private_keyset=gen_response.keyset
+    )
+    pub_response = keyset_servicer.Public(pub_request, self._ctx)
+    self.assertEqual(pub_response.WhichOneof('result'), 'public_keyset')
+
+    creation_request = testing_api_pb2.CreationRequest(
+        annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=pub_response.public_keyset
+        )
+    )
+    creation_response = sign_prehash_servicer.CreateChunkedPrehash(
+        creation_request, self._ctx
+    )
+    self.assertNotEmpty(creation_response.err)
+
+  def test_sign_prehash_compute_chunked_prehash_unimplemented(self):
+    keyset_servicer = services.KeysetServicer()
+    sign_prehash_servicer = services.SignPrehashServicer()
+
+    template = signature.signature_key_templates.ML_DSA_65.SerializeToString()
+    gen_request = testing_api_pb2.KeysetGenerateRequest(template=template)
+    gen_response = keyset_servicer.Generate(gen_request, self._ctx)
+    self.assertEqual(gen_response.WhichOneof('result'), 'keyset')
+    pub_request = testing_api_pb2.KeysetPublicRequest(
+        private_keyset=gen_response.keyset
+    )
+    pub_response = keyset_servicer.Public(pub_request, self._ctx)
+    self.assertEqual(pub_response.WhichOneof('result'), 'public_keyset')
+
+    compute_request = testing_api_pb2.ComputeChunkedPrehashRequest(
+        public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=pub_response.public_keyset
+        ),
+        data_chunks=[b'some data ', b'to prehash'],
+    )
+    compute_response = sign_prehash_servicer.ComputeChunkedPrehash(
+        compute_request, self._ctx
+    )
+    self.assertEqual(compute_response.WhichOneof('result'), 'err')
+    self.assertNotEmpty(compute_response.err)
+
 
 if __name__ == '__main__':
   absltest.main()

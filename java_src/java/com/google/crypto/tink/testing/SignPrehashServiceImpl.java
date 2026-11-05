@@ -16,6 +16,8 @@
 
 package com.google.crypto.tink.testing;
 
+import com.google.crypto.tink.testing.proto.ComputeChunkedPrehashRequest;
+import com.google.crypto.tink.testing.proto.ComputeChunkedPrehashResponse;
 import com.google.crypto.tink.testing.proto.ComputePrehashRequest;
 import com.google.crypto.tink.testing.proto.ComputePrehashResponse;
 import com.google.crypto.tink.testing.proto.CreationRequest;
@@ -62,6 +64,23 @@ public final class SignPrehashServiceImpl extends SignPrehashImplBase {
       StreamObserver<SignPrehashResponse> responseObserver) {
     responseObserver.onNext(
         SignPrehashResponse.newBuilder().setErr("Unimplemented in Java").build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void createChunkedPrehash(
+      CreationRequest request, StreamObserver<CreationResponse> responseObserver) {
+    responseObserver.onNext(
+        CreationResponse.newBuilder().setErr("Unimplemented in Java").build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void computeChunkedPrehash(
+      ComputeChunkedPrehashRequest request,
+      StreamObserver<ComputeChunkedPrehashResponse> responseObserver) {
+    responseObserver.onNext(
+        ComputeChunkedPrehashResponse.newBuilder().setErr("Unimplemented in Java").build());
     responseObserver.onCompleted();
   }
 }
