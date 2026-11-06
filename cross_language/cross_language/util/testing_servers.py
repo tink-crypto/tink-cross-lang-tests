@@ -450,6 +450,10 @@ def remote_primitive(lang: str, keyset: bytes, primitive_class: Type[P]) -> P:
                                        None)
   if primitive_class == _primitives.Prehash:
     return _primitives.Prehash(lang, _ts.sign_prehash_stub(lang), keyset, None)  # pyrefly: ignore[bad-return]
+  if primitive_class == _primitives.ChunkedPrehash:
+    return _primitives.ChunkedPrehash(  # pyrefly: ignore[bad-return]
+        lang, _ts.sign_prehash_stub(lang), keyset, None
+    )
   if primitive_class == _primitives.PrehashSigner:
     return _primitives.PrehashSigner(  # pyrefly: ignore[bad-return]
         lang, _ts.sign_prehash_stub(lang), keyset, None

@@ -457,6 +457,33 @@ class TestingServersTest(parameterized.TestCase):
           lang, private_keyset, _primitives.PrehashSigner
       )
 
+  @parameterized.parameters(['cc'])
+  def test_chunked_prehash(self, lang):
+    key = next(mldsa_keys.external_mu_mldsa_private_keys())
+    private_keyset = key.as_serialized_keyset()
+    public_keyset = testing_servers.public_keyset(lang, private_keyset)
+    chunked_prehasher = testing_servers.remote_primitive(
+        lang, public_keyset, _primitives.ChunkedPrehash
+    )
+    prehasher = testing_servers.remote_primitive(
+        lang, public_keyset, _primitives.Prehash
+    )
+    message = b'The quick brown fox jumps over the lazy dog'
+    chunked_prehash = chunked_prehasher.compute_prehash(
+        [b'The quick brown fox ', b'', b'jumps over the lazy dog']
+    )
+    self.assertEqual(chunked_prehash, prehasher.compute_prehash(message))
+
+  @parameterized.parameters(['go', 'java', 'python'])
+  def test_chunked_prehash_unsupported(self, lang):
+    key = next(mldsa_keys.external_mu_mldsa_private_keys())
+    private_keyset = key.as_serialized_keyset()
+    public_keyset = testing_servers.public_keyset('cc', private_keyset)
+    with self.assertRaises(tink.TinkError):
+      testing_servers.remote_primitive(
+          lang, public_keyset, _primitives.ChunkedPrehash
+      )
+
 
 if __name__ == '__main__':
   absltest.main()

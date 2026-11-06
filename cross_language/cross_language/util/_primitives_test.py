@@ -178,6 +178,60 @@ class PrimitivesTest(absltest.TestCase):
     with self.assertRaises(tink.TinkError):
       prehasher.compute_prehash(b'message_data')
 
+  def test_chunked_prehash_compute_prehash(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreateChunkedPrehash.return_value = (
+        testing_api_pb2.CreationResponse()
+    )
+    mock_stub.ComputeChunkedPrehash.return_value = (
+        testing_api_pb2.ComputeChunkedPrehashResponse(prehash=b'prehash_bytes')
+    )
+    annotations = {'key': 'val'}
+    prehasher = _primitives.ChunkedPrehash(
+        'cc', mock_stub, b'public_keyset', annotations=annotations
+    )
+    mock_stub.CreateChunkedPrehash.assert_called_once_with(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'public_keyset', annotations=annotations
+            )
+        )
+    )
+    res = prehasher.compute_prehash([b'message_', b'', b'data'])
+    self.assertEqual(res, b'prehash_bytes')
+    mock_stub.ComputeChunkedPrehash.assert_called_once_with(
+        testing_api_pb2.ComputeChunkedPrehashRequest(
+            public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=b'public_keyset', annotations=annotations
+            ),
+            data_chunks=[b'message_', b'', b'data'],
+        )
+    )
+
+  def test_chunked_prehash_create_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreateChunkedPrehash.return_value = (
+        testing_api_pb2.CreationResponse(err='creation_failed')
+    )
+    with self.assertRaises(tink.TinkError):
+      _primitives.ChunkedPrehash(
+          'cc', mock_stub, b'public_keyset', annotations=None
+      )
+
+  def test_chunked_prehash_compute_fails(self):
+    mock_stub = mock.MagicMock()
+    mock_stub.CreateChunkedPrehash.return_value = (
+        testing_api_pb2.CreationResponse()
+    )
+    mock_stub.ComputeChunkedPrehash.return_value = (
+        testing_api_pb2.ComputeChunkedPrehashResponse(err='compute_failed')
+    )
+    prehasher = _primitives.ChunkedPrehash(
+        'cc', mock_stub, b'public_keyset', annotations=None
+    )
+    with self.assertRaises(tink.TinkError):
+      prehasher.compute_prehash([b'message_data'])
+
   def test_prehash_signer_sign_prehash(self):
     mock_stub = mock.MagicMock()
     mock_stub.CreatePrehashSigner.return_value = (

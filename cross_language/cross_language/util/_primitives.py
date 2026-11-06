@@ -16,7 +16,7 @@
 import datetime
 import io
 import json
-from typing import BinaryIO, Dict, Mapping, Optional, Tuple
+from typing import BinaryIO, Dict, Mapping, Optional, Sequence, Tuple
 
 import tink
 from tink import aead
@@ -444,6 +444,54 @@ class Prehash:
             annotations=self._annotations),
         data=data)
     response = self._stub.ComputePrehash(request)
+    if response.err:
+      raise tink.TinkError(response.err)
+    return response.prehash
+
+
+class ChunkedPrehash:
+  """Implements computing a chunked prehash using a prehash service stub."""
+
+  def __init__(
+      self,
+      lang: str,
+      stub: testing_api_pb2_grpc.SignPrehashStub,
+      public_handle: bytes,
+      annotations: Optional[Dict[str, str]],
+  ) -> None:
+    self.lang = lang
+    self._stub = stub
+    self._public_handle = public_handle
+    self._annotations = annotations
+    creation_response = self._stub.CreateChunkedPrehash(
+        testing_api_pb2.CreationRequest(
+            annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+                serialized_keyset=self._public_handle,
+                annotations=self._annotations,
+            )
+        )
+    )
+    if creation_response.err:
+      raise tink.TinkError(creation_response.err)
+
+  def compute_prehash(self, data_chunks: Sequence[bytes]) -> bytes:
+    """Computes the prehash of the concatenation of data_chunks.
+
+    The chunks are fed one by one to a single chunked prehash computation.
+
+    Args:
+      data_chunks: the data to prehash, split into chunks.
+
+    Returns:
+      The prehash.
+    """
+    request = testing_api_pb2.ComputeChunkedPrehashRequest(
+        public_annotated_keyset=testing_api_pb2.AnnotatedKeyset(
+            serialized_keyset=self._public_handle, annotations=self._annotations
+        ),
+        data_chunks=data_chunks,
+    )
+    response = self._stub.ComputeChunkedPrehash(request)
     if response.err:
       raise tink.TinkError(response.err)
     return response.prehash
