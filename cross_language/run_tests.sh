@@ -114,6 +114,8 @@ if [[ -f "${BAZEL_CACHE_KEY_FILE}" ]]; then
   CACHE_OPTS+=(
     "--remote_cache=${BAZEL_CACHE_URL}"
     "--google_credentials=${BAZEL_CACHE_KEY_FILE}"
+    # Avoid downloading cached build outputs unless needed by a local action.
+    "--remote_download_minimal"
   )
 fi
 readonly CACHE_OPTS
